@@ -1,0 +1,44 @@
+alphabet_in:
+- NO_TRIGGER
+- DONE
+- RETRY
+- TIMEOUT
+- ERROR
+- TRIGGER
+default_start_state: SetupDYORRound
+final_states: []
+label: dyorAbciApp
+start_states:
+- SetupDYORRound
+states:
+- WatchingRound
+- ProcessDataRound
+- SetupDYORRound
+- DeliverReportRound
+- TriggerRound
+- IngestDataRound
+- GenerateReportRound
+- HandleErrorRound
+transition_func:
+  (DeliverReportRound, DONE): WatchingRound
+  (DeliverReportRound, ERROR): HandleErrorRound
+  (DeliverReportRound, TIMEOUT): DeliverReportRound
+  (GenerateReportRound, DONE): DeliverReportRound
+  (GenerateReportRound, ERROR): HandleErrorRound
+  (GenerateReportRound, TIMEOUT): GenerateReportRound
+  (HandleErrorRound, RETRY): WatchingRound
+  (IngestDataRound, DONE): ProcessDataRound
+  (IngestDataRound, ERROR): HandleErrorRound
+  (IngestDataRound, TIMEOUT): IngestDataRound
+  (ProcessDataRound, DONE): GenerateReportRound
+  (ProcessDataRound, ERROR): HandleErrorRound
+  (ProcessDataRound, TIMEOUT): ProcessDataRound
+  (SetupDYORRound, DONE): WatchingRound
+  (SetupDYORRound, ERROR): HandleErrorRound
+  (SetupDYORRound, TIMEOUT): SetupDYORRound
+  (TriggerRound, DONE): IngestDataRound
+  (TriggerRound, ERROR): HandleErrorRound
+  (TriggerRound, TIMEOUT): TriggerRound
+  (WatchingRound, NO_TRIGGER): WatchingRound
+  (WatchingRound, TIMEOUT): WatchingRound
+  (WatchingRound, TRIGGER): TriggerRound

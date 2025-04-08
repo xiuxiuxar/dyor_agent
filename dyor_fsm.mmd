@@ -1,0 +1,48 @@
+graph TD
+    SetupDYORRound
+    WatchingRound
+    TriggerRound
+    IngestDataRound
+    ProcessDataRound
+    GenerateReportRound
+    DeliverReportRound
+    HandleErrorRound
+
+
+    %% Initialization stage
+    SetupDYORRound -->|DONE| WatchingRound
+    SetupDYORRound -->|ERROR| HandleErrorRound
+    SetupDYORRound -->|TIMEOUT| SetupDYORRound
+
+    %% Idle state waiting for a trigger
+    WatchingRound -->|TRIGGER| TriggerRound
+    WatchingRound -->|NO_TRIGGER| WatchingRound
+    WatchingRound -->|TIMEOUT| WatchingRound
+
+    %% Trigger processing
+    TriggerRound -->|DONE| IngestDataRound
+    TriggerRound -->|ERROR| HandleErrorRound
+    TriggerRound -->|TIMEOUT| TriggerRound
+
+    %% Data ingestion
+    IngestDataRound -->|DONE| ProcessDataRound
+    IngestDataRound -->|ERROR| HandleErrorRound
+    IngestDataRound -->|TIMEOUT| IngestDataRound
+
+    %% Data processing
+    ProcessDataRound -->|DONE| GenerateReportRound
+    ProcessDataRound -->|ERROR| HandleErrorRound
+    ProcessDataRound -->|TIMEOUT| ProcessDataRound
+
+    %% Report generation
+    GenerateReportRound -->|DONE| DeliverReportRound
+    GenerateReportRound -->|ERROR| HandleErrorRound
+    GenerateReportRound -->|TIMEOUT| GenerateReportRound
+
+    %% Report delivery
+    DeliverReportRound -->|DONE| WatchingRound
+    DeliverReportRound -->|ERROR| HandleErrorRound
+    DeliverReportRound -->|TIMEOUT| DeliverReportRound
+
+    %% Error handling loop
+    HandleErrorRound -->|RETRY| WatchingRound

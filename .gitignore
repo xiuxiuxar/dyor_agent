@@ -14,3 +14,11 @@ keys.json
 
 agent/
 service/
+
+/dyor_agent
+
+packages/eightballer
+packages/open_aea
+
+workflow.yaml
+
