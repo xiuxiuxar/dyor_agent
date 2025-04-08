@@ -37,6 +37,17 @@ models:
   http_dialogues:
     args: {}
     class_name: HttpDialogues
+  db_model:
+    class_name: DatabaseModel
+    args: 
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_HOST: localhost # use postgres in production
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: db_name
+  strategy:
+    class_name: DYORStrategy
+    args: {}
 dependencies: {}
 is_abstract: false
 customs: []

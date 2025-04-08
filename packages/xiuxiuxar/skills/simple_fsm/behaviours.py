@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 # ------------------------------------------------------------------------------
 #
-#   Copyright 2023 
-#   Copyright 2023 valory-xyz
+#   Copyright 2025 xiuxiuxar
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -22,35 +20,39 @@
 
 import os
 from abc import ABC
-from typing import Optional, Any
-from aea.skills.behaviours import FSMBehaviour, State
 from enum import Enum
+from typing import Any
+
+from aea.skills.behaviours import State, FSMBehaviour
 
 
 class DyorabciappEvents(Enum):
     """Events for the fsm."""
-    
-    NO_TRIGGER = 'NO_TRIGGER'
-    DONE = 'DONE'
-    RETRY = 'RETRY'
-    TIMEOUT = 'TIMEOUT'
-    ERROR = 'ERROR'
-    TRIGGER = 'TRIGGER'
+
+    NO_TRIGGER = "NO_TRIGGER"
+    DONE = "DONE"
+    RETRY = "RETRY"
+    TIMEOUT = "TIMEOUT"
+    ERROR = "ERROR"
+    TRIGGER = "TRIGGER"
+
 
 class DyorabciappStates(Enum):
     """States for the fsm."""
-    
-    WATCHINGROUND = 'watchinground'
-    PROCESSDATAROUND = 'processdataround'
-    SETUPDYORROUND = 'setupdyorround'
-    DELIVERREPORTROUND = 'deliverreportround'
-    TRIGGERROUND = 'triggerround'
-    INGESTDATAROUND = 'ingestdataround'
-    GENERATEREPORTROUND = 'generatereportround'
-    HANDLEERRORROUND = 'handleerrorround'
+
+    WATCHINGROUND = "watchinground"
+    PROCESSDATAROUND = "processdataround"
+    SETUPDYORROUND = "setupdyorround"
+    DELIVERREPORTROUND = "deliverreportround"
+    TRIGGERROUND = "triggerround"
+    INGESTDATAROUND = "ingestdataround"
+    GENERATEREPORTROUND = "generatereportround"
+    HANDLEERRORROUND = "handleerrorround"
+
 
 class BaseState(State, ABC):
     """Base class for states."""
+
     _state: DyorabciappStates = None
 
     def __init__(self, **kwargs: Any) -> None:
@@ -60,7 +62,6 @@ class BaseState(State, ABC):
 
     def act(self) -> None:
         """Perform the act."""
-        print(f"Performing action for state {self._state}")
         self._is_done = True
         self._event = DyorabciappEvents.DONE
 
@@ -69,63 +70,104 @@ class BaseState(State, ABC):
         return self._is_done
 
     @property
-    def event(self) -> Optional[str]:
-        """Current event"""
+    def event(self) -> str | None:
+        """Current event."""
         return self._event
 
 
 # Define states
 
+
 class WatchingRound(BaseState):
     """This class implements the behaviour of the state WatchingRound."""
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self._state = DyorabciappStates.WATCHINGROUND
 
+
 class ProcessDataRound(BaseState):
     """This class implements the behaviour of the state ProcessDataRound."""
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self._state = DyorabciappStates.PROCESSDATAROUND
 
+
 class SetupDYORRound(BaseState):
     """This class implements the behaviour of the state SetupDYORRound."""
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self._state = DyorabciappStates.SETUPDYORROUND
 
+    def act(self) -> None:
+        """Act:
+        1. Retrieve DB connection parameters from context/config.
+        2. Construct the database URL.
+        3. Create the SQLAlchemy engine (connection pool).
+        4. Test the connection.
+        5. Set DONE event on success, ERROR on failure.
+        """
+        self.context.logger.info(f"In state: {self._state}")
+
+        try:
+            # Setup database connection
+            self.context.db_model.setup()
+
+            is_valid, error_msg = self.context.strategy.validate_database_schema()
+            if not is_valid:
+                raise ValueError(error_msg)
+
+            self._event = DyorabciappEvents.DONE
+
+        except ValueError as e:
+            self.context.logger.exception(f"Configuration error during DB setup: {e}")
+            self._event = DyorabciappEvents.ERROR
+
+        except Exception as e:
+            self.context.logger.exception(f"Unexpected error during DB setup: {e}")
+            self._event = DyorabciappEvents.ERROR
+
+
 class DeliverReportRound(BaseState):
     """This class implements the behaviour of the state DeliverReportRound."""
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self._state = DyorabciappStates.DELIVERREPORTROUND
 
+
 class TriggerRound(BaseState):
     """This class implements the behaviour of the state TriggerRound."""
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self._state = DyorabciappStates.TRIGGERROUND
 
+
 class IngestDataRound(BaseState):
     """This class implements the behaviour of the state IngestDataRound."""
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self._state = DyorabciappStates.INGESTDATAROUND
 
+
 class GenerateReportRound(BaseState):
     """This class implements the behaviour of the state GenerateReportRound."""
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self._state = DyorabciappStates.GENERATEREPORTROUND
 
+
 class HandleErrorRound(BaseState):
     """This class implements the behaviour of the state HandleErrorRound."""
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self._state = DyorabciappStates.HANDLEERRORROUND
-
-
-
 
 
 class DyorabciappFsmBehaviour(FSMBehaviour):
@@ -134,133 +176,129 @@ class DyorabciappFsmBehaviour(FSMBehaviour):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.register_state(DyorabciappStates.SETUPDYORROUND.value, SetupDYORRound(**kwargs), True)
-        
-        
-        
-        self.register_state(DyorabciappStates.WATCHINGROUND.value, WatchingRound(**kwargs)) 
-        self.register_state(DyorabciappStates.PROCESSDATAROUND.value, ProcessDataRound(**kwargs)) 
-        self.register_state(DyorabciappStates.DELIVERREPORTROUND.value, DeliverReportRound(**kwargs)) 
-        self.register_state(DyorabciappStates.TRIGGERROUND.value, TriggerRound(**kwargs)) 
-        self.register_state(DyorabciappStates.INGESTDATAROUND.value, IngestDataRound(**kwargs)) 
-        self.register_state(DyorabciappStates.GENERATEREPORTROUND.value, GenerateReportRound(**kwargs)) 
-        self.register_state(DyorabciappStates.HANDLEERRORROUND.value, HandleErrorRound(**kwargs)) 
-        
-        self.register_transition(
-            source=DyorabciappStates.DELIVERREPORTROUND.value, 
-            event=DyorabciappEvents.DONE,
-            destination=DyorabciappStates.WATCHINGROUND.value
-        )
-        self.register_transition(
-            source=DyorabciappStates.DELIVERREPORTROUND.value, 
-            event=DyorabciappEvents.ERROR,
-            destination=DyorabciappStates.HANDLEERRORROUND.value
-        )
-        self.register_transition(
-            source=DyorabciappStates.DELIVERREPORTROUND.value, 
-            event=DyorabciappEvents.TIMEOUT,
-            destination=DyorabciappStates.DELIVERREPORTROUND.value
-        )
-        self.register_transition(
-            source=DyorabciappStates.GENERATEREPORTROUND.value, 
-            event=DyorabciappEvents.DONE,
-            destination=DyorabciappStates.DELIVERREPORTROUND.value
-        )
-        self.register_transition(
-            source=DyorabciappStates.GENERATEREPORTROUND.value, 
-            event=DyorabciappEvents.ERROR,
-            destination=DyorabciappStates.HANDLEERRORROUND.value
-        )
-        self.register_transition(
-            source=DyorabciappStates.GENERATEREPORTROUND.value, 
-            event=DyorabciappEvents.TIMEOUT,
-            destination=DyorabciappStates.GENERATEREPORTROUND.value
-        )
-        self.register_transition(
-            source=DyorabciappStates.HANDLEERRORROUND.value, 
-            event=DyorabciappEvents.RETRY,
-            destination=DyorabciappStates.WATCHINGROUND.value
-        )
-        self.register_transition(
-            source=DyorabciappStates.INGESTDATAROUND.value, 
-            event=DyorabciappEvents.DONE,
-            destination=DyorabciappStates.PROCESSDATAROUND.value
-        )
-        self.register_transition(
-            source=DyorabciappStates.INGESTDATAROUND.value, 
-            event=DyorabciappEvents.ERROR,
-            destination=DyorabciappStates.HANDLEERRORROUND.value
-        )
-        self.register_transition(
-            source=DyorabciappStates.INGESTDATAROUND.value, 
-            event=DyorabciappEvents.TIMEOUT,
-            destination=DyorabciappStates.INGESTDATAROUND.value
-        )
-        self.register_transition(
-            source=DyorabciappStates.PROCESSDATAROUND.value, 
-            event=DyorabciappEvents.DONE,
-            destination=DyorabciappStates.GENERATEREPORTROUND.value
-        )
-        self.register_transition(
-            source=DyorabciappStates.PROCESSDATAROUND.value, 
-            event=DyorabciappEvents.ERROR,
-            destination=DyorabciappStates.HANDLEERRORROUND.value
-        )
-        self.register_transition(
-            source=DyorabciappStates.PROCESSDATAROUND.value, 
-            event=DyorabciappEvents.TIMEOUT,
-            destination=DyorabciappStates.PROCESSDATAROUND.value
-        )
-        self.register_transition(
-            source=DyorabciappStates.SETUPDYORROUND.value, 
-            event=DyorabciappEvents.DONE,
-            destination=DyorabciappStates.WATCHINGROUND.value
-        )
-        self.register_transition(
-            source=DyorabciappStates.SETUPDYORROUND.value, 
-            event=DyorabciappEvents.ERROR,
-            destination=DyorabciappStates.HANDLEERRORROUND.value
-        )
-        self.register_transition(
-            source=DyorabciappStates.SETUPDYORROUND.value, 
-            event=DyorabciappEvents.TIMEOUT,
-            destination=DyorabciappStates.SETUPDYORROUND.value
-        )
-        self.register_transition(
-            source=DyorabciappStates.TRIGGERROUND.value, 
-            event=DyorabciappEvents.DONE,
-            destination=DyorabciappStates.INGESTDATAROUND.value
-        )
-        self.register_transition(
-            source=DyorabciappStates.TRIGGERROUND.value, 
-            event=DyorabciappEvents.ERROR,
-            destination=DyorabciappStates.HANDLEERRORROUND.value
-        )
-        self.register_transition(
-            source=DyorabciappStates.TRIGGERROUND.value, 
-            event=DyorabciappEvents.TIMEOUT,
-            destination=DyorabciappStates.TRIGGERROUND.value
-        )
-        self.register_transition(
-            source=DyorabciappStates.WATCHINGROUND.value, 
-            event=DyorabciappEvents.NO_TRIGGER,
-            destination=DyorabciappStates.WATCHINGROUND.value
-        )
-        self.register_transition(
-            source=DyorabciappStates.WATCHINGROUND.value, 
-            event=DyorabciappEvents.TIMEOUT,
-            destination=DyorabciappStates.WATCHINGROUND.value
-        )
-        self.register_transition(
-            source=DyorabciappStates.WATCHINGROUND.value, 
-            event=DyorabciappEvents.TRIGGER,
-            destination=DyorabciappStates.TRIGGERROUND.value
-        )
 
+        self.register_state(DyorabciappStates.WATCHINGROUND.value, WatchingRound(**kwargs))
+        self.register_state(DyorabciappStates.PROCESSDATAROUND.value, ProcessDataRound(**kwargs))
+        self.register_state(DyorabciappStates.DELIVERREPORTROUND.value, DeliverReportRound(**kwargs))
+        self.register_state(DyorabciappStates.TRIGGERROUND.value, TriggerRound(**kwargs))
+        self.register_state(DyorabciappStates.INGESTDATAROUND.value, IngestDataRound(**kwargs))
+        self.register_state(DyorabciappStates.GENERATEREPORTROUND.value, GenerateReportRound(**kwargs))
+        self.register_state(DyorabciappStates.HANDLEERRORROUND.value, HandleErrorRound(**kwargs))
+
+        self.register_transition(
+            source=DyorabciappStates.DELIVERREPORTROUND.value,
+            event=DyorabciappEvents.DONE,
+            destination=DyorabciappStates.WATCHINGROUND.value,
+        )
+        self.register_transition(
+            source=DyorabciappStates.DELIVERREPORTROUND.value,
+            event=DyorabciappEvents.ERROR,
+            destination=DyorabciappStates.HANDLEERRORROUND.value,
+        )
+        self.register_transition(
+            source=DyorabciappStates.DELIVERREPORTROUND.value,
+            event=DyorabciappEvents.TIMEOUT,
+            destination=DyorabciappStates.DELIVERREPORTROUND.value,
+        )
+        self.register_transition(
+            source=DyorabciappStates.GENERATEREPORTROUND.value,
+            event=DyorabciappEvents.DONE,
+            destination=DyorabciappStates.DELIVERREPORTROUND.value,
+        )
+        self.register_transition(
+            source=DyorabciappStates.GENERATEREPORTROUND.value,
+            event=DyorabciappEvents.ERROR,
+            destination=DyorabciappStates.HANDLEERRORROUND.value,
+        )
+        self.register_transition(
+            source=DyorabciappStates.GENERATEREPORTROUND.value,
+            event=DyorabciappEvents.TIMEOUT,
+            destination=DyorabciappStates.GENERATEREPORTROUND.value,
+        )
+        self.register_transition(
+            source=DyorabciappStates.HANDLEERRORROUND.value,
+            event=DyorabciappEvents.RETRY,
+            destination=DyorabciappStates.WATCHINGROUND.value,
+        )
+        self.register_transition(
+            source=DyorabciappStates.INGESTDATAROUND.value,
+            event=DyorabciappEvents.DONE,
+            destination=DyorabciappStates.PROCESSDATAROUND.value,
+        )
+        self.register_transition(
+            source=DyorabciappStates.INGESTDATAROUND.value,
+            event=DyorabciappEvents.ERROR,
+            destination=DyorabciappStates.HANDLEERRORROUND.value,
+        )
+        self.register_transition(
+            source=DyorabciappStates.INGESTDATAROUND.value,
+            event=DyorabciappEvents.TIMEOUT,
+            destination=DyorabciappStates.INGESTDATAROUND.value,
+        )
+        self.register_transition(
+            source=DyorabciappStates.PROCESSDATAROUND.value,
+            event=DyorabciappEvents.DONE,
+            destination=DyorabciappStates.GENERATEREPORTROUND.value,
+        )
+        self.register_transition(
+            source=DyorabciappStates.PROCESSDATAROUND.value,
+            event=DyorabciappEvents.ERROR,
+            destination=DyorabciappStates.HANDLEERRORROUND.value,
+        )
+        self.register_transition(
+            source=DyorabciappStates.PROCESSDATAROUND.value,
+            event=DyorabciappEvents.TIMEOUT,
+            destination=DyorabciappStates.PROCESSDATAROUND.value,
+        )
+        self.register_transition(
+            source=DyorabciappStates.SETUPDYORROUND.value,
+            event=DyorabciappEvents.DONE,
+            destination=DyorabciappStates.WATCHINGROUND.value,
+        )
+        self.register_transition(
+            source=DyorabciappStates.SETUPDYORROUND.value,
+            event=DyorabciappEvents.ERROR,
+            destination=DyorabciappStates.HANDLEERRORROUND.value,
+        )
+        self.register_transition(
+            source=DyorabciappStates.SETUPDYORROUND.value,
+            event=DyorabciappEvents.TIMEOUT,
+            destination=DyorabciappStates.SETUPDYORROUND.value,
+        )
+        self.register_transition(
+            source=DyorabciappStates.TRIGGERROUND.value,
+            event=DyorabciappEvents.DONE,
+            destination=DyorabciappStates.INGESTDATAROUND.value,
+        )
+        self.register_transition(
+            source=DyorabciappStates.TRIGGERROUND.value,
+            event=DyorabciappEvents.ERROR,
+            destination=DyorabciappStates.HANDLEERRORROUND.value,
+        )
+        self.register_transition(
+            source=DyorabciappStates.TRIGGERROUND.value,
+            event=DyorabciappEvents.TIMEOUT,
+            destination=DyorabciappStates.TRIGGERROUND.value,
+        )
+        self.register_transition(
+            source=DyorabciappStates.WATCHINGROUND.value,
+            event=DyorabciappEvents.NO_TRIGGER,
+            destination=DyorabciappStates.WATCHINGROUND.value,
+        )
+        self.register_transition(
+            source=DyorabciappStates.WATCHINGROUND.value,
+            event=DyorabciappEvents.TIMEOUT,
+            destination=DyorabciappStates.WATCHINGROUND.value,
+        )
+        self.register_transition(
+            source=DyorabciappStates.WATCHINGROUND.value,
+            event=DyorabciappEvents.TRIGGER,
+            destination=DyorabciappStates.TRIGGERROUND.value,
+        )
 
     def setup(self) -> None:
         """Implement the setup."""
         self.context.logger.info("Setting up Dyorabciapp FSM behaviour.")
-
 
     def teardown(self) -> None:
         """Implement the teardown."""
@@ -275,5 +313,4 @@ class DyorabciappFsmBehaviour(FSMBehaviour):
 
     def terminate(self) -> None:
         """Implement the termination."""
-        print("Terminating the agent.")
         os._exit(0)

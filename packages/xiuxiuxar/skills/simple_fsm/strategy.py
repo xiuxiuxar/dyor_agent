@@ -20,23 +20,54 @@
 
 from typing import Any
 
+from sqlalchemy import text, inspect
+from sqlalchemy.exc import SQLAlchemyError
 from aea.skills.base import Model
 
-class DYORParams(Model):
-    """This class scaffolds a model."""
 
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str
-    POSTGRES_HOST: str
-    POSTGRES_PORT: int
-    POSTGRES_DB: str
+class DYORStrategy(Model):
+    """DYOR strategy."""
+
+    REQUIRED_TABLES: list[str] = [
+        "assets",
+        "triggers",
+    ]
 
     def __init__(self, **kwargs: Any) -> None:
-        """Initialize the model."""
-        self.POSTGRES_USER = kwargs.pop("POSTGRES_USER", "default_user")
-        self.POSTGRES_PASSWORD = kwargs.pop("POSTGRES_PASSWORD", "default_password")
-        self.POSTGRES_HOST = kwargs.pop("POSTGRES_HOST", "localhost")
-        self.POSTGRES_PORT = kwargs.pop("POSTGRES_PORT", 5432)
-        self.POSTGRES_DB = kwargs.pop("POSTGRES_DB", "default_db")
-
+        """Initialize the strategy."""
         super().__init__(**kwargs)
+        self.context.logger.info("DYOR strategy initialized.")
+
+    def validate_database_schema(self) -> tuple[bool, str]:
+        """Validate database schema and required tables.
+
+        Returns
+        -------
+            Tuple[bool, str]: (success, error_message)
+
+        """
+        try:
+            engine = self.context.db_model.engine
+            if not engine:
+                return False, "Database engine not initialized"
+
+            with engine.connect() as connection:
+                # Basic connectivity
+                connection.execute(text("SELECT 1"))
+
+                # Schema validation
+                inspector = inspect(engine)
+                if "public" not in inspector.get_schema_names():
+                    return False, "Public schema does not exist"
+
+                # Table validation
+                existing_tables = inspector.get_table_names(schema="public")
+                missing_tables = set(self.REQUIRED_TABLES) - set(existing_tables)
+
+                if missing_tables:
+                    return False, f"Missing required tables: {missing_tables}"
+
+                return True, ""
+
+        except SQLAlchemyError as e:
+            return False, f"Schema validation failed: {e!s}"

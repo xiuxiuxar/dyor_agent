@@ -17,8 +17,16 @@ service/
 
 /dyor_agent
 
+# Packages
 packages/eightballer
 packages/open_aea
 
 workflow.yaml
 
+# Docker
+docker_envs/data
+
+# Alembic
+migrations/versions/*.pyc
+migrations/__pycache__/
+migrations/versions/__pycache__/

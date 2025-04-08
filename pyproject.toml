@@ -23,6 +23,9 @@ open-aea-cli-ipfs = "==1.65.0"
 open-aea-test-autonomy = "==0.19.5"
 open-autonomy = "==0.19.5"
 autonomy-dev = {extras = ["all"], version = ">=0.2.64,<=0.2.149"}
+sqlalchemy = "^2.0.40"
+psycopg2-binary = "^2.9.10"
+alembic = "^1.15.2"
 
 [tool.poetry.group.dev.dependencies]
 

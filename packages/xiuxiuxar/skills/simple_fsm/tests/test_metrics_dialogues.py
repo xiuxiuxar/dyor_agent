@@ -25,12 +25,12 @@ from aea.test_tools.test_skill import COUNTERPARTY_AGENT_ADDRESS, BaseSkillTestC
 
 from packages.xiuxiuxar.skills.simple_fsm import PUBLIC_ID
 from packages.eightballer.protocols.http.message import HttpMessage
+from packages.eightballer.protocols.default.message import DefaultMessage
 from packages.xiuxiuxar.skills.simple_fsm.dialogues import (
     HttpDialogues,
     DefaultDialogue,
     DefaultDialogues,
 )
-from packages.eightballer.protocols.default.message import DefaultMessage
 
 
 ROOT_DIR = Path(__file__).parent.parent.parent.parent.parent.parent
