@@ -19,6 +19,7 @@
 """This package contains a scaffold of a model."""
 
 from typing import Any
+from datetime import UTC, datetime
 
 from sqlalchemy import text, inspect
 from sqlalchemy.exc import SQLAlchemyError
@@ -28,24 +29,28 @@ from aea.skills.base import Model
 class DYORStrategy(Model):
     """DYOR strategy."""
 
+    # Configuration
     REQUIRED_TABLES: list[str] = [
         "assets",
         "triggers",
     ]
 
+    # Initialization
     def __init__(self, **kwargs: Any) -> None:
         """Initialize the strategy."""
         super().__init__(**kwargs)
-        self.context.logger.info("DYOR strategy initialized.")
 
+        # Initialize metrics state
+        self._metrics = {
+            "active_triggers": 0,
+            "reports_generated_today": 0,
+            "latest_report_timestamp": None,
+            "_last_reset_date": datetime.now(tz=UTC).date(),
+        }
+
+    # Database Operations
     def validate_database_schema(self) -> tuple[bool, str]:
-        """Validate database schema and required tables.
-
-        Returns
-        -------
-            Tuple[bool, str]: (success, error_message)
-
-        """
+        """Validate database schema and required tables."""
         try:
             engine = self.context.db_model.engine
             if not engine:
@@ -71,3 +76,41 @@ class DYORStrategy(Model):
 
         except SQLAlchemyError as e:
             return False, f"Schema validation failed: {e!s}"
+
+    # Metrics Operations
+    def _check_daily_reset(self) -> None:
+        """Reset daily counters if needed."""
+        today = datetime.now(tz=UTC).date()
+        if today > self._metrics["_last_reset_date"]:
+            self._metrics.update({"reports_generated_today": 0, "_last_reset_date": today})
+
+    @property
+    def active_triggers(self) -> int:
+        """Get number of active triggers."""
+        return self._metrics["active_triggers"]
+
+    def increment_active_triggers(self) -> None:
+        """Increment active triggers count."""
+        self._metrics["active_triggers"] += 1
+
+    def decrement_active_triggers(self) -> None:
+        """Decrement active triggers count."""
+        self._metrics["active_triggers"] = max(0, self._metrics["active_triggers"] - 1)
+
+    def record_report_generated(self) -> None:
+        """Record a new report generation."""
+        self._check_daily_reset()
+        self._metrics["reports_generated_today"] += 1
+        self._metrics["latest_report_timestamp"] = datetime.now(tz=UTC)
+
+    # Public API
+    def get_metrics(self) -> dict[str, Any]:
+        """Get current metrics state."""
+        self._check_daily_reset()
+        return {
+            "active_triggers": self._metrics["active_triggers"],
+            "reports_generated_today": self._metrics["reports_generated_today"],
+            "latest_report_timestamp": self._metrics["latest_report_timestamp"].isoformat() + "Z"
+            if self._metrics["latest_report_timestamp"]
+            else None,
+        }

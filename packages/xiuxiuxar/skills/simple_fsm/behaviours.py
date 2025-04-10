@@ -145,6 +145,11 @@ class TriggerRound(BaseState):
         super().__init__(**kwargs)
         self._state = DyorabciappStates.TRIGGERROUND
 
+    def act(self) -> None:
+        """Act on triggers."""
+        self.context.strategy.increment_active_triggers()
+        super().act()
+
 
 class IngestDataRound(BaseState):
     """This class implements the behaviour of the state IngestDataRound."""
@@ -160,6 +165,12 @@ class GenerateReportRound(BaseState):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self._state = DyorabciappStates.GENERATEREPORTROUND
+
+    def act(self) -> None:
+        """Generate report and update metrics."""
+        self.context.strategy.record_report_generated()
+        self.context.strategy.decrement_active_triggers()
+        super().act()
 
 
 class HandleErrorRound(BaseState):
