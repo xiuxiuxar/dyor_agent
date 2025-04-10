@@ -1,0 +1,55 @@
+name: simple_fsm
+author: xiuxiuxar
+version: 0.1.0
+type: skill
+description: The DYOR Simple FSM skill.
+license: Apache-2.0
+aea_version: '>=1.0.0, <2.0.0'
+fingerprint:
+  README.md: bafybeifmctcmcdtae5b3qin4fdveytwcduleekax3mgqbmfwudwcay2dny
+  __init__.py: bafybeigocf4h7sv7lkbfbnpelwm6xzwv3hg7pwac2mbamholdxykzq6wiq
+  behaviours.py: bafybeidmijn7khwaq3pcqqbvkcvtz2qf3t7jgce2kx6alsil2qmht236xe
+  dialogues.py: bafybeiggsfafkurldxnvjhqw3l424acxmpgr4x6qs36ociozuobikpqejy
+  handlers.py: bafybeietr2jkdiwnkyjcibllppd2662ykrljk37ggqupouv4a3f7f7nwai
+  models.py: bafybeihgdjjv5aygib2rlpygb2v6ziaiz2xsi2hjs35u47m2rzjc3i75zq
+  strategy.py: bafybeie5vuqmiledpjojgfieqpmflqfvd2pjxv4rus7tgyhcmad2px3pzm
+  tests/__init__.py: bafybeigb2ji4vkcap3hokcedggjwsrah7te2nxjhkorwf3ibwgyaa2glma
+  tests/test_metrics.py: bafybeiaorxwtrwgeagwsvge2fshxzpgf5gexjqcn4ka4huqhbarsiufd5y
+  tests/test_metrics_dialogues.py: bafybeife2gxqfj2yvhvs2tfcyv5anslml7nxl5b7fyyfaytpcnaafuja5m
+fingerprint_ignore_patterns: []
+connections: []
+contracts: []
+protocols:
+- eightballer/default:0.1.0:bafybeicsdb3bue2xoopc6lue7njtyt22nehrnkevmkuk2i6ac65w722vwy
+- eightballer/http:0.1.0:bafybeid75xhq7hfdt7sgj7yrn44yj57xrgxscaw34ir46tndfzvodioxme
+skills: []
+behaviours:
+  main:
+    args: {}
+    class_name: DyorabciappFsmBehaviour
+handlers:
+  metrics_handler:
+    args:
+      enable_cors: false
+    class_name: HttpHandler
+models:
+  default_dialogues:
+    args: {}
+    class_name: DefaultDialogues
+  http_dialogues:
+    args: {}
+    class_name: HttpDialogues
+  db_model:
+    class_name: DatabaseModel
+    args:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: db_name
+  strategy:
+    class_name: DYORStrategy
+    args: {}
+dependencies: {}
+is_abstract: false
+customs: []
