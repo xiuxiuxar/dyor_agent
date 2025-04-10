@@ -19,6 +19,7 @@
 """This package contains a scaffold of a model."""
 
 from typing import Any
+from datetime import UTC, datetime
 
 from sqlalchemy import create_engine
 from aea.skills.base import Model
@@ -85,3 +86,40 @@ class DatabaseModel(Model):
         if self._engine:
             self._engine.dispose()
             self.context.logger.info("Database engine disposed successfully.")
+
+
+class ScrapedDataItem:
+    """Data structure for scraped items."""
+
+    def __init__(
+        self,
+        source: str,
+        title: str,
+        url: str,
+        summary: str = "",
+        timestamp: str | None = None,
+        target: str | None = None,
+        scraped_at: str | None = None,
+        metadata: dict[str, Any] | None = None,
+    ):
+        self.source = source
+        self.title = title
+        self.url = url
+        self.summary = summary
+        self.timestamp = timestamp
+        self.target = target
+        self.scraped_at = scraped_at or datetime.now(UTC).isoformat()
+        self.metadata = metadata or {}
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert the item to a dictionary."""
+        return {
+            "source": self.source,
+            "title": self.title,
+            "url": self.url,
+            "summary": self.summary,
+            "timestamp": self.timestamp,
+            "target": self.target,
+            "scraped_at": self.scraped_at,
+            "metadata": self.metadata,
+        }

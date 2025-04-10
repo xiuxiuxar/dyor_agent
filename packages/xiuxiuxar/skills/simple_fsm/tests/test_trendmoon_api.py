@@ -1,3 +1,21 @@
+# ------------------------------------------------------------------------------
+#
+#   Copyright 2025 xiuxiuxar
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+# ------------------------------------------------------------------------------
+
 """Test Trendmoon API."""
 
 import os
@@ -17,7 +35,15 @@ import sys  # noqa: E402
 sys.path.insert(0, str(ROOT_DIR))
 
 try:
-    from trendmoon_api import MatchModes, TrendmoonAPI, TimeIntervals, TrendmoonAPIError, SocialTrendIntervals
+    from base_api import BaseAPIClient
+    from trendmoon_api import (
+        MatchModes,
+        TrendmoonAPI,
+        TimeIntervals,
+        TrendmoonConfig,
+        TrendmoonAPIError,
+        SocialTrendIntervals,
+    )
 except ImportError as e:
     msg = (
         f"Could not import TrendmoonAPI or TrendmoonAPIError. "
@@ -59,14 +85,17 @@ def mock_session_request():
 
 
 @pytest.fixture
-def api_client(monkeypatch):
+def api_client():
     """Fixture to provide an initialized TrendmoonAPI client with a fake key."""
-    monkeypatch.setenv("TRENDMOON_API_KEY", FAKE_API_KEY)
-    monkeypatch.setenv("TRENDMOON_BASE_URL", BASE_URL)
-    monkeypatch.setenv("TRENDMOON_INSIGHTS_URL", INSIGHTS_URL)
-    client = TrendmoonAPI(api_key=FAKE_API_KEY, base_url=BASE_URL, insights_url=INSIGHTS_URL)
-    client._last_health_status = True  # noqa: SLF001
-    return client
+    return TrendmoonAPI(
+        api_key=FAKE_API_KEY,
+        base_url=BASE_URL,
+        insights_url=INSIGHTS_URL,
+        timeout=TrendmoonConfig.timeout,
+        max_retries=TrendmoonConfig.retry_config["max_retries"],
+        backoff_factor=TrendmoonConfig.retry_config["backoff_factor"],
+        status_forcelist=TrendmoonConfig.retry_config["status_forcelist"],
+    )
 
 
 @pytest.fixture
@@ -152,10 +181,9 @@ class TestTrendmoonAPIInitialization:
         monkeypatch.setenv("TRENDMOON_BASE_URL", BASE_URL)
         monkeypatch.setenv("TRENDMOON_INSIGHTS_URL", INSIGHTS_URL)
         client = TrendmoonAPI(api_key=FAKE_API_KEY, base_url=BASE_URL, insights_url=INSIGHTS_URL)
-        assert client.api_key == FAKE_API_KEY
+        assert client.session.headers["Api-key"] == FAKE_API_KEY
         assert client.base_url == BASE_URL
         assert client.insights_url == INSIGHTS_URL
-        assert client.session.headers["Api-key"] == FAKE_API_KEY
 
     def test_init_success_with_argument(self, monkeypatch):
         """Test successful initialization passing key as argument."""
@@ -163,23 +191,22 @@ class TestTrendmoonAPIInitialization:
         monkeypatch.setenv("TRENDMOON_BASE_URL", BASE_URL)
         monkeypatch.setenv("TRENDMOON_INSIGHTS_URL", INSIGHTS_URL)
         client = TrendmoonAPI(api_key=FAKE_API_KEY, base_url=BASE_URL, insights_url=INSIGHTS_URL)
-        assert client.api_key == FAKE_API_KEY
         assert client.session.headers["Api-key"] == FAKE_API_KEY
 
     def test_init_no_api_key_raises_value_error(self, monkeypatch):
         """Test ValueError is raised if no API key is found."""
         monkeypatch.delenv("TRENDMOON_API_KEY", raising=False)
-        with pytest.raises(ValueError, match="Trendmoon API key is required"):
-            TrendmoonAPI(base_url=BASE_URL, insights_url=INSIGHTS_URL)
+        with pytest.raises(ValueError, match="API key is required"):
+            TrendmoonAPI(base_url=BASE_URL, insights_url=INSIGHTS_URL, api_key=None)
 
     def test_init_invalid_base_url_raises_value_error(self, monkeypatch):
         """Test ValueError is raised for invalid base URL."""
         monkeypatch.setenv("TRENDMOON_API_KEY", FAKE_API_KEY)
-        with pytest.raises(ValueError, match="Invalid Trendmoon API base URL"):
+        with pytest.raises(ValueError, match="Invalid.*API base URL"):
             TrendmoonAPI(api_key=FAKE_API_KEY, base_url="invalid-url", insights_url=INSIGHTS_URL)
-        with pytest.raises(ValueError, match="Invalid Trendmoon API base URL"):
+        with pytest.raises(ValueError, match="Invalid.*API base URL"):
             TrendmoonAPI(api_key=FAKE_API_KEY, base_url="", insights_url=INSIGHTS_URL)
-        with pytest.raises(ValueError, match="Invalid Trendmoon API base URL"):
+        with pytest.raises(ValueError, match="Invalid.*API base URL"):
             TrendmoonAPI(api_key=FAKE_API_KEY, base_url="http://insecure.com", insights_url=INSIGHTS_URL)
 
     def test_init_invalid_insights_url_raises_value_error(self, monkeypatch):
@@ -192,6 +219,11 @@ class TestTrendmoonAPIInitialization:
             TrendmoonAPI(api_key=FAKE_API_KEY, base_url=BASE_URL, insights_url="")
         with pytest.raises(ValueError, match="Invalid Trendmoon Insights API base URL"):
             TrendmoonAPI(api_key=FAKE_API_KEY, base_url=BASE_URL, insights_url="http://insecure.com")
+
+    def test_inheritance(self):
+        """Test that TrendmoonAPI inherits from BaseAPIClient."""
+        client = TrendmoonAPI(api_key=FAKE_API_KEY, base_url=BASE_URL, insights_url=INSIGHTS_URL)
+        assert isinstance(client, BaseAPIClient)
 
 
 class TestTrendmoonAPIEndpoints:
@@ -225,13 +257,10 @@ class TestTrendmoonAPIEndpoints:
         assert result == expected_data
         mock_session_request.assert_called_once()
         call_args = mock_session_request.call_args
-        assert call_args.kwargs == {
-            "method": "GET",
-            "url": f"{INSIGHTS_URL}/get_top_categories_today",
-            "params": None,
-            "json": None,
-            "timeout": api_client.timeout,
-        }
+        assert call_args.kwargs["method"] == "GET"
+        assert call_args.kwargs["url"] == f"{INSIGHTS_URL}/get_top_categories_today"
+        assert call_args.kwargs["params"] is None
+        assert call_args.kwargs["timeout"] == api_client.timeout
 
     def test_get_top_alerts_today_success(self, api_client, mock_session_request, mock_response):
         """Test successful call to get_top_alerts_today."""
@@ -243,13 +272,10 @@ class TestTrendmoonAPIEndpoints:
         assert result == expected_data
         mock_session_request.assert_called_once()
         call_args = mock_session_request.call_args
-        assert call_args.kwargs == {
-            "method": "GET",
-            "url": f"{INSIGHTS_URL}/get_top_alerts_today",
-            "params": None,
-            "json": None,
-            "timeout": api_client.timeout,
-        }
+        assert call_args.kwargs["method"] == "GET"
+        assert call_args.kwargs["url"] == f"{INSIGHTS_URL}/get_top_alerts_today"
+        assert call_args.kwargs["params"] is None
+        assert call_args.kwargs["timeout"] == api_client.timeout
 
     def test_get_social_trend_success(self, api_client, mock_session_request, mock_response):
         """Test successful call to get_social_trend with multiple parameters."""
@@ -390,13 +416,10 @@ class TestTrendmoonAPIEndpoints:
         assert result == expected_data
         mock_session_request.assert_called_once()
         call_args = mock_session_request.call_args
-        assert call_args.kwargs == {
-            "method": "GET",
-            "url": f"{INSIGHTS_URL}/get_top_category_alerts",
-            "params": None,
-            "json": None,
-            "timeout": api_client.timeout,
-        }
+        assert call_args.kwargs["method"] == "GET"
+        assert call_args.kwargs["url"] == f"{INSIGHTS_URL}/get_top_category_alerts"
+        assert call_args.kwargs["params"] is None
+        assert call_args.kwargs["timeout"] == api_client.timeout
 
     def test_get_chat_information_by_group_username(self, api_client, mock_session_request, mock_response):
         """Test successful call to get_chat_information_by_group_username."""
@@ -432,13 +455,14 @@ class TestTrendmoonAPIHealthAndLogging:
         with pytest.raises(TrendmoonAPIError):
             api_client.search_coin("FAIL")
         assert api_client.check_api_health() is False
-        assert "Trendmoon API connection unhealthy. Reason: HTTP Error 503" in caplog.text
+        assert "connection unhealthy" in caplog.text
+        assert "HTTP Error 503" in caplog.text
 
         caplog.clear()
         mock_session_request.return_value = mock_response(status_code=200, json_data={"ok": True})
         api_client.search_coin("RECOVER")
         assert api_client.check_api_health() is True
-        assert "Trendmoon API connection healthy" in caplog.text
+        assert "connection healthy" in caplog.text
 
     def test_error_logging_includes_details(self, api_client, mock_session_request, mock_response, caplog):
         """Verify specific error logs are generated with context."""
@@ -452,7 +476,7 @@ class TestTrendmoonAPIHealthAndLogging:
         with pytest.raises(TrendmoonAPIError):
             api_client.get_project_summary("unauthorized_project")
 
-        assert f"HTTP Error {status_code}" in caplog.text
+        assert f"HTTP {status_code} error" in caplog.text
         assert f"{BASE_URL}/social/project-summary" in caplog.text
         assert response_text in caplog.text
 
@@ -472,6 +496,20 @@ class TestTrendmoonAPIHealthAndLogging:
 @pytest.mark.integration
 class TestTrendmoonAPIIntegration:
     """Integration tests for TrendmoonAPI against staging environment."""
+
+    @pytest.fixture(scope="class")
+    def staging_client(self):
+        """Create a TrendmoonAPI client configured for staging environment."""
+        api_key = os.getenv("TRENDMOON_STAGING_API_KEY")
+        base_url = os.getenv("TRENDMOON_STAGING_URL")
+        if not api_key or not base_url:
+            pytest.skip("Integration test environment variables not set")
+        return TrendmoonAPI(
+            api_key=api_key,
+            base_url=base_url,
+            timeout=30,
+            max_retries=5,
+        )
 
     def test_get_project_summary(self, staging_client):
         """Test fetching project summary from staging."""
@@ -593,3 +631,19 @@ class TestTrendmoonAPIErrorHandling:
         """Test behavior with invalid category name."""
         result = staging_client.get_category_dominance(category_name="InvalidCategory123", duration=7)
         assert result == []
+
+
+class TestBaseAPIClientIntegration:
+    """Tests for BaseAPIClient integration with TrendmoonAPI."""
+
+    def test_base_client_functionality(self):
+        """Test that base client functionality works through TrendmoonAPI."""
+        client = TrendmoonAPI(
+            api_key=FAKE_API_KEY,
+            base_url=BASE_URL,
+            insights_url=INSIGHTS_URL,
+        )
+        assert isinstance(client, BaseAPIClient)
+        assert client.base_url == BASE_URL
+        assert client.session.headers["Api-key"] == FAKE_API_KEY
+        assert "Content-Type" in client.session.headers

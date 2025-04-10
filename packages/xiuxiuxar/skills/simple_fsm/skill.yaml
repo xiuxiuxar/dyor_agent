@@ -8,14 +8,22 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: bafybeifmctcmcdtae5b3qin4fdveytwcduleekax3mgqbmfwudwcay2dny
   __init__.py: bafybeigocf4h7sv7lkbfbnpelwm6xzwv3hg7pwac2mbamholdxykzq6wiq
+  base_api.py: bafybeie465hlxqu5j55pwjq6dswg45ckozjer5sluf2kvksl4nwo75zj34
   behaviours.py: bafybeialaar5xieogwokm2ca7si7ymsbbytmrqpwjxizvu3tpa5vldabxq
   dialogues.py: bafybeiggsfafkurldxnvjhqw3l424acxmpgr4x6qs36ociozuobikpqejy
   handlers.py: bafybeib3y2h576tkiu3j7fyy5dsuc25sbcstexd5wekdz4f443q7jw7zwy
-  models.py: bafybeihgdjjv5aygib2rlpygb2v6ziaiz2xsi2hjs35u47m2rzjc3i75zq
+  loc_api.py: bafybeig5n6o2stnkkytmxosihxjvrke3hz7aomelytfaflx3kfzlg64cpq
+  models.py: bafybeiek3fnnzcocwmpvfpe2umilvzxsm7atnneyvjgzl3pgmiyiv5nrru
+  researchagent_api.py: bafybeic6faiy4rhceagb2lalcxzlh2tmhhs4emkdelxc4jtetgzxjgnmfe
   strategy.py: bafybeighe2emfcjlvw6jninea3td3czbvvohuwo2xmmp45tdosy2z3gmm4
   tests/__init__.py: bafybeigb2ji4vkcap3hokcedggjwsrah7te2nxjhkorwf3ibwgyaa2glma
-  tests/test_trendmoon_api.py: bafybeiglh3acouljbpq6kbzhdtntiqyxzvky7aee2m6ampfs7ly4v5y2fi
-  trendmoon_api.py: bafybeiebnm7wpfiddllzy6qigf2m7mxijemjqyk472jwlc7uhz5vyg45pq
+  tests/conftest.py: bafybeicvznjlmanmoghlq6y3atuuh62ke6wdfxkgwfmh5zrvjvmclatrl4
+  tests/test_loc_api.py: bafybeihxaznmjr3ec7bdiuchmc6q6wnj6d4disw2wfocl6hxtfezuipdo4
+  tests/test_researchagent_api.py: bafybeicbgbfh2cku5z6zm4onwncvdxwieon7fvzbagatdktyljaiqroju4
+  tests/test_toa_api.py: bafybeicupzcskhm55ftbllhgxtns3uh3qz7qrz326kr2c3ufbck2mwpwzy
+  tests/test_trendmoon_api.py: bafybeidacjmrop4lfmv6duc7r4quusg5ngpvbmkacheoorxekbtqfsbtmi
+  toa_api.py: bafybeidxiknj3bruoq5swjvzr25jsiwrsmh7mm6nzxw223vuw7g4whdphu
+  trendmoon_api.py: bafybeidleujolsxbft7qbbv7gil3fpynoby2mxtgonc3u5dcptrlnca3fa
 fingerprint_ignore_patterns: []
 connections: []
 contracts: []

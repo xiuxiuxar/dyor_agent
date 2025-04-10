@@ -1,3 +1,21 @@
+# ------------------------------------------------------------------------------
+#
+#   Copyright 2025 xiuxiuxar
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+# ------------------------------------------------------------------------------
+
 """Trendmoon API Client."""
 
 import os
@@ -7,13 +25,11 @@ from inspect import signature
 from functools import wraps
 from collections.abc import Callable
 
-import requests
+from base_api import BaseAPIError, BaseAPIClient, BaseAPIConfig
 from dateutil.parser import ParserError, parse
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
 
 
-TRENDMOON_API_KEY = os.getenv("TRENDMOON_API_KEY")
+TRENDMOON_API_KEY = os.getenv("TRENDMOON_STAGING_API_KEY")
 TRENDMOON_BASE_URL = os.getenv("TRENDMOON_BASE_URL")
 TRENDMOON_INSIGHTS_URL = os.getenv("TRENDMOON_INSIGHTS_URL")
 
@@ -93,15 +109,11 @@ class MatchModes:
         return {cls.EXACT, cls.ANY, cls.ALL, cls.FUZZY, cls.PARTIAL}
 
 
-class TrendmoonAPIError(Exception):
-    """Custom exception for Trendmoon API related errors."""
-
-    def __init__(self, message, status_code=None):
-        super().__init__(message)
-        self.status_code = status_code
+class TrendmoonAPIError(BaseAPIError):
+    """Trendmoon API specific error."""
 
 
-class TrendmoonConfig:
+class TrendmoonConfig(BaseAPIConfig):
     """Configuration for Trendmoon API."""
 
     api_key = TRENDMOON_API_KEY
@@ -111,7 +123,7 @@ class TrendmoonConfig:
     retry_config = {"max_retries": 3, "backoff_factor": 0.5, "status_forcelist": (429, 500, 502, 503, 504)}
 
 
-class TrendmoonAPI:
+class TrendmoonAPI(BaseAPIClient):
     """Client for interacting with the Trendmoon API."""
 
     def __init__(
@@ -127,118 +139,37 @@ class TrendmoonAPI:
         if not api_key:
             msg = "Trendmoon API key is required"
             raise ValueError(msg)
-        if not base_url or not base_url.startswith("https://"):
-            msg = "Invalid Trendmoon API base URL"
-            raise ValueError(msg)
         if not insights_url or not insights_url.startswith("https://"):
             msg = "Invalid Trendmoon Insights API base URL"
             raise ValueError(msg)
 
-        self.api_key = api_key
-        self.base_url = base_url.rstrip("/")
         self.insights_url = insights_url.rstrip("/")
-        self.timeout = timeout
-
-        self.session = requests.Session()
-        self.session.headers.update(
-            {
-                "Content-Type": "application/json",
-                "Api-key": self.api_key,
-            }
-        )
-
-        retry_strategy = Retry(
-            total=max_retries,
+        super().__init__(
+            base_url=base_url,
+            timeout=timeout,
+            max_retries=max_retries,
             backoff_factor=backoff_factor,
             status_forcelist=status_forcelist,
-            allowed_methods=["HEAD", "GET", "OPTIONS"],
+            headers={"Content-Type": "application/json"},
+            api_key=api_key,
+            error_class=TrendmoonAPIError,
         )
 
-        adapter = HTTPAdapter(max_retries=retry_strategy)
-        self.session.mount("https://", adapter)
-
-        self._last_health_status: bool = True
-        logger.info("Trendmoon API client initialized")
-
-    def _make_request(
+    def _make_insights_request(
         self,
         method: str,
         endpoint: str,
         params: dict[str, Any] | None = None,
         json_data: dict[str, Any] | None = None,
-        use_insights_url: bool = False,
     ) -> dict[str, Any] | None:
-        """Make a request to the Trendmoon API."""
-        base_url = self.insights_url if use_insights_url else self.base_url
-        url = f"{base_url}/{endpoint.lstrip('/')}"
-        log_params = params or (json_data or {})
-        logger.debug(f"Sending {method} request to {url} with params: {log_params}")
-        try:
-            response = self.session.request(
-                method=method,
-                url=url,
-                params=params,
-                json=json_data,
-                timeout=self.timeout,
-            )
-            response.raise_for_status()
-
-            self._update_health(True)
-            try:
-                return response.json()
-            except requests.exceptions.JSONDecodeError:
-                logger.exception(
-                    f"Failed to parse JSON response from {url} Status: {response.status_code}."
-                    f"Response text: {response.text[:200]}..."
-                )
-                self._update_health(False, f"JSON Decode Error from {endpoint}")
-                msg = f"Invalid JSON response from API endpoint {endpoint}."
-                raise TrendmoonAPIError(msg, status_code=response.status_code) from None
-
-        except requests.exceptions.Timeout as e:
-            logger.exception(f"Request timed out for {method} {url}: {e}")
-            self._update_health(False, f"Timeout accessing {endpoint}")
-            msg = f"Request timed out after {self.timeout}s for endpoint {endpoint}."
-            raise TrendmoonAPIError(msg) from e
-
-        except requests.exceptions.HTTPError as e:
-            status_code = e.response.status_code
-            log_msg = f"HTTP Error {status_code} for {method} {url}: {e}. Response: {e.response.text[:200]}..."
-            logger.exception(log_msg)
-            self._update_health(False, f"HTTP Error {status_code} from {endpoint}")
-            msg = f"API request failed for endpoint {endpoint} with status {status_code}."
-            raise TrendmoonAPIError(msg, status_code=status_code) from e
-
-        except requests.exceptions.RequestException as e:
-            log_msg = f"General Request Exception for {method} {url}: {e}"
-            logger.exception(log_msg)
-            self._update_health(False, f"Request Exception accessing {endpoint}: {type(e).__name__}")
-            msg = f"An unexpected error occurred communicating with the API endpoint {endpoint}."
-            raise TrendmoonAPIError(msg) from e
-
-        except Exception as e:
-            logger.exception(f"An unexpected error occurred during API request to {endpoint}: {e}")
-            self._update_health(False, f"Unexpected error: {type(e).__name__}")
-            msg = f"An unexpected error occurred: {e}"
-            raise TrendmoonAPIError(msg) from e
-
-        return None
-
-    def _update_health(self, is_healthy: bool, message: str = ""):
-        """Updates and logs the API health status."""
-        if self._last_health_status != is_healthy:
-            if is_healthy:
-                logger.info("Trendmoon API connection healthy.")
-            else:
-                logger.warning(f"Trendmoon API connection unhealthy. Reason: {message}")
-            self._last_health_status = is_healthy
-
-    def check_api_health(self) -> bool:
-        """Returns the last known health status of the API based on request success.
-        Note: This is reactive, based on the last call's success/failure.
-        """
-        logger.info(f"Reporting API Health Status: {'Healthy' if self._last_health_status else 'Unhealthy'}")
-        return self._last_health_status
+        """Make a request to the insights API."""
+        return self._make_request(
+            method=method,
+            endpoint=endpoint,
+            params=params,
+            json_data=json_data,
+            base_url_override=self.insights_url,
+        )
 
     # -- API Endpoint Methods
 
@@ -254,13 +185,13 @@ class TrendmoonAPI:
         """Retrieves the top categories for today."""
         endpoint = "/get_top_categories_today"
         logger.info("Fetching top categories for today")
-        return self._make_request("GET", endpoint, use_insights_url=True)
+        return self._make_insights_request("GET", endpoint)
 
     def get_top_alerts_today(self) -> dict[str, Any] | None:
         """Retrieves the top alerts for today."""
         endpoint = "/get_top_alerts_today"
         logger.info("Fetching top alerts for today")
-        return self._make_request("GET", endpoint, use_insights_url=True)
+        return self._make_insights_request("GET", endpoint)
 
     def get_category_dominance(self, category_name: str, duration: int) -> list[dict[str, Any]] | None:
         """Retrieves the dominance of a category over a specified duration.
@@ -302,7 +233,7 @@ class TrendmoonAPI:
         """Retrieves the top category alerts filtered by top category for the day."""
         endpoint = "/get_top_category_alerts"
         logger.info("Fetching top category alerts")
-        return self._make_request("GET", endpoint, use_insights_url=True)
+        return self._make_insights_request("GET", endpoint)
 
     # -- Social
     def get_social_trend(
@@ -675,14 +606,6 @@ class TrendmoonAPI:
         provided_params = {k: v for k, v in params.items() if v is not None and v != ""}
         logger.info(f"Fetching coin details for: {provided_params}")
         return self._make_request("GET", endpoint, params=params)
-
-    def __enter__(self):
-        """Enter context manager."""
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """Exit context manager."""
-        self.session.close()
 
 
 def _validate_iso_date(date_str: str) -> bool:
