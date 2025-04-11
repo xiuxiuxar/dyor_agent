@@ -12,10 +12,13 @@ fingerprint:
   dialogues.py: bafybeiggsfafkurldxnvjhqw3l424acxmpgr4x6qs36ociozuobikpqejy
   handlers.py: bafybeib3y2h576tkiu3j7fyy5dsuc25sbcstexd5wekdz4f443q7jw7zwy
   models.py: bafybeihgdjjv5aygib2rlpygb2v6ziaiz2xsi2hjs35u47m2rzjc3i75zq
+  researchagent_api.py: bafybeic22ytys6ar6lkksffwik7aff3jckpalihqexzup2n4tjlskb7ua4
   strategy.py: bafybeighe2emfcjlvw6jninea3td3czbvvohuwo2xmmp45tdosy2z3gmm4
   tests/__init__.py: bafybeigb2ji4vkcap3hokcedggjwsrah7te2nxjhkorwf3ibwgyaa2glma
   tests/test_metrics.py: bafybeiaorxwtrwgeagwsvge2fshxzpgf5gexjqcn4ka4huqhbarsiufd5y
   tests/test_metrics_dialogues.py: bafybeife2gxqfj2yvhvs2tfcyv5anslml7nxl5b7fyyfaytpcnaafuja5m
+  tests/test_trendmoon_api.py: bafybeibp45lgmap36hzewvpxtmexhc3zdqxhy4v5iqws43ld4ieujseo7e
+  trendmoon_api.py: bafybeib4vitztr63j7eljne2fnuz55pjzmk4pvp5mman4bigbzhugvn5ei
 fingerprint_ignore_patterns: []
 connections: []
 contracts: []
