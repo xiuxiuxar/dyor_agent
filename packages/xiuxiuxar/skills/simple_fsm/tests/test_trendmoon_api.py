@@ -27,7 +27,6 @@ except ImportError as e:
 
 
 # --- Constants for Testing ---
-# Unit test constants
 FAKE_API_KEY = "test-api-key-123"
 BASE_URL = "https://mock.trendmoon.test/taimat"
 INSIGHTS_URL = "https://mock.trendmoon.test/insights"
@@ -98,7 +97,6 @@ def mock_response():
     return _create_mock_response
 
 
-# Add new fixture for integration tests
 @pytest.fixture(scope="module")
 def staging_client():
     """Create a TrendmoonAPI client configured for staging environment."""
@@ -426,10 +424,8 @@ class TestTrendmoonAPIHealthAndLogging:
         """Verify health status changes correctly after success and failure."""
         caplog.set_level(logging.INFO)
 
-        # Initial state (assuming healthy fixture)
         assert api_client.check_api_health() is True
 
-        # Failure
         mock_session_request.return_value = mock_response(
             status_code=503, raise_for_status_error=requests.exceptions.HTTPError
         )
@@ -438,7 +434,6 @@ class TestTrendmoonAPIHealthAndLogging:
         assert api_client.check_api_health() is False
         assert "Trendmoon API connection unhealthy. Reason: HTTP Error 503" in caplog.text
 
-        # Success after failure
         caplog.clear()
         mock_session_request.return_value = mock_response(status_code=200, json_data={"ok": True})
         api_client.search_coin("RECOVER")
@@ -474,7 +469,6 @@ class TestTrendmoonAPIHealthAndLogging:
         )
 
 
-# Add integration test classes
 @pytest.mark.integration
 class TestTrendmoonAPIIntegration:
     """Integration tests for TrendmoonAPI against staging environment."""
@@ -548,12 +542,10 @@ class TestTrendmoonAPIIntegration:
 
     def test_rate_limiting(self, staging_client):
         """Test API rate limiting behavior."""
-        # Make multiple rapid requests to test rate limiting
         for _ in range(5):
             result = staging_client.get_top_categories_today()
             assert result is not None
 
-        # Should still be healthy after multiple requests
         assert staging_client.check_api_health()
 
     @pytest.mark.parametrize("time_interval", [TimeIntervals.ONE_HOUR, TimeIntervals.FOUR_HOURS, TimeIntervals.ONE_DAY])
@@ -562,7 +554,6 @@ class TestTrendmoonAPIIntegration:
         result = staging_client.get_social_trend(symbol=TEST_SYMBOL, time_interval=time_interval, date_interval=3)
         assert result is not None
         assert isinstance(result, dict)
-        # Handle both successful response and "No trend data found" message
         if "message" in result:
             assert "No trend data found" in result["message"]
         else:

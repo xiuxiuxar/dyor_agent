@@ -194,25 +194,22 @@ class TrendmoonAPI:
             log_msg = f"HTTP Error {status_code} for {method} {url}: {e}. Response: {e.response.text[:200]}..."
             logger.exception(log_msg)
             self._update_health(False, f"HTTP Error {status_code} from {endpoint}")
-            # Raise specific error that calling code can catch
             msg = f"API request failed for endpoint {endpoint} with status {status_code}."
             raise TrendmoonAPIError(msg, status_code=status_code) from e
 
         except requests.exceptions.RequestException as e:
-            # Catch any other requests-related errors (e.g., connection errors)
             log_msg = f"General Request Exception for {method} {url}: {e}"
             logger.exception(log_msg)
             self._update_health(False, f"Request Exception accessing {endpoint}: {type(e).__name__}")
             msg = f"An unexpected error occurred communicating with the API endpoint {endpoint}."
             raise TrendmoonAPIError(msg) from e
 
-        except Exception as e:  # Catch unexpected errors
+        except Exception as e:
             logger.exception(f"An unexpected error occurred during API request to {endpoint}: {e}")
             self._update_health(False, f"Unexpected error: {type(e).__name__}")
             msg = f"An unexpected error occurred: {e}"
             raise TrendmoonAPIError(msg) from e
 
-        # Should not be reached if exceptions are raised correctly, but as a fallback
         return None
 
     def _update_health(self, is_healthy: bool, message: str = ""):
@@ -353,12 +350,10 @@ class TrendmoonAPI:
             ValueError: If invalid time_interval or match_mode is provided
 
         """
-        # Validate time_interval
         if time_interval and time_interval not in TimeIntervals.valid_intervals():
             msg = f"Invalid time_interval. Must be one of: {', '.join(TimeIntervals.valid_intervals())}"
             raise ValueError(msg)
 
-        # Validate match_mode
         if match_mode and match_mode not in MatchModes.valid_modes():
             msg = f"Invalid match_mode. Must be one of: {', '.join(MatchModes.valid_modes())}"
             raise ValueError(msg)
@@ -656,7 +651,6 @@ class TrendmoonAPI:
             "symbol": symbol,
             "project_name": project_name,
         }
-        # Validate at least one parameter is provided
         if not any(params.values()):
             msg = "At least one parameter (contract_address, coin_id, symbol, or project_name) must be provided"
             raise ValueError(msg)
