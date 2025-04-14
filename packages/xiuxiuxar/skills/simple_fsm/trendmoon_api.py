@@ -66,6 +66,18 @@ class TimeIntervals:
         }
 
 
+class SocialTrendIntervals:
+    """Social trend intervals for Trendmoon API."""
+
+    ONE_HOUR = "1h"
+    ONE_DAY = "1d"
+
+    @classmethod
+    def valid_intervals(cls) -> set[str]:
+        """Get all valid social trend intervals."""
+        return {cls.ONE_HOUR, cls.ONE_DAY}
+
+
 class MatchModes:
     """Match modes for Trendmoon API."""
 
@@ -250,13 +262,13 @@ class TrendmoonAPI:
         logger.info("Fetching top alerts for today")
         return self._make_request("GET", endpoint, use_insights_url=True)
 
-    def get_category_dominance(self, category_names: list[str], duration: str) -> list[dict[str, Any]] | None:
+    def get_category_dominance(self, category_name: str, duration: int) -> list[dict[str, Any]] | None:
         """Retrieves the dominance of a category over a specified duration.
 
         Args:
         ----
-            category_names: List of category names to analyze
-            duration: Time period to analyze (e.g. "7d", "30d", "90d")
+            category_name: Name of the category to analyze
+            duration: Number of days to look back (e.g. 7, 30, 90)
 
         Returns:
         -------
@@ -270,21 +282,21 @@ class TrendmoonAPI:
 
         Raises:
         ------
-            ValueError: If category_names is empty or duration is invalid
+            ValueError: If category_name is empty or duration is invalid
             TrendmoonAPIError: If the API request fails
 
         """
-        if not category_names:
-            msg = "category_names must not be empty"
+        if not category_name:
+            msg = "category_name must not be empty"
             raise ValueError(msg)
-        if not duration or not duration.endswith("d"):
-            msg = "duration must be a valid time period (e.g. '7d', '30d', '90d')"
+        if not isinstance(duration, int) or duration <= 0:
+            msg = "duration must be a positive integer"
             raise ValueError(msg)
 
         endpoint = "/categories/dominance"
-        params = {"category_names": category_names, "duration": duration}
-        logger.info(f"Fetching category dominance for: {category_names} over duration: {duration}")
-        return self._make_request("GET", endpoint, params=params, use_insights_url=True)
+        params = {"category_name": category_name, "duration": duration}
+        logger.info(f"Fetching category dominance for: {category_name} over duration: {duration}")
+        return self._make_request("GET", endpoint, params=params)
 
     def get_top_category_alerts(self) -> dict[str, Any] | None:
         """Retrieves the top category alerts filtered by top category for the day."""
@@ -303,6 +315,11 @@ class TrendmoonAPI:
         time_interval: str | None = None,
     ) -> dict[str, Any] | None:
         """Retrieves social trend data."""
+
+        if time_interval and time_interval not in SocialTrendIntervals.valid_intervals():
+            msg = f"Invalid time_interval. Must be one of: {', '.join(SocialTrendIntervals.valid_intervals())}"
+            raise ValueError(msg)
+
         endpoint = "/social/trend"
         params = {
             "contract_address": contract_address,

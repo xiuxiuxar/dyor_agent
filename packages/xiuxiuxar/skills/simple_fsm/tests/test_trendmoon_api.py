@@ -17,7 +17,7 @@ import sys  # noqa: E402
 sys.path.insert(0, str(ROOT_DIR))
 
 try:
-    from trendmoon_api import MatchModes, TrendmoonAPI, TimeIntervals, TrendmoonAPIError
+    from trendmoon_api import MatchModes, TrendmoonAPI, TimeIntervals, TrendmoonAPIError, SocialTrendIntervals
 except ImportError as e:
     msg = (
         f"Could not import TrendmoonAPI or TrendmoonAPIError. "
@@ -262,7 +262,7 @@ class TestTrendmoonAPIEndpoints:
             project_name=PROJECT_NAME,
             coin_id=COIN_ID,
             date_interval=7,
-            time_interval=TimeIntervals.ONE_DAY,
+            time_interval=SocialTrendIntervals.ONE_DAY,
         )
 
         assert result == expected_data
@@ -277,7 +277,7 @@ class TestTrendmoonAPIEndpoints:
                 "project_name": PROJECT_NAME,
                 "coin_id": COIN_ID,
                 "date_interval": 7,
-                "time_interval": TimeIntervals.ONE_DAY,
+                "time_interval": SocialTrendIntervals.ONE_DAY,
             },
             "json": None,
             "timeout": api_client.timeout,
@@ -364,10 +364,10 @@ class TestTrendmoonAPIEndpoints:
 
     def test_get_category_dominance_success(self, api_client, mock_session_request, mock_response):
         """Test successful call to get_category_dominance."""
-        expected_data = {"dominance": {"DeFi": 0.4, "NFT": 0.3}}
+        expected_data = {"dominance": {"Infrastructure": 0.4}}
         mock_session_request.return_value = mock_response(status_code=200, json_data=expected_data)
 
-        result = api_client.get_category_dominance(category_names=["DeFi", "NFT"], duration="7d")
+        result = api_client.get_category_dominance(category_name="Infrastructure", duration=7)
 
         assert result == expected_data
         mock_session_request.assert_called_once()
@@ -375,7 +375,7 @@ class TestTrendmoonAPIEndpoints:
         assert call_args.kwargs == {
             "method": "GET",
             "url": f"{INSIGHTS_URL}/categories/dominance",
-            "params": {"category_names": ["DeFi", "NFT"], "duration": "7d"},
+            "params": {"category_name": "Infrastructure", "duration": 7},
             "json": None,
             "timeout": api_client.timeout,
         }
@@ -531,14 +531,17 @@ class TestTrendmoonAPIIntegration:
 
     def test_get_category_dominance(self, staging_client):
         """Test fetching category dominance from staging."""
-        result = staging_client.get_category_dominance(category_names=["AI Agents", "Infrastructure"], duration="7d")
+        result = staging_client.get_category_dominance(category_name="Infrastructure", duration=7)
         assert result is not None
-        assert isinstance(result, dict)
-        for category in result["category_dominance"]:
+        assert isinstance(result, list)
+        assert len(result) > 0
+        for category in result:
+            assert "date" in category
             assert "category_name" in category
             assert "category_dominance" in category
             assert "category_market_cap" in category
             assert "dominance_pct_change" in category
+            assert "market_cap_pct_change" in category
 
     def test_rate_limiting(self, staging_client):
         """Test API rate limiting behavior."""
@@ -548,7 +551,7 @@ class TestTrendmoonAPIIntegration:
 
         assert staging_client.check_api_health()
 
-    @pytest.mark.parametrize("time_interval", [TimeIntervals.ONE_HOUR, TimeIntervals.FOUR_HOURS, TimeIntervals.ONE_DAY])
+    @pytest.mark.parametrize("time_interval", [SocialTrendIntervals.ONE_HOUR, SocialTrendIntervals.ONE_DAY])
     def test_social_trend_intervals(self, staging_client, time_interval):
         """Test social trends with different time intervals."""
         result = staging_client.get_social_trend(symbol=TEST_SYMBOL, time_interval=time_interval, date_interval=3)

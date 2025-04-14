@@ -14,8 +14,8 @@ fingerprint:
   models.py: bafybeihgdjjv5aygib2rlpygb2v6ziaiz2xsi2hjs35u47m2rzjc3i75zq
   strategy.py: bafybeighe2emfcjlvw6jninea3td3czbvvohuwo2xmmp45tdosy2z3gmm4
   tests/__init__.py: bafybeigb2ji4vkcap3hokcedggjwsrah7te2nxjhkorwf3ibwgyaa2glma
-  tests/test_trendmoon_api.py: bafybeiacn37ttzu5awilvjm3aniwo2wzg3c74zsi3bu4zxcnjdfcgkhcru
-  trendmoon_api.py: bafybeialb6ssp6mpxmgjnhkvewqb5gn24bhbnqcm6uyjlwkabghl3ftmyu
+  tests/test_trendmoon_api.py: bafybeiccxx2ctypltii6jtt76devh3qdhcqtnht4pzqn5v5pa5x6nfpacq
+  trendmoon_api.py: bafybeif6yhsqgwpvbiq2a2qsxabwmzqpqscytgid26d5outnqmegvui5ei
 fingerprint_ignore_patterns: []
 connections: []
 contracts: []
