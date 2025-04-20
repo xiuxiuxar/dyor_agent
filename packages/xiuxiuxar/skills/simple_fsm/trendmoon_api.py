@@ -245,7 +245,7 @@ class TrendmoonAPI:
     # -- Processed Insights
     def get_project_summary(self, project_name: str) -> dict[str, Any] | None:
         """Retrieves a summary for a specific project."""
-        endpoint = "/get_project_summary"
+        endpoint = "/social/project-summary"
         params = {"project_name": project_name}
         logger.info(f"Fetching project summary for: {project_name}")
         return self._make_request("GET", endpoint, params=params)

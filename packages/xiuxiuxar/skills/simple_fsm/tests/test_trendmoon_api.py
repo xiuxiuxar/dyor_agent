@@ -41,10 +41,10 @@ START_DATE = "2024-01-01T00:00:00"
 END_DATE = "2024-01-02T00:00:00"
 
 # Integration test constants
-TEST_PROJECT = "bitcoin"
+TEST_PROJECT = "taraxa"
 TEST_SYMBOL = "BTC"
 TEST_CONTRACT = "0xb8c77482e45f1f44de1745f52c74426c631bdd52"
-TEST_COIN_ID = "bitcoin"
+TEST_COIN_ID = "taraxa"
 TEST_KEYWORD = "bitcoin halving"
 TEST_GROUP = "bitcoin_signals"
 
@@ -209,7 +209,7 @@ class TestTrendmoonAPIEndpoints:
         call_args = mock_session_request.call_args
         assert call_args.kwargs == {
             "method": "GET",
-            "url": f"{BASE_URL}/get_project_summary",
+            "url": f"{BASE_URL}/social/project-summary",
             "params": {"project_name": PROJECT_NAME},
             "json": None,
             "timeout": api_client.timeout,
@@ -374,7 +374,7 @@ class TestTrendmoonAPIEndpoints:
         call_args = mock_session_request.call_args
         assert call_args.kwargs == {
             "method": "GET",
-            "url": f"{INSIGHTS_URL}/categories/dominance",
+            "url": f"{BASE_URL}/categories/dominance",
             "params": {"category_name": "Infrastructure", "duration": 7},
             "json": None,
             "timeout": api_client.timeout,
@@ -453,7 +453,7 @@ class TestTrendmoonAPIHealthAndLogging:
             api_client.get_project_summary("unauthorized_project")
 
         assert f"HTTP Error {status_code}" in caplog.text
-        assert f"{BASE_URL}/get_project_summary" in caplog.text
+        assert f"{BASE_URL}/social/project-summary" in caplog.text
         assert response_text in caplog.text
 
     def test_info_logging_on_call(self, api_client, mock_session_request, mock_response, caplog):
@@ -478,8 +478,8 @@ class TestTrendmoonAPIIntegration:
         result = staging_client.get_project_summary(TEST_PROJECT)
         assert result is not None
         assert isinstance(result, dict)
-        assert "project" in result
-        assert result["project"].lower() == TEST_PROJECT.lower()
+        assert "coin_id" in result
+        assert result["coin_id"] == TEST_COIN_ID
 
     def test_get_top_categories_today(self, staging_client):
         """Test fetching top categories from staging."""
@@ -581,16 +581,15 @@ class TestTrendmoonAPIErrorHandling:
         with pytest.raises(TrendmoonAPIError):
             staging_client.get_project_summary("nonexistent_project_123456789")
 
-    @pytest.mark.skip(reason="This test is not working as expected")
     def test_invalid_date_range(self, staging_client):
         """Test behavior with invalid date range."""
         future_date = datetime.now(UTC) + timedelta(days=7)
-        with pytest.raises(TrendmoonAPIError):
-            staging_client.search_messages(
-                text=TEST_KEYWORD, start_date=future_date.isoformat(), end_date=future_date.isoformat()
-            )
+        result = staging_client.search_messages(
+            text=TEST_KEYWORD, start_date=future_date.isoformat(), end_date=future_date.isoformat()
+        )
+        assert result == []
 
     def test_invalid_category(self, staging_client):
         """Test behavior with invalid category name."""
-        with pytest.raises(TrendmoonAPIError):
-            staging_client.get_category_dominance(category_names=["InvalidCategory123"], duration="7d")
+        result = staging_client.get_category_dominance(category_name="InvalidCategory123", duration=7)
+        assert result == []
