@@ -207,7 +207,7 @@ class TestTrendmoonAPIInitialization:
         with pytest.raises(ValueError, match="Invalid.*API base URL"):
             TrendmoonAPI(api_key=FAKE_API_KEY, base_url="", insights_url=INSIGHTS_URL)
         with pytest.raises(ValueError, match="Invalid.*API base URL"):
-            TrendmoonAPI(api_key=FAKE_API_KEY, base_url="http://insecure.com", insights_url=INSIGHTS_URL)
+            TrendmoonAPI(api_key=FAKE_API_KEY, base_url="ftp://insecure.com", insights_url=INSIGHTS_URL)
 
     def test_init_invalid_insights_url_raises_value_error(self, monkeypatch):
         """Test ValueError is raised for invalid insights URL."""

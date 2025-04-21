@@ -21,7 +21,7 @@ fingerprint:
   tests/test_loc_api.py: bafybeihxaznmjr3ec7bdiuchmc6q6wnj6d4disw2wfocl6hxtfezuipdo4
   tests/test_researchagent_api.py: bafybeicbgbfh2cku5z6zm4onwncvdxwieon7fvzbagatdktyljaiqroju4
   tests/test_toa_api.py: bafybeicupzcskhm55ftbllhgxtns3uh3qz7qrz326kr2c3ufbck2mwpwzy
-  tests/test_trendmoon_api.py: bafybeidacjmrop4lfmv6duc7r4quusg5ngpvbmkacheoorxekbtqfsbtmi
+  tests/test_trendmoon_api.py: bafybeicyz4g6ot3go7ijwizclypvjrk5x2d6qihlgzsxwdho47ienf43vm
   toa_api.py: bafybeidxiknj3bruoq5swjvzr25jsiwrsmh7mm6nzxw223vuw7g4whdphu
   trendmoon_api.py: bafybeidleujolsxbft7qbbv7gil3fpynoby2mxtgonc3u5dcptrlnca3fa
 fingerprint_ignore_patterns: []
