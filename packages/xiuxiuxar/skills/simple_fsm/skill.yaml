@@ -12,9 +12,9 @@ fingerprint:
   behaviours.py: bafybeialaar5xieogwokm2ca7si7ymsbbytmrqpwjxizvu3tpa5vldabxq
   dialogues.py: bafybeiggsfafkurldxnvjhqw3l424acxmpgr4x6qs36ociozuobikpqejy
   handlers.py: bafybeib3y2h576tkiu3j7fyy5dsuc25sbcstexd5wekdz4f443q7jw7zwy
-  loc_api.py: bafybeig5n6o2stnkkytmxosihxjvrke3hz7aomelytfaflx3kfzlg64cpq
+  loc_api.py: bafybeifehzkrgkaipeper55b3jg3fncoque2zdxw5flgpxqohhjgy6262m
   models.py: bafybeiek3fnnzcocwmpvfpe2umilvzxsm7atnneyvjgzl3pgmiyiv5nrru
-  researchagent_api.py: bafybeic6faiy4rhceagb2lalcxzlh2tmhhs4emkdelxc4jtetgzxjgnmfe
+  researchagent_api.py: bafybeid6mt7nvcernhohz7vzd2yc3tk4lkl6npnyp7cui2namd5dr4x4vq
   strategy.py: bafybeighe2emfcjlvw6jninea3td3czbvvohuwo2xmmp45tdosy2z3gmm4
   tests/__init__.py: bafybeigb2ji4vkcap3hokcedggjwsrah7te2nxjhkorwf3ibwgyaa2glma
   tests/conftest.py: bafybeicvznjlmanmoghlq6y3atuuh62ke6wdfxkgwfmh5zrvjvmclatrl4
@@ -22,7 +22,7 @@ fingerprint:
   tests/test_researchagent_api.py: bafybeicbgbfh2cku5z6zm4onwncvdxwieon7fvzbagatdktyljaiqroju4
   tests/test_toa_api.py: bafybeicupzcskhm55ftbllhgxtns3uh3qz7qrz326kr2c3ufbck2mwpwzy
   tests/test_trendmoon_api.py: bafybeicyz4g6ot3go7ijwizclypvjrk5x2d6qihlgzsxwdho47ienf43vm
-  toa_api.py: bafybeidxiknj3bruoq5swjvzr25jsiwrsmh7mm6nzxw223vuw7g4whdphu
+  toa_api.py: bafybeicppa5kbpqd67bd5aht2q34svwhlp3lvyxwxtowtu3bec4ltnhbtm
   trendmoon_api.py: bafybeidleujolsxbft7qbbv7gil3fpynoby2mxtgonc3u5dcptrlnca3fa
 fingerprint_ignore_patterns: []
 connections: []

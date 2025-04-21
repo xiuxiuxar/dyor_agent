@@ -31,10 +31,8 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 
 # Configuration
-LOOKONCHAIN_BASE_URL = os.getenv("LOOKONCHAIN_BASE_URL", "https://www.lookonchain.com")
-LOOKONCHAIN_SEARCH_ENDPOINT = os.getenv(
-    "LOOKONCHAIN_SEARCH_ENDPOINT", "https://www.lookonchain.com/ashx/search_list.ashx"
-)
+LOOKONCHAIN_BASE_URL = os.environ["LOOKONCHAIN_BASE_URL"]
+LOOKONCHAIN_SEARCH_ENDPOINT = os.environ["LOOKONCHAIN_SEARCH_ENDPOINT"]
 
 
 class LookOnChainConfig(BaseAPIConfig):
@@ -217,3 +215,11 @@ class LookOnChainClient(BaseAPIClient):
         except (KeyError, Exception) as e:
             logger.debug(f"Failed to process item: {e}")
             return None
+
+    def validate_config(self) -> None:
+        """Validate required environment variables are set."""
+        required_vars = ["LOOKONCHAIN_BASE_URL", "LOOKONCHAIN_SEARCH_ENDPOINT"]
+        missing = [var for var in required_vars if not os.environ.get(var)]
+        if missing:
+            msg = f"Missing required environment variables: {', '.join(missing)}"
+            raise ValueError(msg)

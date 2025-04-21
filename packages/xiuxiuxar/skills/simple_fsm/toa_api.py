@@ -33,9 +33,9 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 
 # Configuration
-TREE_OF_ALPHA_BASE_URL = os.getenv("TREE_OF_ALPHA_BASE_URL", "https://news.treeofalpha.com")
-TREE_OF_ALPHA_NEWS_ENDPOINT = os.getenv("TREE_OF_ALPHA_NEWS_ENDPOINT", "api/news")
-TREE_OF_ALPHA_CACHE_TTL = int(os.getenv("TREE_OF_ALPHA_CACHE_TTL", "300"))  # 5 minutes default
+TREE_OF_ALPHA_BASE_URL = os.environ["TREE_OF_ALPHA_BASE_URL"]
+TREE_OF_ALPHA_NEWS_ENDPOINT = os.environ["TREE_OF_ALPHA_NEWS_ENDPOINT"]
+TREE_OF_ALPHA_CACHE_TTL = int(os.environ["TREE_OF_ALPHA_CACHE_TTL"])
 
 
 class TreeOfAlphaConfig(BaseAPIConfig):
