@@ -32,8 +32,8 @@ logger = logging.getLogger(__name__)
 class ResearchAgentConfig(BaseAPIConfig):
     """Configuration for Research Agent API."""
 
-    base_url = os.getenv("RESEARCH_AGENT_BASE_URL", "https://docker.trendmoon.io/v1")
-    api_key = os.getenv("RESEARCH_AGENT_API_KEY")
+    base_url = os.environ["RESEARCH_AGENT_BASE_URL"]
+    api_key = os.environ["RESEARCH_AGENT_API_KEY"]
     timeout = 30
     retry_config = {
         "max_retries": 3,
