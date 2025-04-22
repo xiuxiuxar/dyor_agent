@@ -59,6 +59,7 @@ jobs:
         run: |
             make test
         env:
+          CI: "true"
           LOOKONCHAIN_BASE_URL: ${{ secrets.LOOKONCHAIN_BASE_URL }}
           LOOKONCHAIN_SEARCH_ENDPOINT: ${{ secrets.LOOKONCHAIN_SEARCH_ENDPOINT }}
           TREE_OF_ALPHA_BASE_URL: ${{ secrets.TREE_OF_ALPHA_BASE_URL }}
