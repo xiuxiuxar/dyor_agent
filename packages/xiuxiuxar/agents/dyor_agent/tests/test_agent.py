@@ -23,7 +23,7 @@ class TestAgentLaunch(AEATestCaseMany):
 
     def test_run(self) -> None:
         """Run the ABCI skill."""
-        agent_name = "base"
+        agent_name = "dyor_agent"
         self.fetch_agent(f"{AUTHOR}/{AGENT_NAME}:{VERSION}", agent_name, is_local=self.IS_LOCAL)
         self.set_agent_context(agent_name)
         self.generate_private_key("ethereum")
