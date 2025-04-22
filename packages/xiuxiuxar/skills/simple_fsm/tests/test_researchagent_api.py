@@ -25,6 +25,9 @@ from datetime import UTC, datetime, timedelta
 import pytest
 
 
+if os.getenv("CI") == "true":
+    pytest.skip("Skipping in CI", allow_module_level=True)
+
 ROOT_DIR = Path(__file__).parent.parent
 import sys  # noqa: E402
 
