@@ -19,7 +19,7 @@ fingerprint:
   tests/__init__.py: bafybeigb2ji4vkcap3hokcedggjwsrah7te2nxjhkorwf3ibwgyaa2glma
   tests/conftest.py: bafybeicvznjlmanmoghlq6y3atuuh62ke6wdfxkgwfmh5zrvjvmclatrl4
   tests/test_lookonchain_client.py: bafybeibn23oz6so3aujgfeyehw4ziajoafc3s4dmmo77y26cpnsr6pyquq
-  tests/test_researchagent_client.py: bafybeid5zi2ueefzy436ku5lojimc2kvupprnuf4llnzg2yspvrpoyr4jy
+  tests/test_researchagent_client.py: bafybeihqqilkyyg5nbzqn7npxd3zra3tuqnce3n2t5qp6kdgnwuzsakgfu
   tests/test_treeofalpha_client.py: bafybeia7lg2m7zwmwvgxf3vwe4ewscygvz2ho6xnvdgvbjuko5wz2pgskm
   tests/test_trendmoon_client.py: bafybeigr7ilxhdijl75pj3ug6z5nl4m7qs3zbkw3gw23zr6vlaqiquxpa4
   treeofalpha_client.py: bafybeia2qvydwh3zihc2xako4azcs4nnuqgj6skswskmyajpepwrf2mivq
