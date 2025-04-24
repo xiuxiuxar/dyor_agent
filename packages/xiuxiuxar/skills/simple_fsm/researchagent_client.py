@@ -16,21 +16,21 @@
 #
 # ------------------------------------------------------------------------------
 
-"""Research Agent API Client."""
+"""Research Agent Client."""
 
 import os
 import logging
 from typing import Any
 
-from base_api import BaseAPIError, BaseAPIClient, BaseAPIConfig
+from packages.xiuxiuxar.skills.simple_fsm.base_client import BaseClient, BaseAPIError, BaseClientConfig
 
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
-class ResearchAgentConfig(BaseAPIConfig):
-    """Configuration for Research Agent API."""
+class ResearchAgentConfig(BaseClientConfig):
+    """Configuration for Research Agent Client."""
 
     base_url = os.environ["RESEARCH_AGENT_BASE_URL"]
     api_key = os.environ["RESEARCH_AGENT_API_KEY"]
@@ -49,8 +49,8 @@ class ResearchAgentAPIError(BaseAPIError):
     """Research Agent API specific error."""
 
 
-class ResearchAgentAPI(BaseAPIClient):
-    """Client for interacting with the Research Agent API."""
+class ResearchAgentClient(BaseClient):
+    """Client for interacting with the Research Agent."""
 
     def __init__(
         self,

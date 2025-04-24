@@ -16,7 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 
-"""Tree of Alpha API Client."""
+"""Tree of Alpha Client."""
 
 import os
 import time
@@ -25,7 +25,8 @@ from typing import Any
 from datetime import UTC, datetime, timedelta
 
 import requests
-from base_api import BaseAPIError, BaseAPIClient, BaseAPIConfig
+
+from packages.xiuxiuxar.skills.simple_fsm.base_client import BaseClient, BaseAPIError, BaseClientConfig
 
 
 # Configure logging
@@ -38,8 +39,8 @@ TREE_OF_ALPHA_NEWS_ENDPOINT = os.environ["TREE_OF_ALPHA_NEWS_ENDPOINT"]
 TREE_OF_ALPHA_CACHE_TTL = int(os.environ["TREE_OF_ALPHA_CACHE_TTL"])
 
 
-class TreeOfAlphaConfig(BaseAPIConfig):
-    """Configuration for Tree of Alpha API."""
+class TreeOfAlphaConfig(BaseClientConfig):
+    """Configuration for Tree of Alpha."""
 
     base_url = TREE_OF_ALPHA_BASE_URL
     news_endpoint = TREE_OF_ALPHA_NEWS_ENDPOINT
@@ -59,8 +60,8 @@ class TreeOfAlphaAPIError(BaseAPIError):
     """Tree of Alpha API specific error."""
 
 
-class TreeOfAlphaAPI(BaseAPIClient):
-    """Client for interacting with the Tree of Alpha API."""
+class TreeOfAlphaClient(BaseClient):
+    """Client for interacting with the Tree of Alpha."""
 
     def __init__(
         self,
@@ -72,7 +73,7 @@ class TreeOfAlphaAPI(BaseAPIClient):
         timeout: int = TreeOfAlphaConfig.timeout,
         status_forcelist: tuple[int, ...] = TreeOfAlphaConfig.retry_config["status_forcelist"],
     ):
-        """Initialize the Tree of Alpha API client.
+        """Initialize the Tree of Alpha Client.
 
         Args:
         ----
