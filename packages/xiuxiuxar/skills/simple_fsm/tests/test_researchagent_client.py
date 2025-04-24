@@ -25,9 +25,6 @@ from datetime import UTC, datetime, timedelta
 import pytest
 
 
-if os.getenv("CI") == "true":
-    pytest.skip("Skipping in CI", allow_module_level=True)
-
 ROOT_DIR = Path(__file__).parent.parent
 import sys  # noqa: E402
 
@@ -60,6 +57,7 @@ def live_client():
     return ResearchAgentClient(api_key=api_key, base_url=base_url)
 
 
+@pytest.mark.skip(os.getenv("CI") == "true", reason="Skipping in CI")
 @pytest.mark.integration
 class TestResearchAgentAPIIntegration:
     """Integration tests for ResearchAgentClient against live environment."""
