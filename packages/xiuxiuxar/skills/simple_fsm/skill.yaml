@@ -8,14 +8,22 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: bafybeifmctcmcdtae5b3qin4fdveytwcduleekax3mgqbmfwudwcay2dny
   __init__.py: bafybeigocf4h7sv7lkbfbnpelwm6xzwv3hg7pwac2mbamholdxykzq6wiq
-  behaviours.py: bafybeialaar5xieogwokm2ca7si7ymsbbytmrqpwjxizvu3tpa5vldabxq
+  base_client.py: bafybeicm2xl2lk7zorqekiqyvikxz5k3puorgq6l6zscrjgnwf5q37oqvu
+  behaviours.py: bafybeichrqd3mc3jmq54ig4vm37yywpmyg3cfflhekv2rj3ke2r34talae
   dialogues.py: bafybeiggsfafkurldxnvjhqw3l424acxmpgr4x6qs36ociozuobikpqejy
   handlers.py: bafybeib3y2h576tkiu3j7fyy5dsuc25sbcstexd5wekdz4f443q7jw7zwy
-  models.py: bafybeihgdjjv5aygib2rlpygb2v6ziaiz2xsi2hjs35u47m2rzjc3i75zq
+  lookonchain_client.py: bafybeiahw7szs36wvlco4747bvb7dqzya6xzodai5i4p5ckvwj4mnptbiy
+  models.py: bafybeiek3fnnzcocwmpvfpe2umilvzxsm7atnneyvjgzl3pgmiyiv5nrru
+  researchagent_client.py: bafybeieivksjjfvzgyco3onrenpbaho3prvvybioxir247wqlpnmtmza5q
   strategy.py: bafybeighe2emfcjlvw6jninea3td3czbvvohuwo2xmmp45tdosy2z3gmm4
   tests/__init__.py: bafybeigb2ji4vkcap3hokcedggjwsrah7te2nxjhkorwf3ibwgyaa2glma
-  tests/test_metrics.py: bafybeiaorxwtrwgeagwsvge2fshxzpgf5gexjqcn4ka4huqhbarsiufd5y
-  tests/test_metrics_dialogues.py: bafybeife2gxqfj2yvhvs2tfcyv5anslml7nxl5b7fyyfaytpcnaafuja5m
+  tests/conftest.py: bafybeicvznjlmanmoghlq6y3atuuh62ke6wdfxkgwfmh5zrvjvmclatrl4
+  tests/test_lookonchain_client.py: bafybeibn23oz6so3aujgfeyehw4ziajoafc3s4dmmo77y26cpnsr6pyquq
+  tests/test_researchagent_client.py: bafybeid5zi2ueefzy436ku5lojimc2kvupprnuf4llnzg2yspvrpoyr4jy
+  tests/test_treeofalpha_client.py: bafybeia7lg2m7zwmwvgxf3vwe4ewscygvz2ho6xnvdgvbjuko5wz2pgskm
+  tests/test_trendmoon_client.py: bafybeigr7ilxhdijl75pj3ug6z5nl4m7qs3zbkw3gw23zr6vlaqiquxpa4
+  treeofalpha_client.py: bafybeia2qvydwh3zihc2xako4azcs4nnuqgj6skswskmyajpepwrf2mivq
+  trendmoon_client.py: bafybeiakvva4duwpzx4idbixsuz6qpexlqlg2xl7hlc7ldtdkxmcdocs74
 fingerprint_ignore_patterns: []
 connections: []
 contracts: []
