@@ -16,7 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 
-"""Tests for the LookOnChain API client."""
+"""Tests for the LookOnChain client."""
 
 import logging
 from pathlib import Path
@@ -34,7 +34,8 @@ import sys  # noqa: E402
 sys.path.insert(0, str(ROOT_DIR))
 
 try:
-    from loc_api import (
+    from packages.xiuxiuxar.skills.simple_fsm.base_client import BaseClient
+    from packages.xiuxiuxar.skills.simple_fsm.lookonchain_client import (
         NetworkError,
         ParsingError,
         ScrapedDataItem,
@@ -42,11 +43,10 @@ try:
         LookOnChainConfig,
         LookOnChainAPIError,
     )
-    from base_api import BaseAPIClient
 except ImportError as e:
     msg = (
         f"Could not import LookOnChainClient or related errors. "
-        f"Ensure loc_api.py is accessible (PYTHONPATH or relative path). Original error: {e}"
+        f"Ensure lookonchain_client.py is accessible (PYTHONPATH or relative path). Original error: {e}"
     )
     raise ImportError(msg) from None
 
@@ -128,7 +128,7 @@ class TestLookOnChainClientInitialization:
         assert client.source_name == "lookonchain"
         assert client.base_url == BASE_DOMAIN
         assert isinstance(client.session, requests.Session)
-        assert isinstance(client, BaseAPIClient)
+        assert isinstance(client, BaseClient)
 
     def test_init_custom_timeout(self):
         """Test initialization with custom timeout."""
@@ -148,7 +148,7 @@ class TestLookOnChainClientInitialization:
         assert isinstance(client.session.headers["User-Agent"], str)
 
 
-class TestLookOnChainClientEndpoints:
+class TestLookOnChainAPIEndpoints:
     """Tests for the specific API endpoint methods."""
 
     def test_search_success(self, api_client, mock_session_request, mock_response):

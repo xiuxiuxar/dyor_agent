@@ -85,6 +85,17 @@ class WatchingRound(BaseState):
         super().__init__(**kwargs)
         self._state = DyorabciappStates.WATCHINGROUND
 
+    def act(self) -> None:
+        """Act:
+        1. Check if there are any triggers in the database.
+        2. If there are, set the event to TRIGGER.
+        3. If there are no triggers, set the event to NO_TRIGGER.
+        """
+        self.context.logger.info(f"Entering state: {self._state}")
+        self._event = DyorabciappEvents.TRIGGER
+
+        self._is_done = True  # Mark state as done
+
 
 class ProcessDataRound(BaseState):
     """This class implements the behaviour of the state ProcessDataRound."""
@@ -129,6 +140,8 @@ class SetupDYORRound(BaseState):
             self.context.logger.exception(f"Unexpected error during DB setup: {e}")
             self._event = DyorabciappEvents.ERROR
 
+        self._is_done = True  # Mark state as done
+
 
 class DeliverReportRound(BaseState):
     """This class implements the behaviour of the state DeliverReportRound."""
@@ -147,6 +160,7 @@ class TriggerRound(BaseState):
 
     def act(self) -> None:
         """Act on triggers."""
+        self.context.logger.info(f"Entering state: {self._state}")
         self.context.strategy.increment_active_triggers()
         super().act()
 

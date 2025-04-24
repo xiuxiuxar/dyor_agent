@@ -16,7 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 
-"""Tests for the Tree of Alpha API client."""
+"""Tests for the Tree of Alpha client."""
 
 import time
 import logging
@@ -35,16 +35,16 @@ import sys  # noqa: E402
 sys.path.insert(0, str(ROOT_DIR))
 
 try:
-    from toa_api import (
-        TreeOfAlphaAPI,
+    from packages.xiuxiuxar.skills.simple_fsm.base_client import BaseClient
+    from packages.xiuxiuxar.skills.simple_fsm.treeofalpha_client import (
+        TreeOfAlphaClient,
         TreeOfAlphaConfig,
         TreeOfAlphaAPIError,
     )
-    from base_api import BaseAPIClient
 except ImportError as e:
     msg = (
-        f"Could not import TreeOfAlphaAPI or related errors. "
-        f"Ensure toa_api.py is accessible (PYTHONPATH or relative path). Original error: {e}"
+        f"Could not import TreeOfAlphaClient or related errors. "
+        f"Ensure treeofalpha_client.py is accessible (PYTHONPATH or relative path). Original error: {e}"
     )
     raise ImportError(msg) from None
 
@@ -79,7 +79,7 @@ def mock_session_request():
 @pytest.fixture
 def api_client():
     """Fixture to provide an initialized TreeOfAlphaAPI client."""
-    client = TreeOfAlphaAPI(
+    client = TreeOfAlphaClient(
         base_url=BASE_URL,
         news_endpoint=NEWS_ENDPOINT,
         timeout=TreeOfAlphaConfig.timeout,
@@ -127,31 +127,31 @@ class TestTreeOfAlphaClientInitialization:
 
     def test_init_success(self):
         """Test successful initialization."""
-        client = TreeOfAlphaAPI()
+        client = TreeOfAlphaClient()
         assert client.base_url == BASE_URL
         assert client.news_endpoint == NEWS_ENDPOINT
         assert isinstance(client.session, requests.Session)
-        assert isinstance(client, BaseAPIClient)
+        assert isinstance(client, BaseClient)
 
     def test_init_custom_timeout(self):
         """Test initialization with custom timeout."""
         custom_timeout = 60
-        client = TreeOfAlphaAPI(timeout=custom_timeout)
+        client = TreeOfAlphaClient(timeout=custom_timeout)
         assert client.timeout == custom_timeout
 
     def test_init_invalid_base_url(self):
         """Test initialization with invalid base URL."""
-        with pytest.raises(ValueError, match="Invalid.*API base URL"):
-            TreeOfAlphaAPI(base_url="invalid-url")
+        with pytest.raises(ValueError, match="Invalid.*Client base URL"):
+            TreeOfAlphaClient(base_url="invalid-url")
 
     def test_session_headers(self):
         """Test session headers are properly set."""
-        client = TreeOfAlphaAPI()
+        client = TreeOfAlphaClient()
         assert "Content-Type" in client.session.headers
         assert client.session.headers["Content-Type"] == "application/json"
 
 
-class TestTreeOfAlphaClientEndpoints:
+class TestTreeOfAlphaAPIEndpoints:
     """Tests for the specific API endpoint methods."""
 
     def test_get_news_success(self, api_client, mock_session_request, mock_response):
@@ -249,7 +249,7 @@ class TestTreeOfAlphaClientEndpoints:
         assert result[0]["time"] == int(current_time * 1000)
 
 
-class TestTreeOfAlphaClientErrorHandling:
+class TestTreeOfAlphaAPIErrorHandling:
     """Tests for error handling and response parsing."""
 
     def test_invalid_json_handling(self, api_client, mock_session_request, mock_response):
@@ -322,8 +322,8 @@ class TestTreeOfAlphaClientIntegration:
 
     @pytest.fixture(scope="module")
     def live_client(self):
-        """Create a TreeOfAlphaAPI client for live testing."""
-        return TreeOfAlphaAPI(timeout=30)
+        """Create a TreeOfAlphaClient client for live testing."""
+        return TreeOfAlphaClient(timeout=30)
 
     def test_get_news_integration(self, live_client):
         """Test get_news against live API."""

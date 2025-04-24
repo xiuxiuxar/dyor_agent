@@ -16,7 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 
-"""Base API Client implementation."""
+"""Base Client implementation."""
 
 import json
 import logging
@@ -39,8 +39,8 @@ class BaseAPIError(Exception):
         self.status_code = status_code
 
 
-class BaseAPIConfig:
-    """Base configuration for API clients."""
+class BaseClientConfig:
+    """Base configuration for clients."""
 
     api_key: str | None = None
     base_url: str
@@ -55,8 +55,8 @@ class BaseAPIConfig:
     default_headers: dict = {"Content-Type": "application/json"}
 
 
-class BaseAPIClient:
-    """Base class for API clients."""
+class BaseClient:
+    """Base class for clients."""
 
     def __init__(
         self,

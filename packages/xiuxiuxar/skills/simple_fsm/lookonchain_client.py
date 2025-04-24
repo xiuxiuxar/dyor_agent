@@ -16,14 +16,14 @@
 #
 # ------------------------------------------------------------------------------
 
-"""LookOnChain API Client."""
+"""LookOnChain Client."""
 
 import os
 import logging
 from datetime import UTC, datetime
 
-from models import ScrapedDataItem
-from base_api import BaseAPIError, BaseAPIClient, BaseAPIConfig
+from packages.xiuxiuxar.skills.simple_fsm.models import ScrapedDataItem
+from packages.xiuxiuxar.skills.simple_fsm.base_client import BaseClient, BaseAPIError, BaseClientConfig
 
 
 # Configure logging
@@ -35,8 +35,8 @@ LOOKONCHAIN_BASE_URL = os.environ["LOOKONCHAIN_BASE_URL"]
 LOOKONCHAIN_SEARCH_ENDPOINT = os.environ["LOOKONCHAIN_SEARCH_ENDPOINT"]
 
 
-class LookOnChainConfig(BaseAPIConfig):
-    """Configuration for LookOnChain API."""
+class LookOnChainConfig(BaseClientConfig):
+    """Configuration for LookOnChain Client."""
 
     base_url = LOOKONCHAIN_BASE_URL
     search_endpoint = LOOKONCHAIN_SEARCH_ENDPOINT
@@ -72,8 +72,8 @@ class ParsingError(LookOnChainAPIError):
         super().__init__(f"Failed to parse data from {source}: {message}", "parsing", status_code)
 
 
-class LookOnChainClient(BaseAPIClient):
-    """Client for interacting with the LookOnChain API."""
+class LookOnChainClient(BaseClient):
+    """Client for interacting with the LookOnChain."""
 
     def __init__(
         self,
@@ -84,7 +84,7 @@ class LookOnChainClient(BaseAPIClient):
         timeout: int = LookOnChainConfig.timeout,
         status_forcelist: tuple[int, ...] = LookOnChainConfig.retry_config["status_forcelist"],
     ):
-        """Initialize the LookOnChain API client.
+        """Initialize the LookOnChain Client.
 
         Args:
         ----
