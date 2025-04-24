@@ -16,7 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 
-"""Trendmoon API Client."""
+"""Trendmoon Base Client."""
 
 import os
 import logging
@@ -25,8 +25,9 @@ from inspect import signature
 from functools import wraps
 from collections.abc import Callable
 
-from base_api import BaseAPIError, BaseAPIClient, BaseAPIConfig
 from dateutil.parser import ParserError, parse
+
+from packages.xiuxiuxar.skills.simple_fsm.base_client import BaseClient, BaseAPIError, BaseClientConfig
 
 
 TRENDMOON_API_KEY = os.getenv("TRENDMOON_STAGING_API_KEY")
@@ -113,8 +114,8 @@ class TrendmoonAPIError(BaseAPIError):
     """Trendmoon API specific error."""
 
 
-class TrendmoonConfig(BaseAPIConfig):
-    """Configuration for Trendmoon API."""
+class TrendmoonConfig(BaseClientConfig):
+    """Configuration for Trendmoon Client."""
 
     api_key = TRENDMOON_API_KEY
     base_url = TRENDMOON_BASE_URL
@@ -123,8 +124,8 @@ class TrendmoonConfig(BaseAPIConfig):
     retry_config = {"max_retries": 3, "backoff_factor": 0.5, "status_forcelist": (429, 500, 502, 503, 504)}
 
 
-class TrendmoonAPI(BaseAPIClient):
-    """Client for interacting with the Trendmoon API."""
+class TrendmoonClient(BaseClient):
+    """Client for interacting with Trendmoon."""
 
     def __init__(
         self,
