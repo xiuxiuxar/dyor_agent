@@ -21,8 +21,9 @@
 from typing import Any
 from datetime import UTC, datetime
 
-from sqlalchemy import create_engine
+from sqlalchemy import text, create_engine
 from aea.skills.base import Model
+from psycopg2.extras import Json
 from sqlalchemy.engine import Engine
 
 
@@ -86,6 +87,139 @@ class DatabaseModel(Model):
         if self._engine:
             self._engine.dispose()
             self.context.logger.info("Database engine disposed successfully.")
+
+    def store_raw_data(
+        self,
+        source: str,
+        data: Any,
+        trigger_id: str,
+        timestamp: datetime,
+        data_type: str,
+        asset_id: int,
+    ) -> None:
+        """Store raw data in the scraped_data table.
+
+        Args:
+        ----
+            source: The data source (e.g., 'trendmoon', 'lookonchain')
+            data: The raw data to store
+            trigger_id: ID of the trigger that initiated the data collection
+            timestamp: When the data was collected
+            data_type: Type of the data (e.g., 'social', 'coin_details')
+            asset_id: ID of the asset this data relates to
+
+        """
+        if not self._engine:
+            msg = "Database engine not initialized. Call setup() first."
+            raise RuntimeError(msg)
+
+        try:
+            # Convert data to JSON-serializable format
+            if hasattr(data, "to_dict"):
+                data = data.to_dict()
+
+            # Construct the insert query
+            query = text("""
+                INSERT INTO scraped_data (
+                    trigger_id,
+                    asset_id,
+                    source,
+                    data_type,
+                    raw_data,
+                    ingested_at
+                ) VALUES (
+                    :trigger_id,
+                    :asset_id,
+                    :source,
+                    :data_type,
+                    :raw_data,
+                    :ingested_at
+                )
+            """)
+
+            # Execute the insert
+            with self._engine.connect() as conn:
+                conn.execute(
+                    query,
+                    {
+                        "trigger_id": trigger_id,
+                        "asset_id": asset_id,
+                        "source": source,
+                        "data_type": data_type,
+                        "raw_data": Json(data),  # SQLAlchemy/psycopg2 will handle JSON conversion
+                        "ingested_at": timestamp,
+                    },
+                )
+                conn.commit()
+
+            self.context.logger.debug(
+                f"Stored scraped data: source={source}, type={data_type}, " f"trigger={trigger_id}, asset={asset_id}"
+            )
+
+        except Exception as e:
+            self.context.logger.exception(
+                f"Failed to store scraped data: source={source}, type={data_type}, "
+                f"trigger={trigger_id}, asset={asset_id}, error={e!s}"
+            )
+            raise
+
+    def create_trigger(
+        self,
+        asset_id: int,
+        trigger_type: str,
+        trigger_details: dict[str, Any] | None = None,
+    ) -> int:
+        """Create a new trigger in the database.
+
+        Args:
+        ----
+            asset_id: ID of the asset this trigger is for
+            trigger_type: Type of trigger (e.g., 'manual', 'scheduled')
+            trigger_details: Optional JSON details for the trigger
+
+        Returns:
+        -------
+            The ID of the created trigger
+
+        """
+        if not self._engine:
+            msg = "Database engine not initialized. Call setup() first."
+            raise RuntimeError(msg)
+
+        try:
+            query = text("""
+                INSERT INTO triggers (
+                    asset_id,
+                    trigger_type,
+                    trigger_details,
+                    status,
+                    processing_started_at
+                ) VALUES (
+                    :asset_id,
+                    :trigger_type,
+                    :trigger_details,
+                    'processing',
+                    NOW()
+                )
+                RETURNING trigger_id
+            """)
+
+            with self._engine.connect() as conn:
+                result = conn.execute(
+                    query,
+                    {
+                        "asset_id": asset_id,
+                        "trigger_type": trigger_type,
+                        "trigger_details": Json(trigger_details) if trigger_details else None,
+                    },
+                )
+                trigger_id = result.scalar_one()
+                conn.commit()
+                return trigger_id
+
+        except Exception as e:
+            self.context.logger.exception(f"Failed to create trigger: {e!s}")
+            raise
 
 
 class ScrapedDataItem:
