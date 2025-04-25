@@ -95,6 +95,9 @@ class TreeOfAlphaClient(BaseClient):
             headers=TreeOfAlphaConfig.default_headers,
             error_class=TreeOfAlphaAPIError,
         )
+        if not base_url or not news_endpoint:
+            msg = "Invalid Tree of Alpha configuration"
+            raise ValueError(msg)
 
         self.news_endpoint = news_endpoint
         self.cache_ttl = cache_ttl

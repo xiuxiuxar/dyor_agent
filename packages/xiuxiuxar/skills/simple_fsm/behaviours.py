@@ -22,8 +22,32 @@ import os
 from abc import ABC
 from enum import Enum
 from typing import Any
+from datetime import UTC, datetime
+from concurrent.futures import ThreadPoolExecutor
 
+import requests
+import sqlalchemy
+from pydantic import ValidationError
+from sqlalchemy import text
 from aea.skills.behaviours import State, FSMBehaviour
+
+from packages.xiuxiuxar.skills.simple_fsm.data_models import (
+    NewsItem,
+    AssetInfo,
+    KeyMetrics,
+    TriggerInfo,
+    SocialSummary,
+    OfficialUpdate,
+    OnchainHighlight,
+    StructuredPayload,
+)
+from packages.xiuxiuxar.skills.simple_fsm.trendmoon_client import TrendmoonClient, TrendmoonAPIError
+from packages.xiuxiuxar.skills.simple_fsm.lookonchain_client import LookOnChainClient, LookOnChainAPIError
+from packages.xiuxiuxar.skills.simple_fsm.treeofalpha_client import TreeOfAlphaClient, TreeOfAlphaAPIError
+from packages.xiuxiuxar.skills.simple_fsm.researchagent_client import ResearchAgentClient, ResearchAgentAPIError
+
+
+MAX_WORKERS = 4
 
 
 class DyorabciappEvents(Enum):
@@ -100,9 +124,504 @@ class WatchingRound(BaseState):
 class ProcessDataRound(BaseState):
     """This class implements the behaviour of the state ProcessDataRound."""
 
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self._state = DyorabciappStates.PROCESSDATAROUND
+        self.data_processors = {
+            "trendmoon": {
+                "processor": self.serialize_trendmoon_data,
+                "data_type_handler": "multi",
+            },
+            "treeofalpha": {
+                "processor": self.serialize_treeofalpha_data,
+                "data_type_handler": "single",
+            },
+            "lookonchain": {
+                "processor": self.serialize_lookonchain_data,
+                "data_type_handler": "single",
+            },
+            "researchagent": {
+                "processor": self.serialize_researchagent_data,
+                "data_type_handler": "single",
+            },
+        }
+
+    def serialize_treeofalpha_data(self, items: list) -> list:
+        """Serialize Tree of Alpha data."""
+        return (
+            [
+                {
+                    "headline": item.get("title", ""),
+                    "snippet": item.get("content", ""),
+                    "url": item.get("url", ""),
+                    "timestamp": datetime.fromtimestamp(item.get("time", 0) / 1000, UTC).isoformat()
+                    if item.get("time")
+                    else None,
+                    "source": item.get("source", ""),
+                    "symbols": item.get("symbols", []),
+                    "metadata": {"id": item.get("_id"), "suggestions": item.get("suggestions", [])},
+                }
+                for item in items
+            ]
+            if items
+            else []
+        )
+
+    def serialize_lookonchain_data(self, items: list) -> list:
+        """Serialize LookOnChain data."""
+        if not isinstance(items, list):
+            items = [items] if items else []
+
+        return [
+            {
+                "title": getattr(item, "title", ""),
+                "summary": getattr(item, "summary", ""),
+                "url": getattr(item, "url", ""),
+                "timestamp": getattr(item, "timestamp", None),
+                "source": getattr(item, "source", ""),
+                "target": getattr(item, "target", ""),
+                "scraped_at": getattr(item, "scraped_at", None),
+                "metadata": getattr(item, "metadata", {}),
+            }
+            for item in items
+        ]
+
+    def serialize_researchagent_data(self, data: Any) -> list:
+        """Serialize ResearchAgent data."""
+        return [data] if not isinstance(data, list) else data
+
+    def serialize_trendmoon_data(self, data: Any) -> list:
+        """Serialize Trendmoon data."""
+        if not data:
+            return []
+
+        return [data] if not isinstance(data, list) else data
+
+    def store_processed_data(self, source: str, data_type: str, data: Any, trigger_id: int, asset_id: int) -> None:
+        """Store processed data in the database."""
+        try:
+            serialized_data = {"source": source, "data": data, "error": None}
+            self.context.db_model.store_raw_data(
+                source=source,
+                data_type=data_type,
+                data=serialized_data,
+                trigger_id=trigger_id,
+                timestamp=datetime.now(tz=UTC),
+                asset_id=asset_id,
+            )
+        except sqlalchemy.exc.SQLAlchemyError as e:
+            self.context.logger.warning(f"Database error storing {source} data: {e}")
+            raise
+        except (TypeError, ValueError) as e:
+            self.context.logger.warning(f"Data serialization error for {source}: {e}")
+            raise
+        except AttributeError as e:
+            self.context.logger.warning(f"Invalid data structure for {source}: {e}")
+            raise
+
+    def _handle_processing_error(self, errors: dict, key: str, exc: Exception, error_type: str) -> None:
+        """Generic error handler for processing."""
+        errors[key] = f"{error_type}: {exc!s}"
+        self.context.logger.warning(f"{error_type} for {key}: {exc}")
+
+    def process_data_type(
+        self, source: str, data: Any, processor_func: callable, trigger_id: int, asset_id: int, is_multi: bool
+    ) -> dict[str, str]:
+        """Process data for a source, handling both single and multi data types."""
+        errors: dict[str, str] = {}
+
+        if is_multi:
+            if not isinstance(data, dict):
+                self._handle_processing_error(
+                    errors, source, TypeError("Expected dict for multi data type"), "TypeError"
+                )
+                return errors
+            for data_type, subdata in data.items():
+                if not subdata:
+                    continue
+                try:
+                    serialized_data = processor_func(subdata)
+                    self.store_processed_data(
+                        source=source,
+                        data_type=data_type,
+                        data=serialized_data,
+                        trigger_id=trigger_id,
+                        asset_id=asset_id,
+                    )
+                except (TypeError, ValueError) as e:
+                    self._handle_processing_error(errors, f"{source}_{data_type}", e, "Data serialization error")
+                except sqlalchemy.exc.SQLAlchemyError as e:
+                    self._handle_processing_error(errors, f"{source}_{data_type}", e, "Database error")
+                except AttributeError as e:
+                    self._handle_processing_error(errors, f"{source}_{data_type}", e, "Invalid data structure")
+        else:
+            if not data:
+                return errors
+            try:
+                serialized_data = processor_func(data)
+                self.store_processed_data(
+                    source=source,
+                    data_type="default",
+                    data=serialized_data,
+                    trigger_id=trigger_id,
+                    asset_id=asset_id,
+                )
+            except (TypeError, ValueError) as e:
+                self._handle_processing_error(errors, source, e, "Data serialization error")
+            except sqlalchemy.exc.SQLAlchemyError as e:
+                self._handle_processing_error(errors, source, e, "Database error")
+            except AttributeError as e:
+                self._handle_processing_error(errors, source, e, "Invalid data structure")
+
+        return errors
+
+    def process_source_data(self, source: str, raw_data: Any, trigger_id: int, asset_id: int) -> dict[str, str]:
+        """Process data for a single source."""
+        processor_config = self.data_processors.get(source)
+        if not processor_config:
+            return {source: "No processor configured for this source"}
+
+        is_multi = processor_config["data_type_handler"] == "multi"
+        return self.process_data_type(
+            source=source,
+            data=raw_data,
+            processor_func=processor_config["processor"],
+            trigger_id=trigger_id,
+            asset_id=asset_id,
+            is_multi=is_multi,
+        )
+
+    def build_structured_payload(self, context) -> StructuredPayload:
+        """Build and validate the StructuredPayload using Pydantic models."""
+        trendmoon_raw = context.raw_data.get("trendmoon", {})
+        tree_raw = context.raw_data.get("treeofalpha", [])
+        look_raw = context.raw_data.get("lookonchain")
+        research_raw = context.raw_data.get("researchagent")
+
+        social_data, coin_details = self._extract_trendmoon_social_and_coin_details(trendmoon_raw)
+        trend_market_data = self._extract_trend_market_data(social_data)
+        key_metrics = self._build_key_metrics(trend_market_data)
+        social_summary = self._build_social_summary(social_data)
+        asset_info = self._build_asset_info(coin_details, social_data, context)
+        news_items = self._build_news_items(tree_raw)
+        official_updates = self._build_official_updates(look_raw)
+        onchain_highlights = self._build_onchain_highlights(research_raw, context)
+
+        return StructuredPayload(
+            asset_info=asset_info,
+            trigger_info=TriggerInfo(
+                type="manual_test",
+                timestamp=datetime.now(tz=UTC).isoformat(),
+            ),
+            key_metrics=key_metrics,
+            social_summary=social_summary,
+            recent_news=news_items,
+            onchain_highlights=onchain_highlights,
+            official_updates=official_updates,
+        )
+
+    def _extract_trendmoon_social_and_coin_details(self, trendmoon_raw):
+        if isinstance(trendmoon_raw, dict):
+            social_data = trendmoon_raw.get("social", {})
+            coin_details = trendmoon_raw.get("coin_details", {})
+        else:
+            social_data = {}
+            coin_details = {}
+        if isinstance(social_data, list):
+            social_data = social_data[0] if social_data else {}
+        return social_data, coin_details
+
+    def _extract_trend_market_data(self, social_data):
+        return social_data.get("trend_market_data", [])
+
+    def _build_key_metrics(self, trend_market_data):
+        def get_latest_two(entries, key):
+            filtered = [e for e in entries if key in e and isinstance(e[key], int | float) and e[key] is not None]
+            filtered.sort(key=lambda x: datetime.fromisoformat(x["date"]), reverse=True)
+            return filtered[:2]
+
+        # Price change 24h
+        price_points = get_latest_two(trend_market_data, "price")
+        if len(price_points) == 2:
+            latest_price = float(price_points[0]["price"])
+            previous_price = float(price_points[1]["price"])
+            price_change_24h = ((latest_price - previous_price) / previous_price) * 100 if previous_price else 0.0
+        else:
+            price_change_24h = 0.0
+
+        # Volume change 24h
+        volume_points = get_latest_two(trend_market_data, "total_volume")
+        if len(volume_points) == 2:
+            latest_volume = float(volume_points[0]["total_volume"])
+            previous_volume = float(volume_points[1]["total_volume"])
+            volume_change_24h = ((latest_volume - previous_volume) / previous_volume) * 100 if previous_volume else 0.0
+        else:
+            volume_change_24h = 0.0
+
+        # Mindshare 1h (latest non-null social_dominance)
+        mindshare_1h = 0.0
+        mindshare_points = [
+            e
+            for e in sorted(trend_market_data, key=lambda x: datetime.fromisoformat(x["date"]), reverse=True)
+            if "social_dominance" in e
+            and isinstance(e["social_dominance"], int | float)
+            and e["social_dominance"] is not None
+        ]
+        if mindshare_points:
+            mindshare_1h = float(mindshare_points[0]["social_dominance"])
+
+        return KeyMetrics(
+            mindshare_1h=mindshare_1h,
+            volume_change_24h=volume_change_24h,
+            price_change_24h=price_change_24h,
+        )
+
+    def _build_social_summary(self, social_data):
+        return SocialSummary(
+            sentiment_score=social_data.get("lc_sentiment", 0.0),
+            top_keywords=social_data.get("symbols", []),
+            recent_mention_count=social_data.get("lc_social_volume_24h", 0),
+        )
+
+    def _build_asset_info(self, coin_details, social_data, context):
+        asset_source = coin_details or social_data
+        return AssetInfo(
+            name=asset_source.get("name", context.trigger_context.get("asset_name", "")),
+            symbol=asset_source.get("symbol", context.trigger_context.get("asset_symbol", "")),
+            category=asset_source.get("categories", [None])[0] if asset_source.get("categories") else None,
+            coin_id=asset_source.get("id") or asset_source.get("coin_id"),
+            market_cap=asset_source.get("market_cap"),
+            market_cap_rank=asset_source.get("market_cap_rank"),
+            contract_address=asset_source.get("contract_address"),
+        )
+
+    def _build_news_items(self, tree_raw):
+        return [
+            NewsItem(
+                headline=r.get("title", ""),
+                snippet=r.get("content", r.get("title", "")),
+                url=r.get("url", ""),
+                timestamp=datetime.fromtimestamp(r["time"] / 1000, UTC).isoformat() if r.get("time") else None,
+                source=r.get("source", ""),
+            )
+            for r in tree_raw
+        ]
+
+    def _build_official_updates(self, look_raw):
+        return [
+            OfficialUpdate(
+                timestamp=r.timestamp if hasattr(r, "timestamp") else r.get("timestamp"),
+                source=r.source if hasattr(r, "source") else r.get("source"),
+                title=r.title if hasattr(r, "title") else r.get("title"),
+                snippet=r.summary if hasattr(r, "summary") else r.get("summary"),
+            )
+            for r in look_raw or []
+        ]
+
+    def _build_onchain_highlights(self, research_raw, context):
+        highlights = []
+        for r in research_raw or []:
+            ts = r.get("timestamp")
+            parsed_ts = self._parse_timestamp(ts, context)
+            if not isinstance(parsed_ts, datetime):
+                context.logger.warning(f"Skipping OnchainHighlight due to missing or invalid timestamp: {ts!r}")
+                continue
+            highlights.append(
+                OnchainHighlight(
+                    timestamp=parsed_ts,
+                    source=r.get("source", "researchagent"),
+                    headline=r.get("title", r.get("html", "")),
+                    snippet=r.get("summary", ""),
+                    details=r.get("content", r.get("html", "")),
+                )
+            )
+        return highlights
+
+    def _parse_timestamp(self, ts, context):
+        if isinstance(ts, str) and ts.isdigit():
+            try:
+                return datetime.fromtimestamp(int(ts), UTC)
+            except (ValueError, TypeError) as e:
+                context.logger.warning(f"Failed to parse unix timestamp '{ts}': {e}")
+        elif isinstance(ts, int | float):
+            try:
+                return datetime.fromtimestamp(ts, UTC)
+            except (ValueError, TypeError, OSError) as e:
+                context.logger.warning(f"Failed to parse numeric timestamp '{ts}': {e}")
+        elif isinstance(ts, str):
+            try:
+                return datetime.fromisoformat(ts)
+            except (ValueError, TypeError) as e:
+                context.logger.warning(f"Failed to parse ISO timestamp '{ts}': {e}")
+        return None
+
+    def act(self) -> None:
+        """Process raw data → validate/structure → store."""
+        self.context.logger.info(f"Entering state: {self._state}")
+        trigger_id = self.context.trigger_context.get("trigger_id")
+        asset_id = self.context.trigger_context.get("asset_id")
+
+        try:
+            self._store_all_raw_data(trigger_id, asset_id)
+
+            payload = self._try_build_structured_payload()
+            if payload is None:
+                msg = "Failed to build structured payload"
+                raise ValidationError(msg)
+
+            if not self._store_structured_payload(payload, trigger_id, asset_id):
+                msg = "Failed to store structured payload"
+                raise RuntimeError(msg)
+
+            self._event = DyorabciappEvents.DONE
+
+        except ValidationError as e:
+            self.context.logger.exception(f"Validation error: {e}")
+            self.context.error_context = {
+                "error_type": "validation_error",
+                "error_message": str(e),
+                "error_source": "payload_validation",
+                "trigger_id": trigger_id,
+                "asset_id": asset_id,
+                "recoverable": False,
+            }
+            self._event = DyorabciappEvents.ERROR
+
+        except (sqlalchemy.exc.SQLAlchemyError, RuntimeError) as e:
+            self.context.logger.exception(f"Storage error: {e}")
+            self.context.error_context = {
+                "error_type": "storage_error",
+                "error_message": str(e),
+                "error_source": "database_operation",
+                "trigger_id": trigger_id,
+                "asset_id": asset_id,
+                "recoverable": True,
+            }
+            self._event = DyorabciappEvents.ERROR
+
+        except Exception as e:
+            self.context.logger.exception(f"Unexpected error: {e}")
+            self.context.error_context = {
+                "error_type": "unexpected_error",
+                "error_message": str(e),
+                "error_source": "process_data",
+                "trigger_id": trigger_id,
+                "asset_id": asset_id,
+                "recoverable": False,
+            }
+            self._event = DyorabciappEvents.ERROR
+
+        finally:
+            self._is_done = True
+
+    def _store_all_raw_data(self, trigger_id, asset_id):
+        """Store each raw data source in the database for debugging."""
+        try:
+            raw_data_sources = ["trendmoon", "lookonchain", "treeofalpha", "researchagent"]
+            for source in raw_data_sources:
+                raw = self.context.raw_data.get(source)
+                if source == "trendmoon" and isinstance(raw, dict):
+                    for subkey, subval in raw.items():
+                        self.context.db_model.store_raw_data(
+                            source=source,
+                            data_type=subkey,
+                            data=subval,
+                            trigger_id=trigger_id,
+                            timestamp=datetime.now(tz=UTC),
+                            asset_id=asset_id,
+                        )
+                else:
+                    if source == "lookonchain" and isinstance(raw, list):
+                        raw = [
+                            item.model_dump()
+                            if hasattr(item, "model_dump")
+                            else item.__dict__
+                            if hasattr(item, "__dict__")
+                            else item
+                            for item in raw
+                        ]
+                    self.context.db_model.store_raw_data(
+                        source=source,
+                        data_type="raw",
+                        data=raw,
+                        trigger_id=trigger_id,
+                        timestamp=datetime.now(tz=UTC),
+                        asset_id=asset_id,
+                    )
+        except (sqlalchemy.exc.SQLAlchemyError, TypeError, ValueError, AttributeError) as e:
+            self.context.logger.warning(f"Failed to store raw data for debugging: {e}")
+
+    def _try_build_structured_payload(self):
+        """Build the payload, catch and log all validation errors in detail."""
+        try:
+            return self.build_structured_payload(self.context)
+        except ValidationError as e:
+            validation_errors = []
+            for err in e.errors():
+                loc = ".".join(str(path_item) for path_item in err.get("loc", []))
+                msg = err.get("msg", "Unknown error")
+                typ = err.get("type", "Unknown type")
+                val = err.get("input", "Unknown value")
+                validation_errors.append({"location": loc, "message": msg, "error_type": typ, "invalid_value": val})
+                self.context.logger.exception(f"Validation error at {loc}: {msg} (type: {typ}, value: {val})")
+
+            self.context.error_context = {
+                "error_type": "validation_error",
+                "error_source": "payload_schema",
+                "validation_errors": validation_errors,
+                "raw_data_sample": self._get_safe_data_sample(),
+            }
+            msg = "Payload validation failed"
+            raise ValidationError(msg) from e
+
+    def _get_safe_data_sample(self):
+        """Create a safe sample of raw data for error context."""
+        try:
+            # Create a sample that won't blow up logs but provides context
+            sample = {}
+            for source, data in self.context.raw_data.items():
+                if isinstance(data, dict):
+                    sample[source] = dict.fromkeys(data.keys(), "present")
+                elif isinstance(data, list):
+                    sample[source] = f"list with {len(data)} items"
+                else:
+                    sample[source] = str(type(data))
+            return sample
+        except (TypeError, AttributeError, KeyError):
+            return "Could not sample raw data"
+
+    def _store_structured_payload(self, payload, trigger_id, asset_id):
+        """Store the structured payload in the database."""
+        try:
+            payload_dict = payload.model_dump(mode="json")
+            self.context.db_model.store_raw_data(
+                source="structured",
+                data_type="default",
+                data=payload_dict,
+                trigger_id=trigger_id,
+                timestamp=datetime.now(tz=UTC),
+                asset_id=asset_id,
+            )
+            return True
+        except sqlalchemy.exc.SQLAlchemyError as e:
+            self.context.logger.exception(f"Database error: {e}")
+            self.context.error_context = {
+                "error_type": "database_error",
+                "error_source": "store_payload",
+                "error_message": str(e),
+                "query_info": "store_raw_data",
+            }
+            msg = f"Database error while storing structured payload: {e}"
+            raise RuntimeError(msg) from e
+        except TypeError as e:
+            self.context.logger.exception(f"Serialization error: {e}")
+            self.context.error_context = {
+                "error_type": "serialization_error",
+                "error_source": "payload_serialization",
+                "error_message": str(e),
+            }
+            msg = f"Failed to serialize payload: {e}"
+            raise RuntimeError(msg) from e
 
 
 class SetupDYORRound(BaseState):
@@ -130,13 +649,46 @@ class SetupDYORRound(BaseState):
             if not is_valid:
                 raise ValueError(error_msg)
 
-            self._event = DyorabciappEvents.DONE
+            # Initialize API clients
+            self.context.api_clients = {}
+            errors = {}
+
+            try:
+                self.context.api_clients["lookonchain"] = LookOnChainClient()
+            except ValueError as e:
+                errors["lookonchain_init"] = str(e)
+
+            try:
+                self.context.api_clients["treeofalpha"] = TreeOfAlphaClient()
+            except ValueError as e:
+                errors["treeofalpha_init"] = str(e)
+
+            try:
+                self.context.api_clients["researchagent"] = ResearchAgentClient()
+            except ValueError as e:
+                errors["researchagent_init"] = str(e)
+
+            try:
+                api_key = os.getenv("TRENDMOON_STAGING_API_KEY")
+                base_url = os.getenv("TRENDMOON_STAGING_URL")
+                self.context.api_clients["trendmoon"] = TrendmoonClient(
+                    api_key=api_key, base_url=base_url, timeout=30, max_retries=5
+                )
+            except ValueError as e:
+                errors["trendmoon_init"] = str(e)
+
+            if errors:
+                self.context.logger.warning(f"Failed to initialize API clients: {errors}")
+                self._event = DyorabciappEvents.ERROR
+            else:
+                self.context.logger.info("Successfully initialized API clients")
+                self._event = DyorabciappEvents.DONE
 
         except ValueError as e:
             self.context.logger.exception(f"Configuration error during DB setup: {e}")
             self._event = DyorabciappEvents.ERROR
 
-        except Exception as e:
+        except (sqlalchemy.exc.SQLAlchemyError, requests.exceptions.RequestException) as e:
             self.context.logger.exception(f"Unexpected error during DB setup: {e}")
             self._event = DyorabciappEvents.ERROR
 
@@ -161,16 +713,182 @@ class TriggerRound(BaseState):
     def act(self) -> None:
         """Act on triggers."""
         self.context.logger.info(f"Entering state: {self._state}")
-        self.context.strategy.increment_active_triggers()
-        super().act()
+
+        try:
+            # Test asset details
+            test_asset_symbol = "kmno"
+            test_asset_name = "kamino"  # Add descriptive name
+
+            # First ensure the asset exists in the database
+            with self.context.db_model.engine.connect() as conn:
+                # Try to get existing asset first
+                result = conn.execute(
+                    text("SELECT asset_id FROM assets WHERE symbol = :symbol"), {"symbol": test_asset_symbol}
+                )
+                asset = result.fetchone()
+
+                if asset is None:
+                    # Asset doesn't exist, create it
+                    result = conn.execute(
+                        text("""
+                            INSERT INTO assets (symbol, name)
+                            VALUES (:symbol, :name)
+                            RETURNING asset_id
+                        """),
+                        {"symbol": test_asset_symbol, "name": test_asset_name},
+                    )
+                    asset_id = result.scalar_one()
+                    conn.commit()
+                    self.context.logger.info(f"Created new asset with ID {asset_id}")
+                else:
+                    asset_id = asset[0]
+                    self.context.logger.info(f"Using existing asset with ID {asset_id}")
+
+            # Now create the trigger with the valid asset_id
+            trigger_id = self.context.db_model.create_trigger(
+                asset_id=asset_id,  # Use the asset_id we just got/created
+                trigger_type="manual_test",
+                trigger_details={"source": "test", "description": "Test trigger for data ingestion"},
+            )
+
+            self.context.trigger_context = {
+                "trigger_id": trigger_id,
+                "asset_symbol": test_asset_symbol,
+                "asset_name": test_asset_name,
+                "asset_id": asset_id,
+            }
+
+            self.context.logger.info(
+                f"Created test trigger {trigger_id} for asset {test_asset_symbol} (ID: {asset_id})"
+            )
+
+            # Update metrics
+            self.context.strategy.increment_active_triggers()
+
+            self._event = DyorabciappEvents.DONE
+
+        except Exception as e:
+            self.context.logger.exception(f"Error creating trigger: {e}")
+            self._event = DyorabciappEvents.ERROR
+
+        self._is_done = True  # Mark state as done
 
 
 class IngestDataRound(BaseState):
     """This class implements the behaviour of the state IngestDataRound."""
 
+    CLIENT_FETCHERS = {
+        "trendmoon": {
+            "social": lambda client, symbol: client.get_social_trend(
+                symbol=symbol, time_interval="1d", date_interval=3
+            ),
+            "coin_details": lambda client, symbol: client.get_coin_details(symbol=symbol),
+        },
+        "lookonchain": lambda client, symbol: client.search(query=symbol, count=25),
+        "treeofalpha": lambda client, symbol: client.search_news(query=symbol),
+        "researchagent": lambda client, symbol: client.get_tweets_filter(
+            account="aixbt_agent", filter=symbol, limit=25
+        ),
+    }
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self._state = DyorabciappStates.INGESTDATAROUND
+        self._max_workers = kwargs.pop("max_workers", None)
+        if self._max_workers is None:
+            msg = "max_workers must be provided"
+            raise ValueError(msg)
+
+    def _validate_trigger_context(self) -> tuple[str, int]:
+        """Validate and extract trigger context values."""
+        asset_symbol = self.context.trigger_context.get("asset_symbol")
+        trigger_id = self.context.trigger_context.get("trigger_id")
+
+        if not asset_symbol or not trigger_id:
+            msg = "Missing asset symbol or trigger ID in trigger context"
+            raise ValueError(msg)
+
+        return asset_symbol, trigger_id
+
+    def _create_fetch_futures(self, executor: ThreadPoolExecutor, asset_symbol: str) -> dict:
+        """Create futures for each data fetch operation."""
+        futures = {}
+
+        # Get asset_name from trigger_context if available
+        asset_name = self.context.trigger_context.get("asset_name", None)
+
+        for client_name, client in self.context.api_clients.items():
+            fetcher = self.CLIENT_FETCHERS.get(client_name)
+            if not fetcher:
+                continue
+
+            if client_name == "researchagent":
+                # Only search for both if asset_name is present and different from symbol
+                if asset_name and asset_name.lower() != asset_symbol.lower():
+                    futures["researchagent_symbol"] = executor.submit(fetcher, client, asset_symbol)
+                    futures["researchagent_name"] = executor.submit(fetcher, client, asset_name)
+                else:
+                    futures["researchagent"] = executor.submit(fetcher, client, asset_symbol)
+            elif isinstance(fetcher, dict):
+                for endpoint, fetch_func in fetcher.items():
+                    future_key = f"{client_name}_{endpoint}"
+                    futures[future_key] = executor.submit(fetch_func, client, asset_symbol)
+            else:
+                futures[client_name] = executor.submit(fetcher, client, asset_symbol)
+
+        return futures
+
+    def _process_future_result(self, name: str, result: Any) -> None:
+        """Process and store result from a completed future."""
+        if name.startswith("trendmoon"):
+            source, data_type = name.split("_", 1)
+            self.context.raw_data[source][data_type] = result
+        elif name.startswith("researchagent_"):
+            # Combine results for symbol and name
+            if self.context.raw_data["researchagent"] is None:
+                self.context.raw_data["researchagent"] = []
+            if isinstance(result, list):
+                self.context.raw_data["researchagent"].extend(result)
+            elif result is not None:
+                self.context.raw_data["researchagent"].append(result)
+        else:
+            self.context.raw_data[name] = result
+
+    def _initialize_raw_data(self) -> None:
+        """Initialize the raw data storage structure."""
+        self.context.raw_data = {
+            "trendmoon": {"social": None, "coin_details": None},
+            "lookonchain": None,
+            "treeofalpha": None,
+            "researchagent": None,
+        }
+
+    def act(self) -> None:
+        """Fetch raw data from all sources concurrently."""
+        self.context.logger.info(f"Entering state: {self._state}")
+
+        try:
+            self._initialize_raw_data()
+            asset_symbol, _ = self._validate_trigger_context()
+            self.context.logger.info(f"Fetching data for symbol: {asset_symbol}")
+
+            with ThreadPoolExecutor(max_workers=self._max_workers) as executor:
+                futures = self._create_fetch_futures(executor, asset_symbol)
+
+                for name, future in futures.items():
+                    try:
+                        result = future.result()
+                        self._process_future_result(name, result)
+                    except (TrendmoonAPIError, TreeOfAlphaAPIError, LookOnChainAPIError, ResearchAgentAPIError) as e:
+                        self.context.logger.warning(f"Error fetching {name}: {e}")
+
+            self._event = DyorabciappEvents.DONE
+
+        except Exception as e:
+            self.context.logger.exception(f"Error during data ingestion: {e}")
+            self._event = DyorabciappEvents.ERROR
+
+        self._is_done = True
 
 
 class GenerateReportRound(BaseState):
@@ -182,9 +900,9 @@ class GenerateReportRound(BaseState):
 
     def act(self) -> None:
         """Generate report and update metrics."""
+        self.context.logger.info(f"Entering state: {self._state}")
         self.context.strategy.record_report_generated()
         self.context.strategy.decrement_active_triggers()
-        super().act()
 
 
 class HandleErrorRound(BaseState):
