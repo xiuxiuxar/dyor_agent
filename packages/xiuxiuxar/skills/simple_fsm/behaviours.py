@@ -41,6 +41,7 @@ from packages.xiuxiuxar.skills.simple_fsm.data_models import (
     OnchainHighlight,
     StructuredPayload,
 )
+from packages.xiuxiuxar.skills.simple_fsm.data_sources import DATA_SOURCES
 from packages.xiuxiuxar.skills.simple_fsm.trendmoon_client import TrendmoonClient, TrendmoonAPIError
 from packages.xiuxiuxar.skills.simple_fsm.lookonchain_client import LookOnChainClient, LookOnChainAPIError
 from packages.xiuxiuxar.skills.simple_fsm.treeofalpha_client import TreeOfAlphaClient, TreeOfAlphaAPIError
@@ -127,75 +128,96 @@ class ProcessDataRound(BaseState):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self._state = DyorabciappStates.PROCESSDATAROUND
-        self.data_processors = {
-            "trendmoon": {
-                "processor": self.serialize_trendmoon_data,
-                "data_type_handler": "multi",
-            },
-            "treeofalpha": {
-                "processor": self.serialize_treeofalpha_data,
-                "data_type_handler": "single",
-            },
-            "lookonchain": {
-                "processor": self.serialize_lookonchain_data,
-                "data_type_handler": "single",
-            },
-            "researchagent": {
-                "processor": self.serialize_researchagent_data,
-                "data_type_handler": "single",
-            },
-        }
 
-    def serialize_treeofalpha_data(self, items: list) -> list:
-        """Serialize Tree of Alpha data."""
-        return (
-            [
-                {
-                    "headline": item.get("title", ""),
-                    "snippet": item.get("content", ""),
-                    "url": item.get("url", ""),
-                    "timestamp": datetime.fromtimestamp(item.get("time", 0) / 1000, UTC).isoformat()
-                    if item.get("time")
-                    else None,
-                    "source": item.get("source", ""),
-                    "symbols": item.get("symbols", []),
-                    "metadata": {"id": item.get("_id"), "suggestions": item.get("suggestions", [])},
-                }
-                for item in items
-            ]
-            if items
-            else []
+    def process_source_data(self, source: str, raw_data: Any, trigger_id: int, asset_id: int) -> dict[str, str]:
+        """Process data for a source, handling both single and multi data types."""
+        config = DATA_SOURCES.get(source)
+        if not config:
+            return {source: "No processor configured for this source"}
+        is_multi = config["data_type_handler"] == "multi"
+        processor_func = getattr(self, config["processor"])
+        return self.process_data_type(
+            source=source,
+            data=raw_data,
+            processor_func=processor_func,
+            trigger_id=trigger_id,
+            asset_id=asset_id,
+            is_multi=is_multi,
         )
 
-    def serialize_lookonchain_data(self, items: list) -> list:
-        """Serialize LookOnChain data."""
-        if not isinstance(items, list):
-            items = [items] if items else []
+    def _store_all_raw_data(self, trigger_id, asset_id):
+        try:
+            for source, config in DATA_SOURCES.items():
+                raw = self.context.raw_data.get(source)
+                if config.get("data_type_handler") == "multi" and isinstance(raw, dict):
+                    for subkey, subval in raw.items():
+                        self.context.db_model.store_raw_data(
+                            source=source,
+                            data_type=subkey,
+                            data=subval,
+                            trigger_id=trigger_id,
+                            timestamp=datetime.now(tz=UTC),
+                            asset_id=asset_id,
+                        )
+                else:
+                    self.context.db_model.store_raw_data(
+                        source=source,
+                        data_type="raw",
+                        data=raw,
+                        trigger_id=trigger_id,
+                        timestamp=datetime.now(tz=UTC),
+                        asset_id=asset_id,
+                    )
+        except (sqlalchemy.exc.SQLAlchemyError, TypeError, ValueError, AttributeError) as e:
+            self.context.logger.warning(f"Failed to store raw data for debugging: {e}")
 
-        return [
-            {
-                "title": getattr(item, "title", ""),
-                "summary": getattr(item, "summary", ""),
-                "url": getattr(item, "url", ""),
-                "timestamp": getattr(item, "timestamp", None),
-                "source": getattr(item, "source", ""),
-                "target": getattr(item, "target", ""),
-                "scraped_at": getattr(item, "scraped_at", None),
-                "metadata": getattr(item, "metadata", {}),
-            }
-            for item in items
-        ]
+    def process_data_type(
+        self, source: str, data: Any, processor_func: callable, trigger_id: int, asset_id: int, is_multi: bool
+    ) -> dict[str, str]:
+        """Process data for a source, handling both single and multi data types."""
+        errors: dict[str, str] = {}
 
-    def serialize_researchagent_data(self, data: Any) -> list:
-        """Serialize ResearchAgent data."""
-        return [data] if not isinstance(data, list) else data
+        if is_multi:
+            if not isinstance(data, dict):
+                errors[source] = "Expected dict for multi data type"
+            for data_type, subdata in data.items():
+                if not subdata:
+                    continue
+                try:
+                    serialized_data = processor_func(subdata)
+                    self.store_processed_data(
+                        source=source,
+                        data_type=data_type,
+                        data=serialized_data,
+                        trigger_id=trigger_id,
+                        asset_id=asset_id,
+                    )
+                except (TypeError, ValueError) as e:
+                    errors[f"{source}_{data_type}"] = f"Data serialization error: {e}"
+                except sqlalchemy.exc.SQLAlchemyError as e:
+                    errors[f"{source}_{data_type}"] = f"Database error: {e}"
+                except AttributeError as e:
+                    errors[f"{source}_{data_type}"] = f"Invalid data structure: {e}"
+        else:
+            if not data:
+                return errors
+            try:
+                serialized_data = processor_func(data)
+                self.store_processed_data(
+                    source=source,
+                    data_type="default",
+                    data=serialized_data,
+                    trigger_id=trigger_id,
+                    asset_id=asset_id,
+                )
+            except (TypeError, ValueError) as e:
+                errors[source] = f"Data serialization error: {e}"
+            except sqlalchemy.exc.SQLAlchemyError as e:
+                errors[source] = f"Database error: {e}"
+            except AttributeError as e:
+                errors[source] = f"Invalid data structure: {e}"
 
-    def serialize_trendmoon_data(self, data: Any) -> list:
-        """Serialize Trendmoon data."""
-        if not data:
-            return []
-
-        return [data] if not isinstance(data, list) else data
+        return errors
 
     def store_processed_data(self, source: str, data_type: str, data: Any, trigger_id: int, asset_id: int) -> None:
         """Store processed data in the database."""
@@ -223,73 +245,6 @@ class ProcessDataRound(BaseState):
         """Generic error handler for processing."""
         errors[key] = f"{error_type}: {exc!s}"
         self.context.logger.warning(f"{error_type} for {key}: {exc}")
-
-    def process_data_type(
-        self, source: str, data: Any, processor_func: callable, trigger_id: int, asset_id: int, is_multi: bool
-    ) -> dict[str, str]:
-        """Process data for a source, handling both single and multi data types."""
-        errors: dict[str, str] = {}
-
-        if is_multi:
-            if not isinstance(data, dict):
-                self._handle_processing_error(
-                    errors, source, TypeError("Expected dict for multi data type"), "TypeError"
-                )
-                return errors
-            for data_type, subdata in data.items():
-                if not subdata:
-                    continue
-                try:
-                    serialized_data = processor_func(subdata)
-                    self.store_processed_data(
-                        source=source,
-                        data_type=data_type,
-                        data=serialized_data,
-                        trigger_id=trigger_id,
-                        asset_id=asset_id,
-                    )
-                except (TypeError, ValueError) as e:
-                    self._handle_processing_error(errors, f"{source}_{data_type}", e, "Data serialization error")
-                except sqlalchemy.exc.SQLAlchemyError as e:
-                    self._handle_processing_error(errors, f"{source}_{data_type}", e, "Database error")
-                except AttributeError as e:
-                    self._handle_processing_error(errors, f"{source}_{data_type}", e, "Invalid data structure")
-        else:
-            if not data:
-                return errors
-            try:
-                serialized_data = processor_func(data)
-                self.store_processed_data(
-                    source=source,
-                    data_type="default",
-                    data=serialized_data,
-                    trigger_id=trigger_id,
-                    asset_id=asset_id,
-                )
-            except (TypeError, ValueError) as e:
-                self._handle_processing_error(errors, source, e, "Data serialization error")
-            except sqlalchemy.exc.SQLAlchemyError as e:
-                self._handle_processing_error(errors, source, e, "Database error")
-            except AttributeError as e:
-                self._handle_processing_error(errors, source, e, "Invalid data structure")
-
-        return errors
-
-    def process_source_data(self, source: str, raw_data: Any, trigger_id: int, asset_id: int) -> dict[str, str]:
-        """Process data for a single source."""
-        processor_config = self.data_processors.get(source)
-        if not processor_config:
-            return {source: "No processor configured for this source"}
-
-        is_multi = processor_config["data_type_handler"] == "multi"
-        return self.process_data_type(
-            source=source,
-            data=raw_data,
-            processor_func=processor_config["processor"],
-            trigger_id=trigger_id,
-            asset_id=asset_id,
-            is_multi=is_multi,
-        )
 
     def build_structured_payload(self, context) -> StructuredPayload:
         """Build and validate the StructuredPayload using Pydantic models."""
@@ -513,43 +468,6 @@ class ProcessDataRound(BaseState):
 
         finally:
             self._is_done = True
-
-    def _store_all_raw_data(self, trigger_id, asset_id):
-        """Store each raw data source in the database for debugging."""
-        try:
-            raw_data_sources = ["trendmoon", "lookonchain", "treeofalpha", "researchagent"]
-            for source in raw_data_sources:
-                raw = self.context.raw_data.get(source)
-                if source == "trendmoon" and isinstance(raw, dict):
-                    for subkey, subval in raw.items():
-                        self.context.db_model.store_raw_data(
-                            source=source,
-                            data_type=subkey,
-                            data=subval,
-                            trigger_id=trigger_id,
-                            timestamp=datetime.now(tz=UTC),
-                            asset_id=asset_id,
-                        )
-                else:
-                    if source == "lookonchain" and isinstance(raw, list):
-                        raw = [
-                            item.model_dump()
-                            if hasattr(item, "model_dump")
-                            else item.__dict__
-                            if hasattr(item, "__dict__")
-                            else item
-                            for item in raw
-                        ]
-                    self.context.db_model.store_raw_data(
-                        source=source,
-                        data_type="raw",
-                        data=raw,
-                        trigger_id=trigger_id,
-                        timestamp=datetime.now(tz=UTC),
-                        asset_id=asset_id,
-                    )
-        except (sqlalchemy.exc.SQLAlchemyError, TypeError, ValueError, AttributeError) as e:
-            self.context.logger.warning(f"Failed to store raw data for debugging: {e}")
 
     def _try_build_structured_payload(self):
         """Build the payload, catch and log all validation errors in detail."""
@@ -777,20 +695,6 @@ class TriggerRound(BaseState):
 class IngestDataRound(BaseState):
     """This class implements the behaviour of the state IngestDataRound."""
 
-    CLIENT_FETCHERS = {
-        "trendmoon": {
-            "social": lambda client, symbol: client.get_social_trend(
-                symbol=symbol, time_interval="1d", date_interval=3
-            ),
-            "coin_details": lambda client, symbol: client.get_coin_details(symbol=symbol),
-        },
-        "lookonchain": lambda client, symbol: client.search(query=symbol, count=25),
-        "treeofalpha": lambda client, symbol: client.search_news(query=symbol),
-        "researchagent": lambda client, symbol: client.get_tweets_filter(
-            account="aixbt_agent", filter=symbol, limit=25
-        ),
-    }
-
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self._state = DyorabciappStates.INGESTDATAROUND
@@ -800,51 +704,45 @@ class IngestDataRound(BaseState):
             raise ValueError(msg)
 
     def _validate_trigger_context(self) -> tuple[str, int]:
-        """Validate and extract trigger context values."""
         asset_symbol = self.context.trigger_context.get("asset_symbol")
         trigger_id = self.context.trigger_context.get("trigger_id")
-
         if not asset_symbol or not trigger_id:
             msg = "Missing asset symbol or trigger ID in trigger context"
             raise ValueError(msg)
-
         return asset_symbol, trigger_id
 
-    def _create_fetch_futures(self, executor: ThreadPoolExecutor, asset_symbol: str) -> dict:
-        """Create futures for each data fetch operation."""
+    def _initialize_raw_data(self) -> None:
+        self.context.raw_data = {
+            source: {} if config.get("data_type_handler") == "multi" else None
+            for source, config in DATA_SOURCES.items()
+        }
+
+    def _create_fetch_futures(self, executor, asset_symbol, asset_name):
         futures = {}
-
-        # Get asset_name from trigger_context if available
-        asset_name = self.context.trigger_context.get("asset_name", None)
-
-        for client_name, client in self.context.api_clients.items():
-            fetcher = self.CLIENT_FETCHERS.get(client_name)
-            if not fetcher:
+        for source, config in DATA_SOURCES.items():
+            client = self.context.api_clients.get(source)
+            if not client:
                 continue
-
-            if client_name == "researchagent":
-                # Only search for both if asset_name is present and different from symbol
-                if asset_name and asset_name.lower() != asset_symbol.lower():
-                    futures["researchagent_symbol"] = executor.submit(fetcher, client, asset_symbol)
-                    futures["researchagent_name"] = executor.submit(fetcher, client, asset_name)
-                else:
-                    futures["researchagent"] = executor.submit(fetcher, client, asset_symbol)
-            elif isinstance(fetcher, dict):
-                for endpoint, fetch_func in fetcher.items():
-                    future_key = f"{client_name}_{endpoint}"
-                    futures[future_key] = executor.submit(fetch_func, client, asset_symbol)
+            if config.get("data_type_handler") == "multi":
+                for endpoint, fetcher in config["fetchers"].items():
+                    futures[f"{source}_{endpoint}"] = executor.submit(
+                        fetcher, client, asset_symbol, asset_name=asset_name
+                    )
             else:
-                futures[client_name] = executor.submit(fetcher, client, asset_symbol)
-
+                fetcher = config["fetcher"]
+                # researchagent: fetch for both symbol and name if different
+                if source == "researchagent" and asset_name and asset_name.lower() != asset_symbol.lower():
+                    futures[f"{source}_symbol"] = executor.submit(fetcher, client, asset_symbol, asset_name=None)
+                    futures[f"{source}_name"] = executor.submit(fetcher, client, asset_symbol, asset_name=asset_name)
+                else:
+                    futures[source] = executor.submit(fetcher, client, asset_symbol, asset_name=asset_name)
         return futures
 
-    def _process_future_result(self, name: str, result: Any) -> None:
-        """Process and store result from a completed future."""
+    def _process_future_result(self, name, result):
         if name.startswith("trendmoon"):
             source, data_type = name.split("_", 1)
             self.context.raw_data[source][data_type] = result
         elif name.startswith("researchagent_"):
-            # Combine results for symbol and name
             if self.context.raw_data["researchagent"] is None:
                 self.context.raw_data["researchagent"] = []
             if isinstance(result, list):
@@ -854,27 +752,17 @@ class IngestDataRound(BaseState):
         else:
             self.context.raw_data[name] = result
 
-    def _initialize_raw_data(self) -> None:
-        """Initialize the raw data storage structure."""
-        self.context.raw_data = {
-            "trendmoon": {"social": None, "coin_details": None},
-            "lookonchain": None,
-            "treeofalpha": None,
-            "researchagent": None,
-        }
-
     def act(self) -> None:
-        """Fetch raw data from all sources concurrently."""
+        """Ingest data from all sources."""
         self.context.logger.info(f"Entering state: {self._state}")
-
         try:
             self._initialize_raw_data()
             asset_symbol, _ = self._validate_trigger_context()
+            asset_name = self.context.trigger_context.get("asset_name", None)
             self.context.logger.info(f"Fetching data for symbol: {asset_symbol}")
 
             with ThreadPoolExecutor(max_workers=self._max_workers) as executor:
-                futures = self._create_fetch_futures(executor, asset_symbol)
-
+                futures = self._create_fetch_futures(executor, asset_symbol, asset_name)
                 for name, future in futures.items():
                     try:
                         result = future.result()
@@ -883,11 +771,9 @@ class IngestDataRound(BaseState):
                         self.context.logger.warning(f"Error fetching {name}: {e}")
 
             self._event = DyorabciappEvents.DONE
-
         except Exception as e:
             self.context.logger.exception(f"Error during data ingestion: {e}")
             self._event = DyorabciappEvents.ERROR
-
         self._is_done = True
 
 
