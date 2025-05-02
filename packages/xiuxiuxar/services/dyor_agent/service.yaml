@@ -9,7 +9,7 @@ fingerprint:
   tests/__init__.py: bafybeiausykbndof27hjfgwqg6nnmk7zw7lyytwzekih3gszwdypbtxjka
   tests/test_service.py: bafybeicplirjoql5q3l5zjl5xrgamnoxuj3year7u2vrtfnzzllzeyutuy
 fingerprint_ignore_patterns: []
-agent: xiuxiuxar/dyor_agent:0.1.0:bafybeia5zv3wf5v6exy3k3emq5q3fjoipbnz7pnit4nsy56zx2jn2vrpsu
+agent: xiuxiuxar/dyor_agent:0.1.0:bafybeibergbdps5r3elgvy56hhn755spg75y5qilqjobcdjsd3ky2llvwe
 number_of_agents: 1
 deployment:
   agent:

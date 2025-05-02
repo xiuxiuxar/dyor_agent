@@ -9,12 +9,13 @@ fingerprint:
   README.md: bafybeifmctcmcdtae5b3qin4fdveytwcduleekax3mgqbmfwudwcay2dny
   __init__.py: bafybeigocf4h7sv7lkbfbnpelwm6xzwv3hg7pwac2mbamholdxykzq6wiq
   base_client.py: bafybeicm2xl2lk7zorqekiqyvikxz5k3puorgq6l6zscrjgnwf5q37oqvu
-  behaviours.py: bafybeihi3ofedpbnnd2eld5ksntvpon3ahjqstouxi5bud3dzgdq564lbe
+  behaviours.py: bafybeiapqxxkadz3hasvvn55xmdyvwyyaz4pdkmdtonmjnyx4rni34tndq
+  data_models.py: bafybeidra5kkdsm5dtyqnhlvmhittdz3m7vvqyfjo7lkjgg4r3vr2w5axy
   dialogues.py: bafybeiggsfafkurldxnvjhqw3l424acxmpgr4x6qs36ociozuobikpqejy
   handlers.py: bafybeib3y2h576tkiu3j7fyy5dsuc25sbcstexd5wekdz4f443q7jw7zwy
   lookonchain_client.py: bafybeiahw7szs36wvlco4747bvb7dqzya6xzodai5i4p5ckvwj4mnptbiy
   models.py: bafybeigig2manvs3fa6qhtc2ey7fyc2etz7tw6jo2c64arlpcnodplkz2y
-  researchagent_client.py: bafybeieivksjjfvzgyco3onrenpbaho3prvvybioxir247wqlpnmtmza5q
+  researchagent_client.py: bafybeiafum3ptxprnwywv65w2m4swgppi6fcpftlizyhdiinyfjlubbah4
   strategy.py: bafybeighe2emfcjlvw6jninea3td3czbvvohuwo2xmmp45tdosy2z3gmm4
   tests/__init__.py: bafybeigb2ji4vkcap3hokcedggjwsrah7te2nxjhkorwf3ibwgyaa2glma
   tests/conftest.py: bafybeicvznjlmanmoghlq6y3atuuh62ke6wdfxkgwfmh5zrvjvmclatrl4
@@ -22,7 +23,7 @@ fingerprint:
   tests/test_researchagent_client.py: bafybeietij2hk6nkuuloz6miwyqnn6p4hj47mzjf3io64sssrgkc75ehey
   tests/test_treeofalpha_client.py: bafybeia7lg2m7zwmwvgxf3vwe4ewscygvz2ho6xnvdgvbjuko5wz2pgskm
   tests/test_trendmoon_client.py: bafybeigr7ilxhdijl75pj3ug6z5nl4m7qs3zbkw3gw23zr6vlaqiquxpa4
-  treeofalpha_client.py: bafybeiauq4uinxsggmzu3psgkxhv3gecdpyjk2wwex5kulhhb7gxx3eghe
+  treeofalpha_client.py: bafybeie62wxarxxgz6fivcdsk5x37qc2yuayoxih4achol3so5ca5jsbgy
   trendmoon_client.py: bafybeiakvva4duwpzx4idbixsuz6qpexlqlg2xl7hlc7ldtdkxmcdocs74
 fingerprint_ignore_patterns: []
 connections: []

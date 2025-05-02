@@ -132,16 +132,16 @@ class ResearchAgentClient(BaseClient):
 
     def get_tweets_filter(
         self,
-        account: str,
+        account: str | list[str],
         filter: str,
         limit: int | None = None,
         format: str | None = None,
     ) -> dict[str, Any] | None:
-        """Get tweets from a specific account with a filter.
+        """Get tweets from specific account(s) with a filter.
 
         Args:
         ----
-            account: Twitter account name
+            account: Single Twitter account name or list of account names
             filter: Filter string to apply
             limit: Maximum number of tweets to return
             format: Output format ('summary' or 'detailed')
@@ -152,11 +152,15 @@ class ResearchAgentClient(BaseClient):
 
         Raises:
         ------
-            ValueError: If format is invalid
+            ValueError: If format is invalid or filter length exceeds 50 chars
 
         """
         if format and format not in {"summary", "detailed"}:
             msg = "format must be 'summary' or 'detailed'"
+            raise ValueError(msg)
+
+        if len(filter) > 50:
+            msg = "filter must not exceed 50 characters"
             raise ValueError(msg)
 
         limit = self._validate_limit(limit)
@@ -164,11 +168,3 @@ class ResearchAgentClient(BaseClient):
         params = {"account": account, "filter": filter, "limit": limit, "format": format}
         logger.info(f"Getting filtered tweets for {account}: {params}")
         return self._make_request("GET", endpoint, params=params)
-
-    def __enter__(self):
-        """Context manager entry."""
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """Context manager exit."""
-        self.session.close()
