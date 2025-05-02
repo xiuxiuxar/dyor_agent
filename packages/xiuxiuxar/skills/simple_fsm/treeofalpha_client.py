@@ -19,6 +19,7 @@
 """Tree of Alpha Client."""
 
 import os
+import re
 import time
 import logging
 from typing import Any
@@ -188,20 +189,21 @@ class TreeOfAlphaClient(BaseClient):
         if not query:
             return news_items
 
-        def matches_query(item: dict[str, Any]) -> bool:
-            """Check if item matches search query."""
-            if not case_sensitive:
-                search_query = query.lower()
-                title = item.get("title", "").lower()
-                source = item.get("source", "").lower()
-                symbols = [s.lower() for s in item.get("symbols", [])]
-            else:
-                search_query = query
-                title = item.get("title", "")
-                source = item.get("source", "")
-                symbols = item.get("symbols", [])
+        # Use regex to match the query as a whole word (case-insensitive by default)
+        flags = 0 if case_sensitive else re.IGNORECASE
+        pattern = re.compile(rf"\b{re.escape(query)}\b", flags)
 
-            return search_query in title or search_query in source or any(search_query in symbol for symbol in symbols)
+        def matches_query(item: dict[str, Any]) -> bool:
+            """Check if item matches search query as a whole word."""
+            title = item.get("title", "")
+            source = item.get("source", "")
+            symbols = item.get("symbols", [])
+            # Check in title, source, and each symbol
+            return (
+                bool(pattern.search(title))
+                or bool(pattern.search(source))
+                or any(pattern.search(symbol) for symbol in symbols)
+            )
 
         matching_items = [item for item in news_items if matches_query(item)]
         logger.info(f"Found {len(matching_items)} items matching query: {query}")
