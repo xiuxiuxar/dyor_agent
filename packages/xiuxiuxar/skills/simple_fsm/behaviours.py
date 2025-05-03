@@ -22,7 +22,7 @@ import os
 from abc import ABC
 from enum import Enum
 from typing import Any
-from datetime import UTC, datetime
+from datetime import UTC, tzinfo, datetime
 from concurrent.futures import ThreadPoolExecutor
 
 import requests
@@ -145,12 +145,49 @@ class ProcessDataRound(BaseState):
             is_multi=is_multi,
         )
 
+    def _serialize_for_storage(self, data):
+        """Recursively serialize data for storage, leveraging Pydantic where possible."""
+        result = data  # Default: return as-is
+
+        if isinstance(data, dict):
+            result = {key: self._serialize_for_storage(value) for key, value in data.items()}
+        elif isinstance(data, list):
+            result = [self._serialize_for_storage(item) for item in data]
+        elif isinstance(data, datetime):
+            result = data.isoformat()
+        elif isinstance(data, tzinfo):
+            result = str(data)
+        elif hasattr(data, "model_dump"):
+            result = data.model_dump(mode="json")
+        elif hasattr(data, "__dict__"):
+            result = {k: self._serialize_for_storage(v) for k, v in data.__dict__.items() if not k.startswith("_")}
+
+        return result
+
     def _store_all_raw_data(self, trigger_id, asset_id):
         try:
             for source, config in DATA_SOURCES.items():
                 raw = self.context.raw_data.get(source)
-                if config.get("data_type_handler") == "multi" and isinstance(raw, dict):
-                    for subkey, subval in raw.items():
+                serialized_raw = self._serialize_for_storage(raw)
+                self.context.logger.info(
+                    "Storing raw data for source=%s, type=%s: "
+                    "type(raw)=%s, type(serialized_raw)=%s, raw=%s, serialized_raw=%s",
+                    source,
+                    "multi" if config.get("data_type_handler") == "multi" else "raw",
+                    type(raw),
+                    type(serialized_raw),
+                    repr(raw)[:500],
+                    repr(serialized_raw)[:500],
+                )
+                if config.get("data_type_handler") == "multi" and isinstance(serialized_raw, dict):
+                    for subkey, subval in serialized_raw.items():
+                        self.context.logger.info(
+                            "Storing multi raw data for source=%s, subkey=%s, type(subval)=%s, subval=%s",
+                            source,
+                            subkey,
+                            type(subval),
+                            repr(subval)[:500],
+                        )
                         self.context.db_model.store_raw_data(
                             source=source,
                             data_type=subkey,
@@ -163,7 +200,7 @@ class ProcessDataRound(BaseState):
                     self.context.db_model.store_raw_data(
                         source=source,
                         data_type="raw",
-                        data=raw,
+                        data=serialized_raw,
                         trigger_id=trigger_id,
                         timestamp=datetime.now(tz=UTC),
                         asset_id=asset_id,
@@ -223,6 +260,13 @@ class ProcessDataRound(BaseState):
         """Store processed data in the database."""
         try:
             serialized_data = {"source": source, "data": data, "error": None}
+            self.context.logger.info(
+                "Storing processed data for source=%s, data_type=%s, type(data)=%s, data=%s",
+                source,
+                data_type,
+                type(data),
+                repr(data)[:500],
+            )
             self.context.db_model.store_raw_data(
                 source=source,
                 data_type=data_type,
@@ -375,8 +419,14 @@ class ProcessDataRound(BaseState):
 
     def _build_onchain_highlights(self, research_raw, context):
         highlights = []
-        for r in research_raw or []:
-            ts = r.get("timestamp")
+        # Flatten tweets from researchagent's data structure
+        tweets = []
+        for entry in research_raw or []:
+            # Each entry is expected to have a 'data' dict with a 'tweets' list
+            if isinstance(entry, dict) and "data" in entry and "tweets" in entry["data"]:
+                tweets.extend(entry["data"]["tweets"])
+        for tweet in tweets:
+            ts = tweet.get("timestamp")
             parsed_ts = self._parse_timestamp(ts, context)
             if not isinstance(parsed_ts, datetime):
                 context.logger.warning(f"Skipping OnchainHighlight due to missing or invalid timestamp: {ts!r}")
@@ -384,10 +434,11 @@ class ProcessDataRound(BaseState):
             highlights.append(
                 OnchainHighlight(
                     timestamp=parsed_ts,
-                    source=r.get("source", "researchagent"),
-                    headline=r.get("title", r.get("html", "")),
-                    snippet=r.get("summary", ""),
-                    details=r.get("content", r.get("html", "")),
+                    source=tweet.get("account", "researchagent"),
+                    headline=tweet.get("html", ""),
+                    snippet="",
+                    details=tweet.get("html", ""),
+                    event="tweet",
                 )
             )
         return highlights
@@ -416,18 +467,31 @@ class ProcessDataRound(BaseState):
         trigger_id = self.context.trigger_context.get("trigger_id")
         asset_id = self.context.trigger_context.get("asset_id")
 
+        # Log missing or errored sources
+        expected_sources = set(DATA_SOURCES.keys())
+        received_sources = set(self.context.raw_data.keys())
+        expected_sources - received_sources
+
+        for source in expected_sources:
+            data = self.context.raw_data.get(source)
+            if not data:
+                error_info = getattr(self.context, "raw_errors", {}).get(source)
+                self.context.logger.warning(
+                    f"Missing or empty data for source '{source}'."
+                    f"{' Error: ' + str(error_info) if error_info else ''}"
+                )
+                if error_info and error_info.get("http_response"):
+                    self.context.logger.warning(f"HTTP response for '{source}': {error_info['http_response']}")
+
         try:
             self._store_all_raw_data(trigger_id, asset_id)
-
             payload = self._try_build_structured_payload()
             if payload is None:
                 msg = "Failed to build structured payload"
                 raise ValidationError(msg)
-
             if not self._store_structured_payload(payload, trigger_id, asset_id):
                 msg = "Failed to store structured payload"
                 raise RuntimeError(msg)
-
             self._event = DyorabciappEvents.DONE
 
         except ValidationError as e:
@@ -627,21 +691,22 @@ class TriggerRound(BaseState):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self._state = DyorabciappStates.TRIGGERROUND
+        self.test_asset_symbol = kwargs.get("test_asset_symbol")
+        self.test_asset_name = kwargs.get("test_asset_name")
+        if not self.test_asset_symbol or not self.test_asset_name:
+            msg = "test_asset_symbol and test_asset_name must be provided"
+            raise ValueError(msg)
 
     def act(self) -> None:
         """Act on triggers."""
         self.context.logger.info(f"Entering state: {self._state}")
 
         try:
-            # Test asset details
-            test_asset_symbol = "kmno"
-            test_asset_name = "kamino"  # Add descriptive name
-
             # First ensure the asset exists in the database
             with self.context.db_model.engine.connect() as conn:
                 # Try to get existing asset first
                 result = conn.execute(
-                    text("SELECT asset_id FROM assets WHERE symbol = :symbol"), {"symbol": test_asset_symbol}
+                    text("SELECT asset_id FROM assets WHERE symbol = :symbol"), {"symbol": self.test_asset_symbol}
                 )
                 asset = result.fetchone()
 
@@ -653,7 +718,7 @@ class TriggerRound(BaseState):
                             VALUES (:symbol, :name)
                             RETURNING asset_id
                         """),
-                        {"symbol": test_asset_symbol, "name": test_asset_name},
+                        {"symbol": self.test_asset_symbol, "name": self.test_asset_name},
                     )
                     asset_id = result.scalar_one()
                     conn.commit()
@@ -671,13 +736,13 @@ class TriggerRound(BaseState):
 
             self.context.trigger_context = {
                 "trigger_id": trigger_id,
-                "asset_symbol": test_asset_symbol,
-                "asset_name": test_asset_name,
+                "asset_symbol": self.test_asset_symbol,
+                "asset_name": self.test_asset_name,
                 "asset_id": asset_id,
             }
 
             self.context.logger.info(
-                f"Created test trigger {trigger_id} for asset {test_asset_symbol} (ID: {asset_id})"
+                f"Created test trigger {trigger_id} for asset {self.test_asset_symbol} (ID: {asset_id})"
             )
 
             # Update metrics
@@ -738,7 +803,11 @@ class IngestDataRound(BaseState):
                     futures[source] = executor.submit(fetcher, client, asset_symbol, asset_name=asset_name)
         return futures
 
-    def _process_future_result(self, name, result):
+    def _process_future_result(self, name, result, error=None):
+        if error:
+            if not hasattr(self.context, "raw_errors"):
+                self.context.raw_errors = {}
+            self.context.raw_errors[name] = error
         if name.startswith("trendmoon"):
             source, data_type = name.split("_", 1)
             self.context.raw_data[source][data_type] = result
@@ -768,7 +837,15 @@ class IngestDataRound(BaseState):
                         result = future.result()
                         self._process_future_result(name, result)
                     except (TrendmoonAPIError, TreeOfAlphaAPIError, LookOnChainAPIError, ResearchAgentAPIError) as e:
-                        self.context.logger.warning(f"Error fetching {name}: {e}")
+                        # Try to get HTTP response if available
+                        http_response = getattr(e, "response", None)
+                        error_dump = {
+                            "error": str(e),
+                            "http_response": getattr(http_response, "text", None) if http_response else None,
+                            "status_code": getattr(http_response, "status_code", None) if http_response else None,
+                        }
+                        self._process_future_result(name, None, error=error_dump)
+                        self.context.logger.warning(f"Error fetching {name}: {e} | HTTP: {error_dump}")
 
             self._event = DyorabciappEvents.DONE
         except Exception as e:

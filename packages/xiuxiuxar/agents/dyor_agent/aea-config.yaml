@@ -20,7 +20,7 @@ protocols:
 - open_aea/signing:1.0.0:bafybeig2d36zxy65vd7fwhs7scotuktydcarm74aprmrb5nioiymr3yixm
 skills:
 - eightballer/prometheus:0.1.0:bafybeicl5i7e467aowfarke4bbyixo2dggar276njmvyuwbsby5pxshhtu
-- xiuxiuxar/simple_fsm:0.1.0:bafybeiajtq5odfjjmkm2l2eer55u6sfy3pxcu7cv4ksdg5x6lyqi2bh6c4
+- xiuxiuxar/simple_fsm:0.1.0:bafybeial5cptvfqheiyiq2uj2dd3qxx5ohiubzdizioy4p34gqa43z6laq
 customs: []
 default_ledger: ethereum
 required_ledgers:
@@ -69,6 +69,8 @@ behaviours:
   main:
     args:
       max_workers: ${int:4}
+      test_asset_symbol: ${str:olas}
+      test_asset_name: ${str:Autonolas}
 handlers:
   metrics_handler:
     args:

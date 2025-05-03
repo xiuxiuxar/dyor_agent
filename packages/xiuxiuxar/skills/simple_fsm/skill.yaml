@@ -9,7 +9,7 @@ fingerprint:
   README.md: bafybeifmctcmcdtae5b3qin4fdveytwcduleekax3mgqbmfwudwcay2dny
   __init__.py: bafybeigocf4h7sv7lkbfbnpelwm6xzwv3hg7pwac2mbamholdxykzq6wiq
   base_client.py: bafybeicm2xl2lk7zorqekiqyvikxz5k3puorgq6l6zscrjgnwf5q37oqvu
-  behaviours.py: bafybeidnnwzmubkhk7b4c4tn2bsra55tez5l4ds22b36u5h26gqmak4e2m
+  behaviours.py: bafybeidzqjlezz6hujlsabnsrorebfj4s25htsyt2atteg725dep7o4xb4
   data_models.py: bafybeidra5kkdsm5dtyqnhlvmhittdz3m7vvqyfjo7lkjgg4r3vr2w5axy
   data_sources.py: bafybeibgdk3zh73idd5qp5rf7scsueiixjwisfi55cau6ah5wxnwcjgori
   dialogues.py: bafybeiggsfafkurldxnvjhqw3l424acxmpgr4x6qs36ociozuobikpqejy
@@ -37,6 +37,8 @@ behaviours:
   main:
     args:
       max_workers: 4
+      test_asset_symbol: olas
+      test_asset_name: Autonolas
     class_name: DyorabciappFsmBehaviour
 handlers:
   metrics_handler:
