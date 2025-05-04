@@ -8,10 +8,10 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: bafybeifmctcmcdtae5b3qin4fdveytwcduleekax3mgqbmfwudwcay2dny
   __init__.py: bafybeigocf4h7sv7lkbfbnpelwm6xzwv3hg7pwac2mbamholdxykzq6wiq
-  base_client.py: bafybeicm2xl2lk7zorqekiqyvikxz5k3puorgq6l6zscrjgnwf5q37oqvu
-  behaviours.py: bafybeidzqjlezz6hujlsabnsrorebfj4s25htsyt2atteg725dep7o4xb4
+  base_client.py: bafybeifqgftoag3rsln4m3l4tnfnisfski7rpg6x2tjne37a2erkx6x3wm
+  behaviours.py: bafybeigfrtdzn5qingan4w7zdq2vcvultrl53mmgrzjtlyzgvlrj4hqeoy
   data_models.py: bafybeidra5kkdsm5dtyqnhlvmhittdz3m7vvqyfjo7lkjgg4r3vr2w5axy
-  data_sources.py: bafybeibgdk3zh73idd5qp5rf7scsueiixjwisfi55cau6ah5wxnwcjgori
+  data_sources.py: bafybeiavfxo5auuybjvzrltliuoby6242qaz2kfxw7izrx4vzezlme2zya
   dialogues.py: bafybeiggsfafkurldxnvjhqw3l424acxmpgr4x6qs36ociozuobikpqejy
   handlers.py: bafybeib3y2h576tkiu3j7fyy5dsuc25sbcstexd5wekdz4f443q7jw7zwy
   lookonchain_client.py: bafybeiahw7szs36wvlco4747bvb7dqzya6xzodai5i4p5ckvwj4mnptbiy
