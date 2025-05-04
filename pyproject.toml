@@ -26,8 +26,7 @@ autonomy-dev = {extras = ["all"], version = ">=0.2.64,<=0.2.149"}
 sqlalchemy = "^2.0.40"
 psycopg2-binary = "^2.9.10"
 alembic = "^1.15.2"
-
-[tool.poetry.group.dev.dependencies]
+curl-adapter = "^1.0.0.post3"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"

@@ -632,32 +632,21 @@ class SetupDYORRound(BaseState):
                 raise ValueError(error_msg)
 
             # Initialize API clients
-            self.context.api_clients = {}
+            self.context.api_clients = {
+                "trendmoon": (
+                    TrendmoonClient,
+                    {
+                        "api_key": os.getenv("TRENDMOON_STAGING_API_KEY"),
+                        "base_url": os.getenv("TRENDMOON_STAGING_URL"),
+                        "timeout": 30,
+                        "max_retries": 5,
+                    },
+                ),
+                "lookonchain": (LookOnChainClient, {}),
+                "treeofalpha": (TreeOfAlphaClient, {}),
+                "researchagent": (ResearchAgentClient, {}),
+            }
             errors = {}
-
-            try:
-                self.context.api_clients["lookonchain"] = LookOnChainClient()
-            except ValueError as e:
-                errors["lookonchain_init"] = str(e)
-
-            try:
-                self.context.api_clients["treeofalpha"] = TreeOfAlphaClient()
-            except ValueError as e:
-                errors["treeofalpha_init"] = str(e)
-
-            try:
-                self.context.api_clients["researchagent"] = ResearchAgentClient()
-            except ValueError as e:
-                errors["researchagent_init"] = str(e)
-
-            try:
-                api_key = os.getenv("TRENDMOON_STAGING_API_KEY")
-                base_url = os.getenv("TRENDMOON_STAGING_URL")
-                self.context.api_clients["trendmoon"] = TrendmoonClient(
-                    api_key=api_key, base_url=base_url, timeout=30, max_retries=5
-                )
-            except ValueError as e:
-                errors["trendmoon_init"] = str(e)
 
             if errors:
                 self.context.logger.warning(f"Failed to initialize API clients: {errors}")
@@ -785,22 +774,27 @@ class IngestDataRound(BaseState):
     def _create_fetch_futures(self, executor, asset_symbol, asset_name):
         futures = {}
         for source, config in DATA_SOURCES.items():
-            client = self.context.api_clients.get(source)
-            if not client:
+            client_class, client_kwargs = self.context.api_clients.get(source, (None, None))
+            if not client_class:
                 continue
             if config.get("data_type_handler") == "multi":
                 for endpoint, fetcher in config["fetchers"].items():
                     futures[f"{source}_{endpoint}"] = executor.submit(
-                        fetcher, client, asset_symbol, asset_name=asset_name
+                        fetcher, client_class, client_kwargs, asset_symbol, asset_name=asset_name
                     )
             else:
                 fetcher = config["fetcher"]
-                # researchagent: fetch for both symbol and name if different
                 if source == "researchagent" and asset_name and asset_name.lower() != asset_symbol.lower():
-                    futures[f"{source}_symbol"] = executor.submit(fetcher, client, asset_symbol, asset_name=None)
-                    futures[f"{source}_name"] = executor.submit(fetcher, client, asset_symbol, asset_name=asset_name)
+                    futures[f"{source}_symbol"] = executor.submit(
+                        fetcher, client_class, client_kwargs, asset_symbol, asset_name=None
+                    )
+                    futures[f"{source}_name"] = executor.submit(
+                        fetcher, client_class, client_kwargs, asset_symbol, asset_name=asset_name
+                    )
                 else:
-                    futures[source] = executor.submit(fetcher, client, asset_symbol, asset_name=asset_name)
+                    futures[source] = executor.submit(
+                        fetcher, client_class, client_kwargs, asset_symbol, asset_name=asset_name
+                    )
         return futures
 
     def _process_future_result(self, name, result, error=None):
