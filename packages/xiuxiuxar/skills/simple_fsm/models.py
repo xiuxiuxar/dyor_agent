@@ -221,6 +221,103 @@ class DatabaseModel(Model):
             self.context.logger.exception(f"Failed to create trigger: {e!s}")
             raise
 
+    def get_structured_payload(self, trigger_id: int, asset_id: int) -> dict | None:
+        """Fetch the structured payload (report_data_json) for a given trigger and asset."""
+        if not self._engine:
+            msg = "Database engine not initialized. Call setup() first."
+            raise RuntimeError(msg)
+
+        try:
+            query = text("""
+                SELECT raw_data
+                FROM scraped_data
+                WHERE source = 'structured' AND trigger_id = :trigger_id AND asset_id = :asset_id
+                ORDER BY ingested_at DESC
+                LIMIT 1
+            """)
+            with self._engine.connect() as conn:
+                result = conn.execute(query, {"trigger_id": trigger_id, "asset_id": asset_id}).fetchone()
+                if result:
+                    return result[0]
+                return None
+        except Exception as e:
+            self.context.logger.exception(
+                f"Failed to fetch structured payload for trigger_id={trigger_id}, asset_id={asset_id}: {e!s}"
+            )
+            raise
+
+    def store_report(
+        self,
+        trigger_id: int,
+        asset_id: int,
+        report_content_markdown: str,
+        report_data_json: dict,
+        llm_model_used: str,
+        generation_time_ms: int,
+        token_usage: dict,
+    ) -> None:
+        """Store a generated report in the reports table.
+
+        Args:
+        ----
+            trigger_id: ID of the trigger for this report
+            asset_id: ID of the asset
+            report_content_markdown: The report content in Markdown
+            report_data_json: The structured payload (as dict)
+            llm_model_used: The LLM model used for generation
+            generation_time_ms: Time taken to generate the report (ms)
+            token_usage: Token usage statistics (as dict)
+
+        """
+        if not self._engine:
+            msg = "Database engine not initialized. Call setup() first."
+            raise RuntimeError(msg)
+
+        try:
+            query = text("""
+                INSERT INTO reports (
+                    trigger_id,
+                    asset_id,
+                    report_content_markdown,
+                    report_data_json,
+                    llm_model_used,
+                    generation_time_ms,
+                    token_usage,
+                    created_at
+                ) VALUES (
+                    :trigger_id,
+                    :asset_id,
+                    :report_content_markdown,
+                    :report_data_json,
+                    :llm_model_used,
+                    :generation_time_ms,
+                    :token_usage,
+                    NOW()
+                )
+            """)
+            with self._engine.connect() as conn:
+                conn.execute(
+                    query,
+                    {
+                        "trigger_id": trigger_id,
+                        "asset_id": asset_id,
+                        "report_content_markdown": report_content_markdown,
+                        "report_data_json": Json(report_data_json),
+                        "llm_model_used": llm_model_used,
+                        "generation_time_ms": generation_time_ms,
+                        "token_usage": Json(token_usage),
+                    },
+                )
+                conn.commit()
+            self.context.logger.debug(
+                f"Stored report: trigger_id={trigger_id}, asset_id={asset_id}, model={llm_model_used}"
+            )
+        except Exception as e:
+            self.context.logger.exception(
+                f"Failed to store report: trigger_id={trigger_id}, asset_id={asset_id}, error={e!s}"
+            )
+            raise
+
 
 class ScrapedDataItem:
     """Data structure for scraped items."""
