@@ -44,7 +44,6 @@ from packages.xiuxiuxar.skills.simple_fsm.data_models import (
     OnchainHighlight,
     StructuredPayload,
 )
-from packages.xiuxiuxar.skills.simple_fsm.llm_service import generate_summary
 from packages.xiuxiuxar.skills.simple_fsm.data_sources import DATA_SOURCES
 from packages.xiuxiuxar.skills.simple_fsm.trendmoon_client import TrendmoonClient, TrendmoonAPIError
 from packages.xiuxiuxar.skills.simple_fsm.lookonchain_client import LookOnChainClient, LookOnChainAPIError
@@ -640,26 +639,22 @@ class SetupDYORRound(BaseState):
             errors = {}
 
             try:
-                self.context.api_clients["lookonchain"] = LookOnChainClient()
+                self.context.api_clients["lookonchain"] = self.context.lookonchain_client
             except ValueError as e:
                 errors["lookonchain_init"] = str(e)
 
             try:
-                self.context.api_clients["treeofalpha"] = TreeOfAlphaClient()
+                self.context.api_clients["treeofalpha"] = self.context.treeofalpha_client
             except ValueError as e:
                 errors["treeofalpha_init"] = str(e)
 
             try:
-                self.context.api_clients["researchagent"] = ResearchAgentClient()
+                self.context.api_clients["researchagent"] = self.context.researchagent_client
             except ValueError as e:
                 errors["researchagent_init"] = str(e)
 
             try:
-                api_key = os.getenv("TRENDMOON_STAGING_API_KEY")
-                base_url = os.getenv("TRENDMOON_STAGING_URL")
-                self.context.api_clients["trendmoon"] = TrendmoonClient(
-                    api_key=api_key, base_url=base_url, timeout=30, max_retries=5
-                )
+                self.context.api_clients["trendmoon"] = self.context.trendmoon_client
             except ValueError as e:
                 errors["trendmoon_init"] = str(e)
 
@@ -922,7 +917,7 @@ class GenerateReportRound(BaseState):
                 "frequency_penalty": 0.0,
                 "presence_penalty": 0.0,
             }
-            llm_result = generate_summary(prompt, model_config)
+            llm_result = self.context.llm_service.generate_summary(prompt, model_config)
             llm_output = llm_result["content"]
             llm_model_used = llm_result["llm_model_used"]
             generation_time_ms = llm_result["generation_time_ms"]

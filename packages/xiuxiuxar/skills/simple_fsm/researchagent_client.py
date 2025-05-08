@@ -21,57 +21,38 @@
 import os
 import logging
 from typing import Any
+from aea.skills.base import Model
 
 from packages.xiuxiuxar.skills.simple_fsm.base_client import BaseClient, BaseAPIError, BaseClientConfig
 
-
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
-
-
-class ResearchAgentConfig(BaseClientConfig):
-    """Configuration for Research Agent Client."""
-
-    base_url = os.environ["RESEARCH_AGENT_BASE_URL"]
-    api_key = os.environ["RESEARCH_AGENT_API_KEY"]
-    timeout = 30
-    retry_config = {
-        "max_retries": 3,
-        "backoff_factor": 1.0,
-        "status_forcelist": (429, 500, 502, 503, 504),
-        "connect": 5,
-        "read": 5,
-    }
-    default_headers = {"Content-Type": "application/json"}
+STATUS_FORCELIST = (429, 500, 502, 503, 504)
+TIMEOUT = 30
+MAX_RETRIES = 3
+BACKOFF_FACTOR = 0.5
 
 
 class ResearchAgentAPIError(BaseAPIError):
     """Research Agent API specific error."""
 
 
-class ResearchAgentClient(BaseClient):
+class ResearchAgentClient(Model, BaseClient):
     """Client for interacting with the Research Agent."""
 
-    def __init__(
-        self,
-        api_key: str = ResearchAgentConfig.api_key,
-        base_url: str = ResearchAgentConfig.base_url,
-        max_retries: int = ResearchAgentConfig.retry_config["max_retries"],
-        backoff_factor: float = ResearchAgentConfig.retry_config["backoff_factor"],
-        timeout: int = ResearchAgentConfig.timeout,
-        status_forcelist: tuple[int, ...] = ResearchAgentConfig.retry_config["status_forcelist"],
-    ):
-        if not api_key:
-            msg = "Research Agent API key is required"
-            raise ValueError(msg)
+    def __init__(self, **kwargs: Any):
+        base_url = kwargs.pop("base_url", None)
+        api_key = kwargs.pop("api_key", None)
 
-        super().__init__(
+        # Initialize Model (for context, etc.)
+        Model.__init__(self, **kwargs)
+        # Initialize BaseClient
+        BaseClient.__init__(
+            self,
             base_url=base_url,
-            timeout=timeout,
-            max_retries=max_retries,
-            backoff_factor=backoff_factor,
-            status_forcelist=status_forcelist,
-            headers=ResearchAgentConfig.default_headers,
+            timeout=TIMEOUT,
+            max_retries=MAX_RETRIES,
+            backoff_factor=BACKOFF_FACTOR,
+            status_forcelist=STATUS_FORCELIST,
+            headers={"Content-Type": "application/json"},
             api_key=api_key,
             error_class=ResearchAgentAPIError,
         )
@@ -104,7 +85,7 @@ class ResearchAgentClient(BaseClient):
         limit = self._validate_limit(limit)
         endpoint = "tweets/multi-account"
         params = {"limit": limit, "since": since}
-        logger.info(f"Getting tweets from multiple accounts: {params}")
+        self.context.logger.info(f"Getting tweets from multiple accounts: {params}")
         return self._make_request("GET", endpoint, params=params)
 
     def get_tweets_research(
@@ -127,7 +108,7 @@ class ResearchAgentClient(BaseClient):
         limit = self._validate_limit(limit)
         endpoint = "tweets/research"
         params = {"limit": limit, "summarize": summarize}
-        logger.info(f"Getting research tweets: {params}")
+        self.context.logger.info(f"Getting research tweets: {params}")
         return self._make_request("GET", endpoint, params=params)
 
     def get_tweets_filter(
@@ -166,5 +147,5 @@ class ResearchAgentClient(BaseClient):
         limit = self._validate_limit(limit)
         endpoint = "tweets/filter"
         params = {"account": account, "filter": filter, "limit": limit, "format": format}
-        logger.info(f"Getting filtered tweets for {account}: {params}")
+        self.context.logger.info(f"Getting filtered tweets for {account}: {params}")
         return self._make_request("GET", endpoint, params=params)

@@ -20,7 +20,7 @@ protocols:
 - open_aea/signing:1.0.0:bafybeig2d36zxy65vd7fwhs7scotuktydcarm74aprmrb5nioiymr3yixm
 skills:
 - eightballer/prometheus:0.1.0:bafybeicl5i7e467aowfarke4bbyixo2dggar276njmvyuwbsby5pxshhtu
-- xiuxiuxar/simple_fsm:0.1.0:bafybeial5cptvfqheiyiq2uj2dd3qxx5ohiubzdizioy4p34gqa43z6laq
+- xiuxiuxar/simple_fsm:0.1.0:bafybeidbmnrflmyr44n4555v2ryzj6zbq4doamlkjmnoyrll3cgdk6nzki
 customs: []
 default_ledger: ethereum
 required_ledgers:
@@ -68,9 +68,9 @@ type: skill
 behaviours:
   main:
     args:
-      max_workers: ${int:4}
-      test_asset_symbol: ${str:olas}
-      test_asset_name: ${str:Autonolas}
+      max_workers: ${MAX_WORKERS:int:4}
+      test_asset_symbol: ${TEST_ASSET_SYMBOL:str:olas}
+      test_asset_name: ${TEST_ASSET_NAME:str:Autonolas}
 handlers:
   metrics_handler:
     args:
@@ -79,8 +79,43 @@ handlers:
 models:
   db_model:
     args:
-      POSTGRES_USER: ${str:user}
-      POSTGRES_PASSWORD: ${str:password}
-      POSTGRES_HOST: ${str:localhost}
-      POSTGRES_PORT: ${int:1}
-      POSTGRES_DB: ${str:db_name}
+      postgres_user: ${POSTGRES_USER:str}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:str}
+      POSTGRES_HOST: ${POSTGRES_HOST:str:host.docker.internal}
+      POSTGRES_PORT: ${POSTGRES_PORT:int:5432}
+      POSTGRES_DB: ${POSTGRES_DB:str:db_name}
+  llm_service:
+    args:
+      LLM_PRIMARY_MODEL: ${LLM_PRIMARY_MODEL:str:Meta-Llama-3-3-70B-Instruct}
+      LLM_FALLBACK_MODEL: ${LLM_FALLBACK_MODEL:str:DeepSeek-R1-Distill-Qwen-32B}
+      LLM_API_KEY: ${LLM_API_KEY:str:key}
+      LLM_BASE_URL: ${LLM_BASE_URL:str:https://api.openai.com/v1}
+      LLM_MAX_RETRIES: ${LLM_MAX_RETRIES:int:4}
+      LLM_BACKOFF_FACTOR: ${LLM_BACKOFF_FACTOR:float:1.5}
+      LLM_TIMEOUT: ${LLM_TIMEOUT:int:60}
+  lookonchain_client:
+    args:
+      base_url: ${LOOKONCHAIN_BASE_URL:str:http://localhost:8000}
+      search_endpoint: ${LOOKONCHAIN_SEARCH_ENDPOINT:str:search}
+      timeout: ${LOOKONCHAIN_TIMEOUT:int:15}
+      max_retries: ${LOOKONCHAIN_MAX_RETRIES:int:3}
+      backoff_factor: ${LOOKONCHAIN_BACKOFF_FACTOR:float:0.5}
+  researchagent_client:
+    args:
+      base_url: ${RESEARCHAGENT_BASE_URL:str:http://localhost:8000}
+      api_key: ${RESEARCHAGENT_API_KEY:str:key}
+  treeofalpha_client:
+    args:
+      base_url: ${TREEOFALPHA_BASE_URL:str:http://localhost:8000}
+      news_endpoint: ${TREEOFALPHA_NEWS_ENDPOINT:str:news}
+      cache_ttl: ${TREEOFALPHA_CACHE_TTL:int:3600}
+      max_retries: ${TREEOFALPHA_MAX_RETRIES:int:3}
+      backoff_factor: ${TREEOFALPHA_BACKOFF_FACTOR:float:0.5}
+  trendmoon_client:
+    args:
+      base_url: ${TRENDMOON_BASE_URL:str:http://localhost:8000}
+      insights_url: ${TRENDMOON_INSIGHTS_URL:str:http://localhost:8000/insights}
+      api_key: ${TRENDMOON_API_KEY:str:key}
+      max_retries: ${TRENDMOON_MAX_RETRIES:int:3}
+      backoff_factor: ${TRENDMOON_BACKOFF_FACTOR:float:0.5}
+      timeout: ${TRENDMOON_TIMEOUT:int:15}

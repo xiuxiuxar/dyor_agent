@@ -8,24 +8,28 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: bafybeifmctcmcdtae5b3qin4fdveytwcduleekax3mgqbmfwudwcay2dny
   __init__.py: bafybeigocf4h7sv7lkbfbnpelwm6xzwv3hg7pwac2mbamholdxykzq6wiq
-  base_client.py: bafybeicm2xl2lk7zorqekiqyvikxz5k3puorgq6l6zscrjgnwf5q37oqvu
-  behaviours.py: bafybeidzqjlezz6hujlsabnsrorebfj4s25htsyt2atteg725dep7o4xb4
+  base_client.py: bafybeigube5gil3hnlvynalpe5hqb5fabum66oc3uol5qkwipjzytr5ana
+  behaviours.py: bafybeihqh27fmqnt4qmn6ui2i2xt7x352ov5oxcb3qhjoxoie55ful57ga
   data_models.py: bafybeidra5kkdsm5dtyqnhlvmhittdz3m7vvqyfjo7lkjgg4r3vr2w5axy
   data_sources.py: bafybeibgdk3zh73idd5qp5rf7scsueiixjwisfi55cau6ah5wxnwcjgori
   dialogues.py: bafybeiggsfafkurldxnvjhqw3l424acxmpgr4x6qs36ociozuobikpqejy
   handlers.py: bafybeib3y2h576tkiu3j7fyy5dsuc25sbcstexd5wekdz4f443q7jw7zwy
-  lookonchain_client.py: bafybeiahw7szs36wvlco4747bvb7dqzya6xzodai5i4p5ckvwj4mnptbiy
-  models.py: bafybeigig2manvs3fa6qhtc2ey7fyc2etz7tw6jo2c64arlpcnodplkz2y
-  researchagent_client.py: bafybeiafum3ptxprnwywv65w2m4swgppi6fcpftlizyhdiinyfjlubbah4
+  llm_service.py: bafybeifrlukci3o2lsm7emlc6z7ijavwmntkyjgvkqzmzbagavtpe7enmq
+  lookonchain_client.py: bafybeiasi2w5efmjo4oudxwo7uipllxsb4osywhcfriqmhibfoumykqkzy
+  models.py: bafybeielb3gfomefts7riicprzuxxzallqwqioyhlv3tnd7bc2hdjhifda
+  prompt.py: bafybeicnolx2ujcbqsaa5ccqr5cgwljvtzryiupmelx3dwumdpdihe7gca
+  prompt_tempate.jinja: bafybeidomw5jcxtskmfa2c4ar3q5cd3pdsbwclev3zb2bgd4tmus5genry
+  prompt_template_v2.jinja: bafybeihqu2jhinocv2fd3xmtk6jndvvbafy4inv54rnv2o6zuggvoous3i
+  researchagent_client.py: bafybeihsbqvdrhgraq5fwbdgln6wckdpplnun4bn34c73lx6nd6uv6cgmi
   strategy.py: bafybeighe2emfcjlvw6jninea3td3czbvvohuwo2xmmp45tdosy2z3gmm4
   tests/__init__.py: bafybeigb2ji4vkcap3hokcedggjwsrah7te2nxjhkorwf3ibwgyaa2glma
   tests/conftest.py: bafybeicvznjlmanmoghlq6y3atuuh62ke6wdfxkgwfmh5zrvjvmclatrl4
-  tests/test_lookonchain_client.py: bafybeibn23oz6so3aujgfeyehw4ziajoafc3s4dmmo77y26cpnsr6pyquq
+  tests/test_lookonchain_client.py: bafybeidgzbo3nhefdtbkvrxgloawbbpkvq4kc22isth7bzjruvw24yfhk4
   tests/test_researchagent_client.py: bafybeietij2hk6nkuuloz6miwyqnn6p4hj47mzjf3io64sssrgkc75ehey
-  tests/test_treeofalpha_client.py: bafybeia7lg2m7zwmwvgxf3vwe4ewscygvz2ho6xnvdgvbjuko5wz2pgskm
-  tests/test_trendmoon_client.py: bafybeigr7ilxhdijl75pj3ug6z5nl4m7qs3zbkw3gw23zr6vlaqiquxpa4
-  treeofalpha_client.py: bafybeie62wxarxxgz6fivcdsk5x37qc2yuayoxih4achol3so5ca5jsbgy
-  trendmoon_client.py: bafybeiakvva4duwpzx4idbixsuz6qpexlqlg2xl7hlc7ldtdkxmcdocs74
+  tests/test_treeofalpha_client.py: bafybeifxwvxngti5zyitakmamx2ruvurwhpdpke3gjhvso2y6puwrxve2m
+  tests/test_trendmoon_client.py: bafybeifxl4jinxosa6apwhiwhegrwcwpheop7rlzwpu5hbm5beqhnkcg3u
+  treeofalpha_client.py: bafybeife25othevjmn5s377mwdha3ewn7prl7xbrtn2ye64p4qc2ikwry4
+  trendmoon_client.py: bafybeiaaip7dmqrhad6pew5rreisd5kwqab5nd4ta5o4mdv4pqyy2nleva
 fingerprint_ignore_patterns: []
 connections: []
 contracts: []
@@ -47,23 +51,71 @@ handlers:
       expected_api_key: key
     class_name: HttpHandler
 models:
+  db_model:
+    class_name: DatabaseModel
+    args:
+      postgres_user: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: db_name
   default_dialogues:
     args: {}
     class_name: DefaultDialogues
   http_dialogues:
     args: {}
     class_name: HttpDialogues
-  db_model:
-    class_name: DatabaseModel
+  lookonchain_client:
+    class_name: LookOnChainClient
     args:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_HOST: localhost
-      POSTGRES_PORT: 5432
-      POSTGRES_DB: db_name
+      base_url: http://localhost:8000
+      search_endpoint: search
+      timeout: 15
+      max_retries: 3
+      backoff_factor: 0.5
+  llm_service:
+    class_name: LLMService
+    args:
+      LLM_PRIMARY_MODEL: Meta-Llama-3-3-70B-Instruct
+      LLM_FALLBACK_MODEL: DeepSeek-R1-Distill-Qwen-32B
+      LLM_API_KEY: key
+      LLM_BASE_URL: https://api.openai.com/v1
+      LLM_MAX_RETRIES: 4
+      LLM_BACKOFF_FACTOR: 1.5
+      LLM_TIMEOUT: 60
+  researchagent_client:
+    class_name: ResearchAgentClient
+    args:
+      base_url: http://localhost:8000
+      api_key: key
+  treeofalpha_client:
+    class_name: TreeOfAlphaClient
+    args:
+      base_url: http://localhost:8000
+      news_endpoint: news
+      cache_ttl: 3600
+      max_retries: 3
+      backoff_factor: 0.5
+      timeout: 15
+  trendmoon_client:
+    class_name: TrendmoonClient
+    args:
+      base_url: http://localhost:8000
+      insights_url: http://localhost:8000/insights
+      api_key: key
+      max_retries: 3
+      backoff_factor: 0.5
+      timeout: 15
   strategy:
     class_name: DYORStrategy
     args: {}
-dependencies: {}
+dependencies:
+  sqlalchemy: {}
+  markdown: {}
+  openai: {}
+  requests: {}
+  pydantic: {}
+  psycopg2-binary: {}
+  jinja2: {}
 is_abstract: false
 customs: []
