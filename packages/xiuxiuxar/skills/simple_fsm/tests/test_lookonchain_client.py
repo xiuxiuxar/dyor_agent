@@ -40,7 +40,6 @@ try:
         ParsingError,
         ScrapedDataItem,
         LookOnChainClient,
-        LookOnChainConfig,
         LookOnChainAPIError,
     )
 except ImportError as e:
@@ -73,10 +72,6 @@ def api_client():
     client = LookOnChainClient(
         base_url=BASE_DOMAIN,
         search_endpoint=SEARCH_ENDPOINT,
-        timeout=LookOnChainConfig.timeout,
-        max_retries=LookOnChainConfig.retry_config["max_retries"],
-        backoff_factor=LookOnChainConfig.retry_config["backoff_factor"],
-        status_forcelist=LookOnChainConfig.retry_config["status_forcelist"],
     )
     client._last_health_status = False  # noqa: SLF001
     return client

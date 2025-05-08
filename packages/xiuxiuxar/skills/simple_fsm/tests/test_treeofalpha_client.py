@@ -38,7 +38,6 @@ try:
     from packages.xiuxiuxar.skills.simple_fsm.base_client import BaseClient
     from packages.xiuxiuxar.skills.simple_fsm.treeofalpha_client import (
         TreeOfAlphaClient,
-        TreeOfAlphaConfig,
         TreeOfAlphaAPIError,
     )
 except ImportError as e:
@@ -82,10 +81,6 @@ def api_client():
     client = TreeOfAlphaClient(
         base_url=BASE_URL,
         news_endpoint=NEWS_ENDPOINT,
-        timeout=TreeOfAlphaConfig.timeout,
-        max_retries=TreeOfAlphaConfig.retry_config["max_retries"],
-        backoff_factor=TreeOfAlphaConfig.retry_config["backoff_factor"],
-        status_forcelist=TreeOfAlphaConfig.retry_config["status_forcelist"],
     )
     client._last_health_status = False  # noqa: SLF001
     return client

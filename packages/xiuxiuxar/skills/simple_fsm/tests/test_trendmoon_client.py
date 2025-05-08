@@ -40,7 +40,6 @@ try:
         MatchModes,
         TimeIntervals,
         TrendmoonClient,
-        TrendmoonConfig,
         TrendmoonAPIError,
         SocialTrendIntervals,
     )
@@ -91,10 +90,6 @@ def api_client():
         api_key=FAKE_API_KEY,
         base_url=BASE_URL,
         insights_url=INSIGHTS_URL,
-        timeout=TrendmoonConfig.timeout,
-        max_retries=TrendmoonConfig.retry_config["max_retries"],
-        backoff_factor=TrendmoonConfig.retry_config["backoff_factor"],
-        status_forcelist=TrendmoonConfig.retry_config["status_forcelist"],
     )
 
 

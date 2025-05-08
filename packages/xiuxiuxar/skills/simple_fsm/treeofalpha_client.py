@@ -18,90 +18,48 @@
 
 """Tree of Alpha Client."""
 
-import os
 import re
 import time
-import logging
 from typing import Any
 from datetime import UTC, datetime, timedelta
 
 import requests
+from aea.skills.base import Model
 
-from packages.xiuxiuxar.skills.simple_fsm.base_client import BaseClient, BaseAPIError, BaseClientConfig
-
-
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
-
-# Configuration
-TREE_OF_ALPHA_BASE_URL = os.environ["TREE_OF_ALPHA_BASE_URL"]
-TREE_OF_ALPHA_NEWS_ENDPOINT = os.environ["TREE_OF_ALPHA_NEWS_ENDPOINT"]
-TREE_OF_ALPHA_CACHE_TTL = int(os.environ["TREE_OF_ALPHA_CACHE_TTL"])
+from packages.xiuxiuxar.skills.simple_fsm.base_client import BaseClient, BaseAPIError
 
 
-class TreeOfAlphaConfig(BaseClientConfig):
-    """Configuration for Tree of Alpha."""
-
-    base_url = TREE_OF_ALPHA_BASE_URL
-    news_endpoint = TREE_OF_ALPHA_NEWS_ENDPOINT
-    cache_ttl = TREE_OF_ALPHA_CACHE_TTL
-    timeout = 30  # Increased timeout for large response
-    retry_config = {
-        "max_retries": 3,
-        "backoff_factor": 0.5,
-        "status_forcelist": (429, 500, 502, 503, 504),
-        "connect": 5,
-        "read": 5,
-    }
-    default_headers = {"Content-Type": "application/json"}
+STATUS_FORCELIST = (429, 500, 502, 503, 504)
 
 
 class TreeOfAlphaAPIError(BaseAPIError):
     """Tree of Alpha API specific error."""
 
 
-class TreeOfAlphaClient(BaseClient):
+class TreeOfAlphaClient(Model, BaseClient):
     """Client for interacting with the Tree of Alpha."""
 
-    def __init__(
-        self,
-        base_url: str = TreeOfAlphaConfig.base_url,
-        news_endpoint: str = TreeOfAlphaConfig.news_endpoint,
-        cache_ttl: int = TreeOfAlphaConfig.cache_ttl,
-        max_retries: int = TreeOfAlphaConfig.retry_config["max_retries"],
-        backoff_factor: float = TreeOfAlphaConfig.retry_config["backoff_factor"],
-        timeout: int = TreeOfAlphaConfig.timeout,
-        status_forcelist: tuple[int, ...] = TreeOfAlphaConfig.retry_config["status_forcelist"],
-    ):
-        """Initialize the Tree of Alpha Client.
+    def __init__(self, **kwargs: Any):
+        base_url = kwargs.pop("base_url", None)
+        news_endpoint = kwargs.pop("news_endpoint", None)
+        cache_ttl = kwargs.pop("cache_ttl", None)
+        max_retries = kwargs.pop("max_retries", None)
+        backoff_factor = kwargs.pop("backoff_factor", None)
+        timeout = kwargs.pop("timeout", None)
 
-        Args:
-        ----
-            base_url: Base URL for the API
-            news_endpoint: Endpoint for news operations
-            cache_ttl: Time to live for cache in seconds
-            max_retries: Maximum number of retry attempts
-            backoff_factor: Factor for exponential backoff
-            timeout: Request timeout in seconds
-            status_forcelist: HTTP status codes to retry on
-
-        """
-        super().__init__(
+        Model.__init__(self, **kwargs)
+        BaseClient.__init__(
+            self,
             base_url=base_url,
             timeout=timeout,
             max_retries=max_retries,
             backoff_factor=backoff_factor,
-            status_forcelist=status_forcelist,
-            headers=TreeOfAlphaConfig.default_headers,
+            status_forcelist=STATUS_FORCELIST,
+            headers={"Content-Type": "application/json"},
             error_class=TreeOfAlphaAPIError,
         )
-        if not base_url or not news_endpoint:
-            msg = "Invalid Tree of Alpha configuration"
-            raise ValueError(msg)
-
-        self.news_endpoint = news_endpoint
         self.cache_ttl = cache_ttl
+        self.news_endpoint = news_endpoint
         self._cache: dict[str, Any] = {}
         self._last_fetch_time: float = 0
         self._cached_news: list[dict[str, Any]] = []
@@ -128,7 +86,7 @@ class TreeOfAlphaClient(BaseClient):
 
         # Return cached data if within TTL and not forced refresh
         if not force_refresh and cache_age < self.cache_ttl and self._cached_news:
-            logger.debug("Returning cached news data")
+            self.context.logger.debug("Returning cached news data")
             return self._cached_news
 
         try:
@@ -140,7 +98,7 @@ class TreeOfAlphaClient(BaseClient):
             )
 
             if not response:
-                logger.warning("No news data received from API")
+                self.context.logger.warning("No news data received from API")
                 return []
 
             if not isinstance(response, list):
@@ -150,15 +108,15 @@ class TreeOfAlphaClient(BaseClient):
             # Update cache
             self._cached_news = response
             self._last_fetch_time = current_time
-            logger.info(f"Successfully fetched and cached {len(response)} news items")
+            self.context.logger.info(f"Successfully fetched and cached {len(response)} news items")
             return response
 
         except requests.exceptions.RequestException as e:
-            logger.exception("Failed to fetch news data")
+            self.context.logger.exception("Failed to fetch news data")
             msg = "Failed to communicate with API"
             raise TreeOfAlphaAPIError(msg) from e
         except Exception as e:
-            logger.exception("Failed to fetch news data")
+            self.context.logger.exception("Failed to fetch news data")
             raise TreeOfAlphaAPIError(str(e)) from e
 
     def search_news(
@@ -206,7 +164,7 @@ class TreeOfAlphaClient(BaseClient):
             )
 
         matching_items = [item for item in news_items if matches_query(item)]
-        logger.info(f"Found {len(matching_items)} items matching query: {query}")
+        self.context.logger.info(f"Found {len(matching_items)} items matching query: {query}")
         return matching_items
 
     def get_news_by_symbol(self, symbol: str, limit: int = 3000) -> list[dict[str, Any]]:
@@ -227,7 +185,7 @@ class TreeOfAlphaClient(BaseClient):
 
         matching_items = [item for item in news_items if symbol in (item.get("symbols", []) or [])]
 
-        logger.info(f"Found {len(matching_items)} items for symbol: {symbol}")
+        self.context.logger.info(f"Found {len(matching_items)} items for symbol: {symbol}")
         return matching_items
 
     def get_latest_news(self, hours: int = 24, limit: int = 3000) -> list[dict[str, Any]]:
@@ -250,5 +208,5 @@ class TreeOfAlphaClient(BaseClient):
             item for item in news_items if datetime.fromtimestamp(item.get("time", 0) / 1000, UTC) > cutoff_time
         ]
 
-        logger.info(f"Found {len(recent_items)} items from last {hours} hours")
+        self.context.logger.info(f"Found {len(recent_items)} items from last {hours} hours")
         return recent_items
