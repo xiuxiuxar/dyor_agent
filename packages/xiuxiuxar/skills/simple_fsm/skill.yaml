@@ -11,15 +11,14 @@ fingerprint:
   base_client.py: bafybeigube5gil3hnlvynalpe5hqb5fabum66oc3uol5qkwipjzytr5ana
   behaviours.py: bafybeihqh27fmqnt4qmn6ui2i2xt7x352ov5oxcb3qhjoxoie55ful57ga
   data_models.py: bafybeidra5kkdsm5dtyqnhlvmhittdz3m7vvqyfjo7lkjgg4r3vr2w5axy
-  data_sources.py: bafybeibgdk3zh73idd5qp5rf7scsueiixjwisfi55cau6ah5wxnwcjgori
+  data_sources.py: bafybeifyrvk7xj2ngimzvr3ssp5hv54apzx6uzsyfq4qblyaolep4lpdau
   dialogues.py: bafybeiggsfafkurldxnvjhqw3l424acxmpgr4x6qs36ociozuobikpqejy
   handlers.py: bafybeib3y2h576tkiu3j7fyy5dsuc25sbcstexd5wekdz4f443q7jw7zwy
-  llm_service.py: bafybeifrlukci3o2lsm7emlc6z7ijavwmntkyjgvkqzmzbagavtpe7enmq
   lookonchain_client.py: bafybeiasi2w5efmjo4oudxwo7uipllxsb4osywhcfriqmhibfoumykqkzy
-  models.py: bafybeielb3gfomefts7riicprzuxxzallqwqioyhlv3tnd7bc2hdjhifda
+  models.py: bafybeifz6wqtw3f72ges3ypujejswxcaccjm4hempqfdn46wvsm4bcegjm
   prompt.py: bafybeicnolx2ujcbqsaa5ccqr5cgwljvtzryiupmelx3dwumdpdihe7gca
   prompt_tempate.jinja: bafybeidomw5jcxtskmfa2c4ar3q5cd3pdsbwclev3zb2bgd4tmus5genry
-  prompt_template_v2.jinja: bafybeihqu2jhinocv2fd3xmtk6jndvvbafy4inv54rnv2o6zuggvoous3i
+  prompt_template_v2.jinja: bafybeiayi6pfxz5suxl7csroti2wxu4req5l6bukty25entaroxhgakagq
   researchagent_client.py: bafybeihsbqvdrhgraq5fwbdgln6wckdpplnun4bn34c73lx6nd6uv6cgmi
   strategy.py: bafybeighe2emfcjlvw6jninea3td3czbvvohuwo2xmmp45tdosy2z3gmm4
   tests/__init__.py: bafybeigb2ji4vkcap3hokcedggjwsrah7te2nxjhkorwf3ibwgyaa2glma
@@ -54,7 +53,7 @@ models:
   db_model:
     class_name: DatabaseModel
     args:
-      postgres_user: user
+      POSTGRES_USER: user
       POSTGRES_PASSWORD: password
       POSTGRES_HOST: localhost
       POSTGRES_PORT: 5432

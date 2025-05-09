@@ -20,7 +20,7 @@ protocols:
 - open_aea/signing:1.0.0:bafybeig2d36zxy65vd7fwhs7scotuktydcarm74aprmrb5nioiymr3yixm
 skills:
 - eightballer/prometheus:0.1.0:bafybeicl5i7e467aowfarke4bbyixo2dggar276njmvyuwbsby5pxshhtu
-- xiuxiuxar/simple_fsm:0.1.0:bafybeidbmnrflmyr44n4555v2ryzj6zbq4doamlkjmnoyrll3cgdk6nzki
+- xiuxiuxar/simple_fsm:0.1.0:bafybeib5pgbwo335ekpjyx2qkimt6sfutmsoxsk7h7vv4khwwv4faelfli
 customs: []
 default_ledger: ethereum
 required_ledgers:
@@ -79,8 +79,8 @@ handlers:
 models:
   db_model:
     args:
-      postgres_user: ${POSTGRES_USER:str}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:str}
+      POSTGRES_USER: ${POSTGRES_USER:str:user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:str:pass}
       POSTGRES_HOST: ${POSTGRES_HOST:str:host.docker.internal}
       POSTGRES_PORT: ${POSTGRES_PORT:int:5432}
       POSTGRES_DB: ${POSTGRES_DB:str:db_name}
@@ -113,7 +113,7 @@ models:
       backoff_factor: ${TREEOFALPHA_BACKOFF_FACTOR:float:0.5}
   trendmoon_client:
     args:
-      base_url: ${TRENDMOON_BASE_URL:str:http://localhost:8000}
+      base_url: ${TRENDMOON_STAGING_URL:str:http://localhost:8000}
       insights_url: ${TRENDMOON_INSIGHTS_URL:str:http://localhost:8000/insights}
       api_key: ${TRENDMOON_API_KEY:str:key}
       max_retries: ${TRENDMOON_MAX_RETRIES:int:3}
