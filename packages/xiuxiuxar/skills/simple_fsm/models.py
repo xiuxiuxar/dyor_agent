@@ -40,8 +40,8 @@ class DatabaseModel(Model):
 
     def __init__(self, **kwargs: Any) -> None:
         """Initialize the model."""
-        self.POSTGRES_USER = kwargs.pop("postgres_user")
-        self.POSTGRES_PASSWORD = kwargs.pop("POSTGRES_PASSWORD", "default_password")
+        self.POSTGRES_USER = kwargs.pop("POSTGRES_USER", None)
+        self.POSTGRES_PASSWORD = kwargs.pop("POSTGRES_PASSWORD", None)
         self.POSTGRES_HOST = kwargs.pop("POSTGRES_HOST", "localhost")
         self.POSTGRES_PORT = kwargs.pop("POSTGRES_PORT", 5432)
         self.POSTGRES_DB = kwargs.pop("POSTGRES_DB", "default_db")
