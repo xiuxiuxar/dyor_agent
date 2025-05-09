@@ -2,7 +2,7 @@
     "dev": {
         "skill/xiuxiuxar/simple_fsm/0.1.0": "bafybeib5pgbwo335ekpjyx2qkimt6sfutmsoxsk7h7vv4khwwv4faelfli",
         "agent/xiuxiuxar/dyor_agent/0.1.0": "bafybeie6evpy4jppskt6sgxmdahaocccsradkcjsaihbe6lv5grscgektu",
-        "service/xiuxiuxar/dyor_agent/0.1.0": "bafybeibzzjzghewh6nxvoji7qapfybrpy7pbjhqxmrnu3key6ot6aszmf4"
+        "service/xiuxiuxar/dyor_agent/0.1.0": "bafybeiac5vgqaaiqxkx2zqdf7k2xua2c3nxz42pk3pfuucg26xvzabw5ni"
     },
     "third_party": {
         "protocol/eightballer/default/0.1.0": "bafybeicsdb3bue2xoopc6lue7njtyt22nehrnkevmkuk2i6ac65w722vwy",
