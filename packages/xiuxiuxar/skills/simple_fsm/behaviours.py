@@ -45,10 +45,10 @@ from packages.xiuxiuxar.skills.simple_fsm.data_models import (
     StructuredPayload,
 )
 from packages.xiuxiuxar.skills.simple_fsm.data_sources import DATA_SOURCES
-from packages.xiuxiuxar.skills.simple_fsm.trendmoon_client import TrendmoonClient, TrendmoonAPIError
-from packages.xiuxiuxar.skills.simple_fsm.lookonchain_client import LookOnChainClient, LookOnChainAPIError
-from packages.xiuxiuxar.skills.simple_fsm.treeofalpha_client import TreeOfAlphaClient, TreeOfAlphaAPIError
-from packages.xiuxiuxar.skills.simple_fsm.researchagent_client import ResearchAgentClient, ResearchAgentAPIError
+from packages.xiuxiuxar.skills.simple_fsm.trendmoon_client import TrendmoonAPIError
+from packages.xiuxiuxar.skills.simple_fsm.lookonchain_client import LookOnChainAPIError
+from packages.xiuxiuxar.skills.simple_fsm.treeofalpha_client import TreeOfAlphaAPIError
+from packages.xiuxiuxar.skills.simple_fsm.researchagent_client import ResearchAgentAPIError
 
 
 MAX_WORKERS = 4
@@ -884,7 +884,7 @@ class GenerateReportRound(BaseState):
         try:
             html = markdown.markdown(text)
             return bool(html.strip())
-        except Exception:
+        except (ValueError, TypeError):
             return False
 
     def _check_required_sections(self, text: str) -> list[str]:
