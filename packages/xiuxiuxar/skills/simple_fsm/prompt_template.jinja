@@ -19,9 +19,9 @@ Use only the structured data provided. Do not hallucinate or introduce external 
 ### Structured Data
 
 - Asset: {{ asset_info.name }} ({{ asset_info.symbol }})
-- Market Cap: ${{ "{:,.0f}".format(asset_info.market_cap) }} (Rank: {{ asset_info.market_cap_rank }})
-- Category: {{ asset_info.category }}
-- Contract: {{ asset_info.contract_address }}
+- Market Cap: {% if asset_info.market_cap is not none %}${{ "{:,.0f}".format(asset_info.market_cap) }} (Rank: {{ asset_info.market_cap_rank }}){% else %}Unavailable{% endif %}
+- Category: {% if asset_info.category is not none %}{{ asset_info.category }}{% else %}Unavailable{% endif %}
+- Contract: {% if asset_info.contract_address is not none %}{{ asset_info.contract_address }}{% else %}Unavailable{% endif %}
 
 - 24h Price Change: {{ key_metrics.price_change_24h }}%
 - 24h Volume Change: {{ key_metrics.volume_change_24h }}%
