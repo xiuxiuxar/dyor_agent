@@ -30,11 +30,11 @@ from packages.xiuxiuxar.skills.simple_fsm.base_client import BaseClient, BaseAPI
 
 STATUS_FORCELIST = (429, 500, 502, 503, 504)
 DEFAULT_HEADERS = {
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-            "(KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-        )
-    }
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    )
+}
 
 
 class LookOnChainAPIError(BaseAPIError):
@@ -63,13 +63,8 @@ class LookOnChainClient(Model, BaseClient):
     """Client for interacting with the LookOnChain."""
 
     def __init__(
-        self, **kwargs: Any
-        # base_url: str = LookOnChainConfig.base_url,
-        # search_endpoint: str = LookOnChainConfig.search_endpoint,
-        # max_retries: int = LookOnChainConfig.retry_config["max_retries"],
-        # backoff_factor: float = LookOnChainConfig.retry_config["backoff_factor"],
-        # timeout: int = LookOnChainConfig.timeout,
-        # status_forcelist: tuple[int, ...] = LookOnChainConfig.retry_config["status_forcelist"],
+        self,
+        **kwargs: Any,
     ):
         base_url = kwargs.pop("base_url", None)
         search_endpoint = kwargs.pop("search_endpoint", None)
