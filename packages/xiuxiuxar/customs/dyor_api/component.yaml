@@ -1,0 +1,28 @@
+name: dyor_api
+author: xiuxiuxar
+version: 0.1.0
+type: custom
+description: The custom component package.
+license: Apache-2.0
+aea_version: '>=1.0.0, <2.0.0'
+fingerprint:
+  __init__.py: bafybeihagvai6jrrfmd3sxn7htrdvxg7sj53mlxlidxl362lwjiropd7qe
+  api.py: bafybeibyf5tqtlvosstny6h45ab5su5pa4swyvufmdpwixmeqe75guw7wy
+  daos/__init__.py: bafybeicui6aoici437x5qvjknb7pfootaftkca6sl4hp4v2jz5btrs7wje
+  daos/aggregated_data.json: bafybeifhlveewnx2wr5fyikyzhdq3wb3jftsdexmurodnvtnsdixo6onvi
+  daos/asset_detail_dao.py: bafybeig2aiy7erzt7qf63bbpa22xpviq73354wzupcv6l6xaeqr2qrdo5y
+  daos/base_dao.py: bafybeighayn34kk5ddbo4jn6bubhznq22nngznmp7r72pogbcbgtfakpti
+  daos/error_dao.py: bafybeib5rifgiuexjxzffpk2vjg64ff2u5fqkkxubk4sjuwttqpgkre3gu
+  daos/report_detail_dao.py: bafybeib5fph2r24seeh7wfk4a4h22z5kvfzlsczu7y6gniigvfewkfrkea
+  db.py: bafybeig5ip6daagiex23swbxwc6f6y4xnrseefy74qrchz6x2hcre2rw7i
+  dialogues.py: bafybeiezt7kpl4bqoetx64agnzv65z5hizh25wx4aqlv7ehmxbdiwxtwfq
+  exceptions.py: bafybeiex7psq7vdq7gs3pqpcaxqavom2xxadp5bfvrluz2ghoupl44p7ly
+  handlers.py: bafybeicyqbvmzqwltn6ewqamovhznpjg7i56tigfkfivnudm34a26j6u4e
+  openapi3_spec.yaml: bafybeifz2xcbdvwh45ob6il5wbs5wfw7bss3xxp76xlaq4a5f7omlw6asq
+  tests/test_dao.py: bafybeidkpw76cjelmhncehkxd46t2jtokziv34hwdz6nto4ttcwlczoohq
+fingerprint_ignore_patterns: []
+dependencies: {}
+api_spec: openapi3_spec.yaml
+handlers:
+- class_name: DyorApiHandler
+  args: {}
