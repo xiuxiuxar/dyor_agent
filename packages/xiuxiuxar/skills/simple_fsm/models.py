@@ -32,8 +32,10 @@ from sqlalchemy.engine import Engine
 class APIClientStrategy(Model):
     """This class represents a api client strategy."""
 
-    handlers: list = []
+    http_handlers: list = []
+    ws_handlers: list = []
     routes: dict = {}
+    clients: dict = {}
 
 
 class DatabaseModel(Model):
@@ -264,7 +266,7 @@ class DatabaseModel(Model):
         llm_model_used: str,
         generation_time_ms: int,
         token_usage: dict,
-    ) -> None:
+    ) -> int:
         """Store a generated report in the reports table.
 
         Args:
@@ -276,6 +278,10 @@ class DatabaseModel(Model):
             llm_model_used: The LLM model used for generation
             generation_time_ms: Time taken to generate the report (ms)
             token_usage: Token usage statistics (as dict)
+
+        Returns:
+        -------
+            The ID of the created report
 
         """
         if not self._engine:
@@ -303,9 +309,10 @@ class DatabaseModel(Model):
                     :token_usage,
                     NOW()
                 )
+                RETURNING report_id
             """)
             with self._engine.connect() as conn:
-                conn.execute(
+                result = conn.execute(
                     query,
                     {
                         "trigger_id": trigger_id,
@@ -317,10 +324,9 @@ class DatabaseModel(Model):
                         "token_usage": Json(token_usage),
                     },
                 )
+                report_id = result.scalar_one()
                 conn.commit()
-            self.context.logger.debug(
-                f"Stored report: trigger_id={trigger_id}, asset_id={asset_id}, model={llm_model_used}"
-            )
+                return report_id
         except Exception as e:
             self.context.logger.exception(
                 f"Failed to store report: trigger_id={trigger_id}, asset_id={asset_id}, error={e!s}"
