@@ -22,6 +22,7 @@ import json
 import secrets
 from enum import Enum
 from typing import TYPE_CHECKING, Any, cast
+from datetime import UTC, datetime
 from urllib.parse import urlparse
 
 from aea.skills.base import Handler
@@ -34,7 +35,10 @@ from packages.xiuxiuxar.skills.simple_fsm.dialogues import (
     HttpDialogue,
     HttpDialogues,
     DefaultDialogues,
+    WebsocketsDialogue,
+    ApiWebSocketDialogues,
 )
+from packages.eightballer.protocols.websockets.message import WebsocketsMessage
 
 
 if TYPE_CHECKING:
@@ -64,7 +68,8 @@ class HttpHandler(Handler):
 
     SUPPORTED_PROTOCOL = HttpMessage.protocol_id
     SUPPORTED_METHODS = {"get"}
-    SYSTEM_ENDPOINTS = {"/status", "/metrics"}  # Renamed for clarity
+    SYSTEM_ENDPOINTS = {"/status", "/metrics"}
+    WS_ENDPOINT = "/ws"
 
     def __init__(self, **kwargs):
         """Initialise the handler."""
@@ -105,11 +110,16 @@ class HttpHandler(Handler):
         method = http_msg.method.lower()
         url_path = self._normalize_path(http_msg.url)
 
+        # Handle WebSocket upgrade request
+        if url_path == self.WS_ENDPOINT and method == "get" and headers.get("upgrade", "").lower() == "websocket":
+            # Let the WebSocket server handle the upgrade
+            return
+
         # Route to API handler if path starts with /api
         if url_path.startswith("/api/"):
-            for handler in self.strategy.handlers:
+            for handler in self.strategy.http_handlers:
                 result = handler.handle(message)
-                if result is not None:  # If handler processed the request
+                if result is not None:
                     self._send_response(
                         http_dialogue,
                         http_msg,
@@ -126,9 +136,7 @@ class HttpHandler(Handler):
         if url_path in self.SYSTEM_ENDPOINTS:
             if method not in self.SUPPORTED_METHODS:
                 self._handle_invalid(http_msg, http_dialogue)
-                return
-
-            if url_path == "/status":
+            elif url_path == "/status":
                 self._handle_status(http_msg, http_dialogue)
             elif url_path == "/metrics":
                 self._handle_metrics(http_msg, http_dialogue)
@@ -237,3 +245,154 @@ class HttpHandler(Handler):
 
     def teardown(self) -> None:
         """Implement the handler teardown."""
+
+
+class WebsocketHandler(Handler):
+    """Base WebSocket handler with action-based routing and standardized responses."""
+
+    SUPPORTED_PROTOCOL = WebsocketsMessage.protocol_id
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.context.logger.info("WebsocketHandler initialized")
+
+    @property
+    def strategy(self) -> "APIClientStrategy":
+        """Get the strategy."""
+        return cast("APIClientStrategy", self.context.api_client_strategy)
+
+    def setup(self) -> None:
+        """Implement the setup."""
+        self.context.logger.info("WebsocketHandler setup")
+
+    def handle(self, message: Message) -> None:
+        """Handle the message with action-based routing."""
+        if message.performative == WebsocketsMessage.Performative.CONNECT:
+            return self._handle_connect(message)
+
+        dialogue = self.websocket_dialogues.get_dialogue(message)
+        if message.performative == WebsocketsMessage.Performative.DISCONNECT:
+            return self._handle_disconnect(message, dialogue)
+
+        if dialogue is None:
+            self.context.logger.error(f"Could not locate dialogue for message={message}")
+            return None
+
+        if message.performative == WebsocketsMessage.Performative.SEND:
+            try:
+                data = json.loads(message.data)
+                action = data.get("action")
+                payload = data.get("payload", {})
+                handler = getattr(self, f"handle_{action}", None)
+                if handler:
+                    handler(message, payload, dialogue)
+                else:
+                    self.ws_error(message, "Unknown action", dialogue)
+            except Exception as e:
+                self.context.logger.exception(f"Error handling WebSocket message: {e}")
+                self.ws_error(message, f"Internal error: {e!s}", dialogue)
+            return None
+
+        self.context.logger.warning(f"Cannot handle websockets message of performative={message.performative}")
+        return None
+
+    # Example action handler
+    def handle_ping(self, message: Message, _payload: dict, dialogue) -> None:
+        """Handle the ping action."""
+        return self.ws_success(message, "pong", {"timestamp": datetime.now(UTC).isoformat()}, dialogue)
+
+    def ws_success(self, _message: Message, event_type: str, payload: Any, dialogue) -> None:
+        """Send a standardized success response."""
+        ws_msg = dialogue.reply(
+            performative=WebsocketsMessage.Performative.SEND,
+            target_message=dialogue.last_message,
+            data=json.dumps(
+                {
+                    "type": event_type,
+                    "status": "success",
+                    "payload": payload,
+                    "timestamp": datetime.now(UTC).isoformat(),
+                }
+            ),
+        )
+        self.context.outbox.put_message(message=ws_msg)
+
+    def ws_error(self, _message: Message, error_msg: str, dialogue, details: dict | None = None) -> None:
+        """Send a standardized error response."""
+        ws_msg = dialogue.reply(
+            performative=WebsocketsMessage.Performative.SEND,
+            target_message=dialogue.last_message,
+            data=json.dumps(
+                {
+                    "type": "error",
+                    "status": "error",
+                    "message": error_msg,
+                    "details": details,
+                    "timestamp": datetime.now(UTC).isoformat(),
+                }
+            ),
+        )
+        self.context.outbox.put_message(message=ws_msg)
+
+    def broadcast_event(self, event_type: str, payload: dict) -> None:
+        """Broadcast an event to all connected clients."""
+        event = {
+            "type": event_type,
+            "status": "success",
+            "payload": payload,
+            "timestamp": datetime.now(UTC).isoformat(),
+        }
+        if not self.strategy.clients:
+            self.context.logger.warning("No connected clients for event publishing.")
+            return
+        for client_id, dialogue in self.strategy.clients.items():
+            try:
+                ws_msg = dialogue.reply(
+                    performative=WebsocketsMessage.Performative.SEND,
+                    target_message=dialogue.last_message,
+                    data=json.dumps(event),
+                )
+                self.context.outbox.put_message(message=ws_msg)
+            except Exception as e:
+                self.context.logger.exception(f"Error sending event to client {client_id}: {e}")
+
+    @property
+    def websocket_dialogues(self) -> "ApiWebSocketDialogues":
+        """Get the websocket dialogues."""
+        return cast("ApiWebSocketDialogues", self.context.api_ws_dialogues)
+
+    def _handle_connect(self, message: Message) -> None:
+        dialogue: WebsocketsDialogue = self.websocket_dialogues.get_dialogue(message)
+        if dialogue:
+            self.context.logger.debug(f"Already have a dialogue for message={message}")
+            return
+        client_reference = message.url
+        dialogue = self.websocket_dialogues.update(message)
+        response_msg = dialogue.reply(
+            performative=WebsocketsMessage.Performative.CONNECTION_ACK,
+            success=True,
+            target_message=message,
+        )
+        if not hasattr(self.strategy, "clients"):
+            self.strategy.clients = {}
+        self.strategy.clients[client_reference] = dialogue
+        self.context.logger.info(f"New WebSocket client connected. Total clients: {len(self.strategy.clients)}")
+        self.context.outbox.put_message(message=response_msg)
+
+    def _handle_disconnect(self, message: Message, dialogue: WebsocketsDialogue) -> None:
+        self.context.logger.info(f"Handling disconnect message in skill: {message}")
+        ws_dialogues_to_connections = {v.incomplete_dialogue_label: k for k, v in self.strategy.clients.items()}
+        if dialogue.incomplete_dialogue_label in ws_dialogues_to_connections:
+            client_id = ws_dialogues_to_connections[dialogue.incomplete_dialogue_label]
+            del self.strategy.clients[client_id]
+            self.context.logger.info(f"WebSocket client disconnected. Remaining clients: {len(self.strategy.clients)}")
+        else:
+            self.context.logger.warning(f"Could not find dialogue to disconnect: {dialogue.incomplete_dialogue_label}")
+
+    def get_connected_clients_count(self) -> int:
+        """Get the number of connected clients."""
+        return len(self.strategy.clients)
+
+    def teardown(self) -> None:
+        """Implement the handler teardown."""
+        self.context.logger.info("WebsocketHandler teardown")

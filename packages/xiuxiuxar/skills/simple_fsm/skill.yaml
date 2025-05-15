@@ -9,13 +9,13 @@ fingerprint:
   README.md: bafybeifmctcmcdtae5b3qin4fdveytwcduleekax3mgqbmfwudwcay2dny
   __init__.py: bafybeigocf4h7sv7lkbfbnpelwm6xzwv3hg7pwac2mbamholdxykzq6wiq
   base_client.py: bafybeigube5gil3hnlvynalpe5hqb5fabum66oc3uol5qkwipjzytr5ana
-  behaviours.py: bafybeiggttr56j6txw33rfe6audfzhsaa63oer7vquol5gqkxv3azmv6ti
+  behaviours.py: bafybeihvot3lyyvtm5b4sjfdcsjrzpldbhh3obfuggkrpcfnxaa3le74ke
   data_models.py: bafybeidra5kkdsm5dtyqnhlvmhittdz3m7vvqyfjo7lkjgg4r3vr2w5axy
-  data_sources.py: bafybeibgdk3zh73idd5qp5rf7scsueiixjwisfi55cau6ah5wxnwcjgori
-  dialogues.py: bafybeiggsfafkurldxnvjhqw3l424acxmpgr4x6qs36ociozuobikpqejy
-  handlers.py: bafybeieytfb2fff3amo4sc2royb7ulykeft5rtbcabl3z5qlep4juq2bni
+  data_sources.py: bafybeigcmeytdrezobwsdgyyoy6jztdp4bezfql42i2yxcbifvtbhvcbaq
+  dialogues.py: bafybeih55cm6qm7rmcc2dewcxbywtjguq5pdqisenivstrc5awy65ws5sm
+  handlers.py: bafybeibvw24jf77gyscqlcde2pxbe5ajlny3dzcq6ses6rmrwbfcjhxozu
   lookonchain_client.py: bafybeih4jngtvwf2cv22kadz6bcpblmbwed5lk2xi3dws3yd3pprjtutve
-  models.py: bafybeihnkcy3eqycmjebrrvddijr6wrlkeouywoh52d7swzg6fyokwgyky
+  models.py: bafybeickl6wetjensmsjyvyxq7td4gbdwwiecu2pvxng5d7fd5bdh4jthu
   prompt.py: bafybeig4skghqp2w7ofhime254useomdgdha523y7gx6dt32kc4hnn3e24
   prompt_template.jinja: bafybeiayi6pfxz5suxl7csroti2wxu4req5l6bukty25entaroxhgakagq
   researchagent_client.py: bafybeiblaexoh4fcpwtidif3dyaiu4bkjy2jm5nj2jg4igev5nwmfjvy64
@@ -34,6 +34,7 @@ contracts: []
 protocols:
 - eightballer/default:0.1.0:bafybeicsdb3bue2xoopc6lue7njtyt22nehrnkevmkuk2i6ac65w722vwy
 - eightballer/http:0.1.0:bafybeid75xhq7hfdt7sgj7yrn44yj57xrgxscaw34ir46tndfzvodioxme
+- eightballer/websockets:0.1.0:bafybeihdxrqup26ss4jsszcinurilys5bsvzuijwb75vdk7wsh6aeztz34
 skills: []
 customs: []
 behaviours:
@@ -50,10 +51,16 @@ handlers:
       enable_cors: false
       expected_api_key: key
     class_name: HttpHandler
+  websocket_handler:
+    args: {}
+    class_name: WebsocketHandler
 models:
   api_client_strategy:
     args: {}
     class_name: APIClientStrategy
+  api_ws_dialogues:
+    args: {}
+    class_name: ApiWebSocketDialogues
   db_model:
     class_name: DatabaseModel
     args:
