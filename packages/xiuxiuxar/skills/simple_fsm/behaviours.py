@@ -20,12 +20,17 @@
 
 import os
 import re
+import sys
+import importlib
 from abc import ABC
 from enum import Enum
-from typing import Any
+from typing import TYPE_CHECKING, Any, cast
+from pathlib import Path
 from datetime import UTC, tzinfo, datetime
+from collections.abc import Generator
 from concurrent.futures import ThreadPoolExecutor
 
+import yaml
 import markdown  # You may need to add this to your requirements
 import requests
 import sqlalchemy
@@ -51,7 +56,21 @@ from packages.xiuxiuxar.skills.simple_fsm.treeofalpha_client import TreeOfAlphaA
 from packages.xiuxiuxar.skills.simple_fsm.researchagent_client import ResearchAgentAPIError
 
 
+if TYPE_CHECKING:
+    from packages.xiuxiuxar.skills.simple_fsm.models import APIClientStrategy
+
+
 MAX_WORKERS = 4
+
+
+def dynamic_import(component_name, module_name, logger=None):
+    """Dynamically import a module."""
+    if logger:
+        logger.info(f"Component name: {component_name}")
+        logger.info(f"Module name: {module_name}")
+
+    module = importlib.import_module(component_name)
+    return getattr(module, module_name)
 
 
 class DyorabciappEvents(Enum):
@@ -119,10 +138,43 @@ class WatchingRound(BaseState):
         2. If there are, set the event to TRIGGER.
         3. If there are no triggers, set the event to NO_TRIGGER.
         """
-        self.context.logger.info(f"Entering state: {self._state}")
-        self._event = DyorabciappEvents.TRIGGER
+        self.context.logger.debug(f"Entering state: {self._state}")
 
-        self._is_done = True  # Mark state as done
+        try:
+            # Query for unprocessed triggers
+            with self.context.db_model.engine.connect() as conn:
+                result = conn.execute(
+                    text("""
+                    SELECT t.trigger_id, t.asset_id, a.symbol, a.name
+                    FROM triggers t
+                    JOIN assets a ON t.asset_id = a.asset_id
+                    WHERE t.status = 'pending'
+                    ORDER BY t.created_at ASC
+                    LIMIT 1
+                """)
+                )
+                trigger = result.fetchone()
+
+                if trigger:
+                    # Found a trigger, set up context and transition
+                    self.context.trigger_context = {
+                        "trigger_id": trigger[0],
+                        "asset_id": trigger[1],
+                        "asset_symbol": trigger[2],
+                        "asset_name": trigger[3],
+                    }
+                    self.context.logger.info(f"Found trigger {trigger[0]} for asset {trigger[2]} (ID: {trigger[1]})")
+                    self._event = DyorabciappEvents.TRIGGER
+                else:
+                    # No triggers found
+                    self.context.logger.debug("No pending triggers found")
+                    self._event = DyorabciappEvents.NO_TRIGGER
+
+        except sqlalchemy.exc.SQLAlchemyError as e:
+            self.context.logger.exception(f"Database error while checking triggers: {e}")
+            self._event = DyorabciappEvents.ERROR
+
+        self._is_done = True
 
 
 class ProcessDataRound(BaseState):
@@ -614,7 +666,55 @@ class SetupDYORRound(BaseState):
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
+        self.api_name = kwargs.get("api_name")
+        self.context.logger.info(f"API name: {self.api_name}")
         self._state = DyorabciappStates.SETUPDYORROUND
+
+    @property
+    def strategy(self) -> str | None:
+        """Get the strategy."""
+        return cast("APIClientStrategy", self.context.api_client_strategy)
+
+    @property
+    def custom_api_component(self) -> bool:
+        """Check load of custom API component."""
+        author, component_name = self.api_name.split("/")
+        directory = Path("vendor") / author / "customs" / component_name
+        config = yaml.safe_load((directory / "component.yaml").read_text())
+        return author, component_name, directory, config
+
+    def load_handlers(self, author, component_name, directory, config) -> Generator[Any, Any, None]:
+        """Load in the handlers."""
+        # Debug directory information
+        self.context.logger.info(f"Loading handlers for Author: {author}, Component: {component_name}")
+        self.context.logger.info(f"Directory path: {directory}")
+        self.context.logger.info(f"Directory exists: {directory.exists()}")
+        self.context.logger.info(f"Directory absolute: {directory.absolute()}")
+        self.context.logger.info(f"Component name path: {Path(component_name)}")
+        self.context.logger.info(f"Component name parent: {Path(component_name).parent}")
+
+        # Add the root directory to Python path
+        parent_dir = str(directory.parent)
+        if parent_dir not in sys.path:
+            sys.path.insert(0, parent_dir)
+            self.context.logger.info(f"Added {parent_dir} to Python path")
+
+        configs = config["handlers"]
+        module = dynamic_import(component_name, "handlers", logger=self.context.logger)
+
+        for handler_config in configs:
+            class_name = handler_config["class_name"]
+            handler_kwargs = handler_config.get("kwargs", {})
+            handler = getattr(module, class_name)
+            handler = handler(name=class_name, skill_context=self.context, **handler_kwargs)
+            self.context.api_client_strategy.handlers.append(handler)
+            self.context.logger.info(f"Handler {class_name} loaded.")
+
+            handler_methods = [
+                method for method in dir(handler) if callable(getattr(handler, method)) and not method.startswith("__")
+            ]
+
+            self.context.logger.info(f"Methods found in {class_name}: {', '.join(handler_methods)}")
 
     def act(self) -> None:
         """Act:
@@ -629,10 +729,23 @@ class SetupDYORRound(BaseState):
         try:
             # Setup database connection
             self.context.db_model.setup()
-
             is_valid, error_msg = self.context.strategy.validate_database_schema()
             if not is_valid:
                 raise ValueError(error_msg)
+
+            # Setup API server
+            self.context.logger.info(f"Loading API Interface: {self.api_name}")
+            author, component_name, directory, config = self.custom_api_component
+
+            if config.get("handlers", False):
+                self.context.logger.info("About to load handlers...")
+                try:
+                    self.load_handlers(author, component_name, directory, config)
+                    self.context.logger.info("Handlers loaded successfully")
+                except Exception as e:
+                    self.context.logger.exception(f"Error loading handlers: {e}")
+            else:
+                self.context.logger.info("No handlers found in config")
 
             # Initialize API clients
             self.context.api_clients = {}
@@ -683,6 +796,69 @@ class DeliverReportRound(BaseState):
         super().__init__(**kwargs)
         self._state = DyorabciappStates.DELIVERREPORTROUND
 
+    def _update_trigger_status(self, conn) -> bool:
+        """Update trigger status to processed."""
+        try:
+            conn.execute(
+                text("""
+                    UPDATE triggers
+                    SET status = 'processed'
+                    WHERE trigger_id = :trigger_id
+                """),
+                {"trigger_id": self.context.trigger_context["trigger_id"]},
+            )
+            conn.commit()
+            return True
+        except sqlalchemy.exc.SQLAlchemyError as e:
+            self.context.logger.exception(f"Failed to update trigger status: {e}")
+            return False
+
+    def _publish_report_event(self) -> bool:
+        """Publish report_generated event via WebSocket."""
+        try:
+            event_data = {
+                "type": "report_generated",
+                "trigger_id": self.context.trigger_context["trigger_id"],
+                "asset_id": self.context.trigger_context["asset_id"],
+                "asset_symbol": self.context.trigger_context["asset_symbol"],
+                "timestamp": datetime.now(UTC).isoformat(),
+            }
+            self.context.websocket_service.publish_event(event_data)
+            return True
+        except (ConnectionError, TimeoutError, ValueError) as e:
+            self.context.logger.warning(f"Failed to publish report event: {e}")
+            return False
+
+    def act(self) -> None:
+        """Update trigger status and notify about report completion."""
+        self.context.logger.info(f"Entering state: {self._state}")
+
+        try:
+            # Update trigger status
+            with self.context.db_model.engine.connect() as conn:
+                if not self._update_trigger_status(conn):
+                    msg = "Failed to update trigger status"
+                    raise RuntimeError(msg)
+
+            # Attempt to publish event (non-critical)
+            self._publish_report_event()
+
+            # Success - transition to watching
+            self._event = DyorabciappEvents.DONE
+
+        except Exception as e:
+            self.context.logger.exception(f"Error in DeliverReportRound: {e}")
+            self.context.error_context = {
+                "error_type": "delivery_error",
+                "error_message": str(e),
+                "trigger_id": self.context.trigger_context.get("trigger_id"),
+                "asset_id": self.context.trigger_context.get("asset_id"),
+                "critical": True,  # DB failure is critical
+            }
+            self._event = DyorabciappEvents.ERROR
+
+        self._is_done = True
+
 
 class TriggerRound(BaseState):
     """This class implements the behaviour of the state TriggerRound."""
@@ -690,70 +866,140 @@ class TriggerRound(BaseState):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self._state = DyorabciappStates.TRIGGERROUND
-        self.test_asset_symbol = kwargs.get("test_asset_symbol")
-        self.test_asset_name = kwargs.get("test_asset_name")
-        if not self.test_asset_symbol or not self.test_asset_name:
-            msg = "test_asset_symbol and test_asset_name must be provided"
-            raise ValueError(msg)
+        if kwargs.get("test_asset_symbol") and kwargs.get("test_asset_name"):
+            self.test_asset_symbol = kwargs.get("test_asset_symbol")
+            self.test_asset_name = kwargs.get("test_asset_name")
+
+    def _validate_asset(self, conn) -> tuple[bool, str, dict]:
+        """Validate asset exists and is active."""
+        try:
+            result = conn.execute(
+                text("""
+                    SELECT a.asset_id, a.symbol, a.name, a.status
+                    FROM assets a
+                    WHERE a.asset_id = :asset_id
+                """),
+                {"asset_id": self.context.trigger_context["asset_id"]},
+            )
+            asset = result.fetchone()
+
+            if not asset:
+                return False, "Asset not found", {}
+
+            if asset[3] != "active":  # status check
+                return False, f"Asset {asset[1]} is not active", {}
+
+            return True, "", {"asset_id": asset[0], "symbol": asset[1], "name": asset[2]}
+        except sqlalchemy.exc.SQLAlchemyError as e:
+            return False, f"Database error: {e!s}", {}
+
+    def _check_recent_report(self, conn, asset_id: int) -> tuple[bool, str]:
+        """Check if a recent report exists (within last 24h unless force_refresh)."""
+        trigger_details = self.context.trigger_context.get("trigger_details", {})
+        if trigger_details.get("force_refresh"):
+            return True, ""
+
+        try:
+            result = conn.execute(
+                text("""
+                    SELECT r.report_id, r.created_at
+                    FROM reports r
+                    WHERE r.asset_id = :asset_id
+                    AND r.created_at > NOW() - INTERVAL '24 hours'
+                    ORDER BY r.created_at DESC
+                    LIMIT 1
+                """),
+                {"asset_id": asset_id},
+            )
+            report = result.fetchone()
+
+            if report:
+                return False, f"Recent report exists from {report[1]}"
+            return True, ""
+        except sqlalchemy.exc.SQLAlchemyError as e:
+            return False, f"Database error checking recent report: {e!s}"
 
     def act(self) -> None:
-        """Act on triggers."""
+        """Process trigger request and prepare for data ingestion."""
         self.context.logger.info(f"Entering state: {self._state}")
 
         try:
-            # First ensure the asset exists in the database
             with self.context.db_model.engine.connect() as conn:
-                # Try to get existing asset first
-                result = conn.execute(
-                    text("SELECT asset_id FROM assets WHERE symbol = :symbol"), {"symbol": self.test_asset_symbol}
-                )
-                asset = result.fetchone()
-
-                if asset is None:
-                    # Asset doesn't exist, create it
+                # Handle test asset case
+                if hasattr(self, "test_asset_symbol"):
+                    # Try to get existing asset first
                     result = conn.execute(
-                        text("""
-                            INSERT INTO assets (symbol, name)
-                            VALUES (:symbol, :name)
-                            RETURNING asset_id
-                        """),
-                        {"symbol": self.test_asset_symbol, "name": self.test_asset_name},
+                        text("SELECT asset_id FROM assets WHERE symbol = :symbol"), {"symbol": self.test_asset_symbol}
                     )
-                    asset_id = result.scalar_one()
-                    conn.commit()
-                    self.context.logger.info(f"Created new asset with ID {asset_id}")
-                else:
-                    asset_id = asset[0]
-                    self.context.logger.info(f"Using existing asset with ID {asset_id}")
+                    asset = result.fetchone()
 
-            # Now create the trigger with the valid asset_id
-            trigger_id = self.context.db_model.create_trigger(
-                asset_id=asset_id,  # Use the asset_id we just got/created
-                trigger_type="manual_test",
-                trigger_details={"source": "test", "description": "Test trigger for data ingestion"},
-            )
+                    if asset is None:
+                        # Create test asset
+                        result = conn.execute(
+                            text("""
+                                INSERT INTO assets (symbol, name, status)
+                                VALUES (:symbol, :name, 'active')
+                                RETURNING asset_id
+                            """),
+                            {"symbol": self.test_asset_symbol, "name": self.test_asset_name},
+                        )
+                        asset_id = result.scalar_one()
+                        conn.commit()
+                        self.context.logger.info(f"Created test asset with ID {asset_id}")
 
-            self.context.trigger_context = {
-                "trigger_id": trigger_id,
-                "asset_symbol": self.test_asset_symbol,
-                "asset_name": self.test_asset_name,
-                "asset_id": asset_id,
+                        # Create test trigger
+                        trigger_id = self.context.db_model.create_trigger(
+                            asset_id=asset_id,
+                            trigger_type="manual_test",
+                            trigger_details={"source": "test", "description": "Test trigger for data ingestion"},
+                        )
+
+                        self.context.trigger_context = {
+                            "trigger_id": trigger_id,
+                            "asset_id": asset_id,
+                            "asset_symbol": self.test_asset_symbol,
+                            "asset_name": self.test_asset_name,
+                            "trigger_type": "manual_test",
+                        }
+                    else:
+                        asset_id = asset[0]
+                        self.context.logger.info(f"Using existing test asset with ID {asset_id}")
+
+                # For non-test case, validate asset and check recent report
+                if not hasattr(self, "test_asset_symbol"):
+                    is_valid, error_msg = self._validate_asset(conn)
+                    if not is_valid:
+                        raise ValueError(error_msg)
+
+                    can_proceed, error_msg = self._check_recent_report(conn, self.context.trigger_context["asset_id"])
+                    if not can_proceed:
+                        raise ValueError(error_msg)
+
+                # Update metrics
+                self.context.strategy.increment_active_triggers()
+                self._event = DyorabciappEvents.DONE
+
+        except ValueError as e:
+            self.context.logger.warning(f"Validation error: {e!s}")
+            self.context.error_context = {
+                "error_type": "validation_error",
+                "error_message": str(e),
+                "trigger_id": self.context.trigger_context.get("trigger_id"),
+                "asset_id": self.context.trigger_context.get("asset_id"),
             }
-
-            self.context.logger.info(
-                f"Created test trigger {trigger_id} for asset {self.test_asset_symbol} (ID: {asset_id})"
-            )
-
-            # Update metrics
-            self.context.strategy.increment_active_triggers()
-
-            self._event = DyorabciappEvents.DONE
-
-        except Exception as e:
-            self.context.logger.exception(f"Error creating trigger: {e}")
             self._event = DyorabciappEvents.ERROR
 
-        self._is_done = True  # Mark state as done
+        except Exception as e:
+            self.context.logger.exception(f"Unexpected error in TriggerRound: {e}")
+            self.context.error_context = {
+                "error_type": "unexpected_error",
+                "error_message": str(e),
+                "trigger_id": self.context.trigger_context.get("trigger_id"),
+                "asset_id": self.context.trigger_context.get("asset_id"),
+            }
+            self._event = DyorabciappEvents.ERROR
+
+        self._is_done = True
 
 
 class IngestDataRound(BaseState):
@@ -900,6 +1146,14 @@ class GenerateReportRound(BaseState):
         """Generate a report for the given trigger/asset."""
         self.context.logger.info(f"Entering state: {self._state}")
         try:
+            # Check if report already exists
+            trigger_id = self.context.trigger_context.get("trigger_id")
+            if self.context.db_model.report_exists(trigger_id):
+                self.context.logger.warning(f"Report already exists for trigger_id={trigger_id}")
+                self._event = DyorabciappEvents.DONE
+                self._is_done = True
+                return
+
             # 1. Fetch structured payload
             payload = self._fetch_structured_payload()
 
