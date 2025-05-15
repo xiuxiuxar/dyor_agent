@@ -21,7 +21,7 @@
 import json
 import secrets
 from enum import Enum
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 from urllib.parse import urlparse
 
 from aea.skills.base import Handler
@@ -35,6 +35,10 @@ from packages.xiuxiuxar.skills.simple_fsm.dialogues import (
     HttpDialogues,
     DefaultDialogues,
 )
+
+
+if TYPE_CHECKING:
+    from packages.xiuxiuxar.skills.simple_fsm.models import APIClientStrategy
 
 
 def _parse_headers(header_str: str) -> dict[str, str]:
@@ -60,7 +64,7 @@ class HttpHandler(Handler):
 
     SUPPORTED_PROTOCOL = HttpMessage.protocol_id
     SUPPORTED_METHODS = {"get"}
-    SUPPORTED_ENDPOINTS = {"/status", "/metrics"}
+    SYSTEM_ENDPOINTS = {"/status", "/metrics"}  # Renamed for clarity
 
     def __init__(self, **kwargs):
         """Initialise the handler."""
@@ -71,12 +75,17 @@ class HttpHandler(Handler):
     def setup(self) -> None:
         """Implement the setup."""
 
+    @property
+    def strategy(self) -> str | None:
+        """Get the strategy."""
+        return cast("APIClientStrategy", self.context.api_client_strategy)
+
     def handle(self, message: Message) -> None:
         """Handle the message."""
         self.context.logger.debug("Handling new connection message in skill")
-        http_msg = cast(HttpMessage, message)
-        http_dialogues = cast(HttpDialogues, self.context.http_dialogues)
-        http_dialogue = cast(HttpDialogue, http_dialogues.update(http_msg))
+        http_msg = cast("HttpMessage", message)
+        http_dialogues = cast("HttpDialogues", self.context.http_dialogues)
+        http_dialogue = cast("HttpDialogue", http_dialogues.update(http_msg))
 
         if http_dialogue is None:
             self._handle_unidentified_dialogue(http_msg)
@@ -86,6 +95,7 @@ class HttpHandler(Handler):
             self._handle_invalid(http_msg, http_dialogue)
             return
 
+        # Validate API key for all requests
         headers = _parse_headers(http_msg.headers)
         provided_key = headers.get("x-api-key")
         if not self._is_valid_api_key(provided_key):
@@ -93,21 +103,37 @@ class HttpHandler(Handler):
             return
 
         method = http_msg.method.lower()
-        url_path = urlparse(http_msg.url).path.rstrip("/")
-        if method not in self.SUPPORTED_METHODS or url_path not in self.SUPPORTED_ENDPOINTS:
+        url_path = self._normalize_path(http_msg.url)
+
+        # Route to API handler if path starts with /api
+        if url_path.startswith("/api/"):
+            for handler in self.strategy.handlers:
+                result = handler.handle(message)
+                if result is not None:  # If handler processed the request
+                    self._send_response(
+                        http_dialogue,
+                        http_msg,
+                        result.status_code,
+                        json.loads(result.body.decode("utf-8")),
+                        result.status_text,
+                    )
+                    return
+
             self._handle_invalid(http_msg, http_dialogue)
             return
 
-        handlers = {
-            "/status": self._handle_status,
-            # "/metrics": self._handle_metrics,
-        }
+        # Handle system endpoints
+        if url_path in self.SYSTEM_ENDPOINTS:
+            if method not in self.SUPPORTED_METHODS:
+                self._handle_invalid(http_msg, http_dialogue)
+                return
 
-        try:
-            handlers[url_path](http_msg, http_dialogue)
-        except Exception as e:
-            self.context.logger.exception(f"Error handling request: {e!s}")
-            self._handle_internal_error(http_msg, http_dialogue)
+            if url_path == "/status":
+                self._handle_status(http_msg, http_dialogue)
+            elif url_path == "/metrics":
+                self._handle_metrics(http_msg, http_dialogue)
+        else:
+            self._handle_invalid(http_msg, http_dialogue)
 
     def _normalize_path(self, url: str) -> str:
         """Normalize URL path."""
@@ -152,7 +178,7 @@ class HttpHandler(Handler):
     def _handle_internal_error(self, http_msg: HttpMessage, http_dialogue: HttpDialogue) -> None:
         """Handle internal errors."""
         self._send_response(http_dialogue, http_msg, 500, {"error": "Internal server error"}, "Internal Server Error")
-        self.context.logger.exception("Internal server error")
+        self.context.logger.error("Internal server error")
 
     def _handle_unauthorized(self, http_msg: HttpMessage, http_dialogue: HttpDialogue) -> None:
         """Handle unauthorized requests."""
@@ -193,7 +219,7 @@ class HttpHandler(Handler):
     def _handle_unidentified_dialogue(self, http_msg: HttpMessage) -> None:
         """Handle an unidentified dialogue."""
         self.context.logger.info(f"received invalid http message={http_msg}, unidentified dialogue.")
-        default_dialogues = cast(DefaultDialogues, self.context.default_dialogues)
+        default_dialogues = cast("DefaultDialogues", self.context.default_dialogues)
         default_msg, _ = default_dialogues.create(
             counterparty=http_msg.sender,
             performative=DefaultMessage.Performative.ERROR,
