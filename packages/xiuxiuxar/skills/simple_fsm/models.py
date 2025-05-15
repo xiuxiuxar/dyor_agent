@@ -29,6 +29,13 @@ from psycopg2.extras import Json
 from sqlalchemy.engine import Engine
 
 
+class APIClientStrategy(Model):
+    """This class represents a api client strategy."""
+
+    handlers: list = []
+    routes: dict = {}
+
+
 class DatabaseModel(Model):
     """Database connection and configuration."""
 
@@ -318,6 +325,25 @@ class DatabaseModel(Model):
             self.context.logger.exception(
                 f"Failed to store report: trigger_id={trigger_id}, asset_id={asset_id}, error={e!s}"
             )
+            raise
+
+    def report_exists(self, trigger_id: int) -> bool:
+        """Check if a report already exists for this trigger ID."""
+        if not self._engine:
+            msg = "Database engine not initialized. Call setup() first."
+            raise RuntimeError(msg)
+
+        try:
+            query = text("""
+                SELECT EXISTS (
+                    SELECT 1 FROM reports WHERE trigger_id = :trigger_id
+                )
+            """)
+            with self._engine.connect() as conn:
+                result = conn.execute(query, {"trigger_id": trigger_id}).scalar()
+                return bool(result)
+        except Exception as e:
+            self.context.logger.exception(f"Failed to check if report exists for trigger_id={trigger_id}: {e!s}")
             raise
 
 

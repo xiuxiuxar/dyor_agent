@@ -12,16 +12,19 @@ connections:
 - eightballer/http_client:0.1.0:bafybeiaz5auftwxpt4czrmeeesggqlkc2kosmetq6adrebeu6g7bkhqc2u
 - eightballer/http_server:0.1.0:bafybeidrvllrr23mc6bvjxn6v3hny6oiwhfgi72n2b7w6ck5luousjfbbq
 - eightballer/prometheus:0.1.1:bafybeicy4ck2wvauo2vh6ji64xrzlgezh27powi6ztokr4yujtf3cft6wi
+- eightballer/websocket_server:0.1.0:bafybeic3mpzkth76cx5in6hzxtqxelzvrdbzzxhe4n7kt4zyzqsgklyy4m
 contracts: []
 protocols:
 - eightballer/default:0.1.0:bafybeicsdb3bue2xoopc6lue7njtyt22nehrnkevmkuk2i6ac65w722vwy
 - eightballer/http:0.1.0:bafybeid75xhq7hfdt7sgj7yrn44yj57xrgxscaw34ir46tndfzvodioxme
+- eightballer/websockets:0.1.0:bafybeihdxrqup26ss4jsszcinurilys5bsvzuijwb75vdk7wsh6aeztz34
 - eightballer/prometheus:1.0.0:bafybeidxo32tu43ru3xlk3kd5b6xlwf6vaytxvvhtjbh7ag52kexos4ke4
 - open_aea/signing:1.0.0:bafybeig2d36zxy65vd7fwhs7scotuktydcarm74aprmrb5nioiymr3yixm
 skills:
 - eightballer/prometheus:0.1.0:bafybeicl5i7e467aowfarke4bbyixo2dggar276njmvyuwbsby5pxshhtu
-- xiuxiuxar/simple_fsm:0.1.0:bafybeihf5sc6d326skpqv4isunj3kasqjgmov6yivuuikxjhjp3p7jkvne
-customs: []
+- xiuxiuxar/simple_fsm:0.1.0:bafybeih6a5uv5uxhpuqqg6mqthlfrhcrvh2pbakz4rgoiyjj5vlijxx4ia
+customs:
+- xiuxiuxar/dyor_api:0.1.0:bafybeihgzbz34p7k6ajqgog7tap4srwg3gn4iuydyzxelyxfmbjueuzfji
 default_ledger: ethereum
 required_ledgers:
 - ethereum
@@ -41,7 +44,7 @@ logging_config:
       class: logging.FileHandler
       filename: log.txt
       formatter: standard
-      level: INFO
+      level: DEBUG
   loggers:
     aea:
       handlers:
@@ -63,14 +66,20 @@ config:
   port: 8888
   target_skill_id: xiuxiuxar/simple_fsm:0.1.0
 ---
+public_id: eightballer/websocket_server:0.1.0:bafybeib4t4ay6kfjokq3cydparpzs4zllyl2yujvfsbc24xogwyxsswaqy
+type: connection
+config:
+  host: 0.0.0.0
+  port: 5556
+  target_skill_id: xiuxiuxar/simple_fsm:0.1.0
+---
 public_id: xiuxiuxar/simple_fsm:0.1.0
 type: skill
 behaviours:
   main:
     args:
       max_workers: ${MAX_WORKERS:int:4}
-      test_asset_symbol: ${TEST_ASSET_SYMBOL:str:olas}
-      test_asset_name: ${TEST_ASSET_NAME:str:Autonolas}
+      api_name: ${API_NAME:str:xiuxiuxar/dyor_api}
 handlers:
   metrics_handler:
     args:
