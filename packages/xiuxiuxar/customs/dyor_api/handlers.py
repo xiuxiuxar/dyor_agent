@@ -24,7 +24,7 @@ from datetime import UTC, datetime
 from contextlib import contextmanager
 from urllib.parse import unquote, urlparse
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 from aea.skills.base import Handler
 
@@ -43,20 +43,38 @@ TriggerResponse = api.TriggerResponse
 
 
 def handle_exception(handler_func):
-    """Handle exception in the handler."""
+    """Handle exception in the handler with standardized error responses."""
 
     def wrapper(self, message, *args, **kwargs):
         try:
             return handler_func(self, message, *args, **kwargs)
         except json.JSONDecodeError:
             self.context.logger.warning("Invalid JSON in request body")
-            return self.error_response(message, "Invalid JSON in request body", 400)
+            return self.error_response(
+                message=message,
+                error_msg="Invalid JSON in request body",
+                status_code=400,
+                error_code="BAD_REQUEST",
+                details={"type": "json_decode_error"},
+            )
         except ValueError as e:
             self.context.logger.warning(f"Validation error: {e!s}")
-            return self.error_response(message, str(e), 400)
+            return self.error_response(
+                message=message,
+                error_msg=str(e),
+                status_code=400,
+                error_code="BAD_REQUEST",
+                details={"type": "validation_error"},
+            )
         except Exception as e:
             self.context.logger.exception(f"Unhandled exception {e!s}")
-            return self.error_response(message, "Internal server error", 500)
+            return self.error_response(
+                message=message,
+                error_msg="Internal server error",
+                status_code=500,
+                error_code="INTERNAL_SERVER_ERROR",
+                details={"type": "unhandled_exception"},
+            )
 
     return wrapper
 
@@ -174,13 +192,40 @@ class DyorApiHandler(Handler):
         """Create a success response."""
         return self.create_response(message, status_code, status_text, data)
 
-    def error_response(self, message: ApiHttpMessage, error_msg: str, status_code: int = 400) -> ApiHttpMessage:
-        """Create an error response."""
-        return self.create_response(message, status_code, "Error", {"error": error_msg})
+    def error_response(
+        self,
+        message: ApiHttpMessage,
+        error_msg: str,
+        status_code: int = 400,
+        error_code: str | None = None,
+        details: dict | None = None,
+    ) -> ApiHttpMessage:
+        """Create an error response following OpenAPI spec."""
+        # Map status codes to error codes if not provided
+        if error_code is None:
+            error_code = {
+                400: "BAD_REQUEST",
+                401: "UNAUTHORIZED",
+                403: "FORBIDDEN",
+                404: "NOT_FOUND",
+                429: "TOO_MANY_REQUESTS",
+                500: "INTERNAL_SERVER_ERROR",
+            }.get(status_code, "UNKNOWN_ERROR")
+
+        error_body = {"code": error_code, "message": error_msg}
+        if details:
+            error_body["details"] = details
+
+        return self.create_response(message, status_code, "Error", error_body)
 
     def not_found_response(self, message: ApiHttpMessage, resource_type: str, resource_id: str) -> ApiHttpMessage:
-        """Create a not found response."""
-        return self.error_response(message, f"{resource_type} with {resource_type}_id {resource_id} not found", 404)
+        """Create a not found response following OpenAPI spec."""
+        return self.error_response(
+            message=message,
+            error_msg=f"{resource_type} with {resource_type}_id {resource_id} not found",
+            status_code=404,
+            error_code="NOT_FOUND",
+        )
 
     @contextmanager
     def get_session(self):
@@ -213,6 +258,173 @@ class DyorApiHandler(Handler):
         data = model_class.model_validate(result).model_dump()
         return data, 200, "OK"
 
+    def _parse_query_params(self, message: ApiHttpMessage) -> dict:
+        """Parse and validate query parameters from the request."""
+        params = {}
+        query = urlparse(message.url).query
+        if not query:
+            return params
+
+        query_dict = dict(param.split("=") for param in query.split("&") if "=" in param)
+
+        params.update(self._parse_common_params(query_dict))
+        params.update(self._parse_report_params(query_dict))
+        params.update(self._parse_asset_params(query_dict))
+
+        return params
+
+    def _parse_common_params(self, query_dict: dict) -> dict:
+        """Parse common pagination parameters."""
+        params = {}
+        for param in ["limit", "offset"]:
+            if param in query_dict:
+                try:
+                    value = int(query_dict[param])
+                    if param == "limit" and (value < 1 or value > 100):
+                        msg = "limit must be between 1 and 100"
+                        raise ValueError(msg)
+                    if param == "offset" and value < 0:
+                        msg = "offset must be non-negative"
+                        raise ValueError(msg)
+                    params[param] = value
+                except ValueError as e:
+                    msg = f"Invalid {param} parameter: {e}"
+                    raise ValueError(msg) from e
+        return params
+
+    def _parse_report_params(self, query_dict: dict) -> dict:
+        """Parse report-specific parameters."""
+        params = {}
+        if "asset_id" in query_dict:
+            params["asset_id"] = query_dict["asset_id"]
+
+        for date_param in ["start_date", "end_date"]:
+            if date_param in query_dict:
+                try:
+                    params[date_param] = datetime.fromisoformat(query_dict[date_param])
+                except ValueError:
+                    msg = f"{date_param} must be in ISO 8601 format"
+                    raise ValueError(msg) from None
+
+        if "trigger_type" in query_dict:
+            valid_types = {
+                "volume_spike",
+                "social_spike",
+                "bollinger_band",
+                "user_triggered",
+                "moving_average_crossover",
+            }
+            if query_dict["trigger_type"] not in valid_types:
+                msg = f"trigger_type must be one of: {', '.join(valid_types)}"
+                raise ValueError(msg)
+            params["trigger_type"] = query_dict["trigger_type"]
+
+        return params
+
+    def _parse_asset_params(self, query_dict: dict) -> dict:
+        """Parse asset-specific parameters."""
+        params = {}
+        if "category" in query_dict:
+            valid_categories = {"AI", "DeFi", "Memecoin", "Gaming", "Infrastructure", "Other"}
+            if query_dict["category"] not in valid_categories:
+                msg = f"category must be one of: {', '.join(valid_categories)}"
+                raise ValueError(msg)
+            params["category"] = query_dict["category"]
+
+        if "has_report" in query_dict:
+            if query_dict["has_report"].lower() not in {"true", "false"}:
+                msg = "has_report must be 'true' or 'false'"
+                raise ValueError(msg)
+            params["has_report"] = query_dict["has_report"].lower() == "true"
+
+        return params
+
+    def _build_list_query(self, model_class: type, params: dict) -> select:
+        """Build the query based on model type and parameters."""
+        query = select(model_class)
+
+        if model_class == Report:
+            if "asset_id" in params:
+                query = query.where(model_class.asset_id == params["asset_id"])
+            if "start_date" in params:
+                query = query.where(model_class.created_at >= params["start_date"])
+            if "end_date" in params:
+                query = query.where(model_class.created_at <= params["end_date"])
+            if "trigger_type" in params:
+                query = query.where(model_class.trigger_type == params["trigger_type"])
+        elif model_class == Asset:
+            if "category" in params:
+                query = query.where(model_class.category == params["category"])
+            if "has_report" in params:
+                # Use a subquery to check if asset has any reports
+                subquery = select(Report.asset_id).distinct()
+                if params["has_report"]:
+                    query = query.where(model_class.asset_id.in_(subquery))
+                else:
+                    query = query.where(~model_class.asset_id.in_(subquery))
+
+        return query.order_by(model_class.created_at.desc())
+
+    def _handle_list(self, model_class, response_class, message: ApiHttpMessage) -> ApiHttpMessage:
+        """Handle list endpoints with query parameter support."""
+        try:
+            params = self._parse_query_params(message)
+        except ValueError as e:
+            return self.error_response(
+                message=message,
+                error_msg=str(e),
+                status_code=400,
+                error_code="BAD_REQUEST",
+                details={"type": "query_parameter_validation"},
+            )
+
+        with self.get_session() as session:
+            # Build base query
+            query = self._build_list_query(model_class, params)
+
+            # Get total count
+            total_count = session.execute(select(func.count()).select_from(query.subquery())).scalar()
+
+            # Apply pagination
+            limit = params.get("limit", 10 if model_class == Report else 50)
+            offset = params.get("offset", 0)
+            query = query.limit(limit).offset(offset)
+
+            # Execute query using existing pattern
+            data, status_code, status_text = self.execute_db_query(
+                session=session, query=query, model_class=response_class, is_list=True
+            )
+
+            if status_code != 200:
+                return self.error_response(
+                    message=message,
+                    error_msg=status_text,
+                    status_code=status_code,
+                    error_code="INTERNAL_SERVER_ERROR" if status_code == 500 else "BAD_REQUEST",
+                )
+
+            # Construct pagination info
+            base_url = urlparse(message.url)
+            next_offset = offset + limit if offset + limit < total_count else None
+            prev_offset = offset - limit if offset > 0 else None
+
+            pagination = {
+                "total": total_count,
+                "limit": limit,
+                "offset": offset,
+                "next": f"{base_url.scheme}://{base_url.netloc}{base_url.path}?limit={limit}&offset={next_offset}"
+                if next_offset is not None
+                else None,
+                "previous": f"{base_url.scheme}://{base_url.netloc}{base_url.path}?limit={limit}&offset={prev_offset}"
+                if prev_offset is not None
+                else None,
+            }
+
+            # Return response matching OpenAPI spec structure
+            response_data = {"reports" if model_class == Report else "assets": data, "pagination": pagination}
+
+            return self.success_response(message, response_data, status_code, status_text)
+
     # Internal route mapping
     _ROUTE_MAP = {
         "GET": {
@@ -236,16 +448,6 @@ class DyorApiHandler(Handler):
         },
     }
 
-    def _handle_list(self, model_class, response_class, message: ApiHttpMessage) -> ApiHttpMessage:
-        with self.get_session() as session:
-            data, status_code, status_text = self.execute_db_query(
-                session=session,
-                query=select(model_class).order_by(model_class.created_at.desc()),
-                model_class=response_class,
-                is_list=True,
-            )
-            return self.success_response(message, data, status_code, status_text)
-
     def _handle_get_by_id(
         self, model_class, response_class, message: ApiHttpMessage, id_value: str, id_field: str
     ) -> ApiHttpMessage:
@@ -259,6 +461,13 @@ class DyorApiHandler(Handler):
             )
             if status_code == 404:
                 return self.not_found_response(message, model_class.__name__, id_value)
+            if status_code != 200:
+                return self.error_response(
+                    message=message,
+                    error_msg=status_text,
+                    status_code=status_code,
+                    error_code="INTERNAL_SERVER_ERROR" if status_code == 500 else "BAD_REQUEST",
+                )
             return self.success_response(message, data, status_code, status_text)
 
     def _handle_get_latest_by_asset(
@@ -288,11 +497,23 @@ class DyorApiHandler(Handler):
                 session.commit()
                 session.refresh(new_trigger)
                 data = TriggerResponse.model_validate(new_trigger).model_dump()
-                return self.success_response(message, data, 201, "Trigger created")
+                return self.success_response(message, data, 202, "Report generation triggered successfully")
         except json.JSONDecodeError:
-            return self.error_response(message, "Invalid JSON in request body")
+            return self.error_response(
+                message=message,
+                error_msg="Invalid JSON in request body",
+                status_code=400,
+                error_code="BAD_REQUEST",
+                details={"type": "json_decode_error"},
+            )
         except ValueError as e:
-            return self.error_response(message, str(e))
+            return self.error_response(
+                message=message,
+                error_msg=str(e),
+                status_code=400,
+                error_code="BAD_REQUEST",
+                details={"type": "validation_error"},
+            )
 
     # Public handler methods (kept for compatibility)
     @handle_exception
