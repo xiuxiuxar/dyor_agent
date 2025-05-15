@@ -9,11 +9,13 @@ fingerprint:
   __init__.py: bafybeicire46i4c2vknelq4t2jtalha2jhi5prliayeqcmlflb6nrthdbe
   api.py: bafybeidp2iltqoqyc3hmf6xdmx4ce63emoickwkvui5chmu4myxg3dge6m
   db.py: bafybeibrabnrrztmeqtcd2co4y5xnm7ae5ss43bcyqseku5epalz7nswqa
-  handlers.py: bafybeievq5p5rpn5hgnwvfgobmtnanw5vmg6ozaa36be62t6obobmpdzrm
+  handlers.py: bafybeia7gfybinxxctgzo2yxzsbnfungpn4srfndbz5abicz4qrl5qnm6i
   openapi3_spec.yaml: bafybeifz2xcbdvwh45ob6il5wbs5wfw7bss3xxp76xlaq4a5f7omlw6asq
 fingerprint_ignore_patterns: []
 dependencies: {}
 api_spec: openapi3_spec.yaml
 handlers:
 - class_name: DyorApiHandler
+  args: {}
+- class_name: DyorWsHandler
   args: {}

@@ -29,6 +29,8 @@ from sqlalchemy.orm import Session
 from aea.skills.base import Handler
 
 from packages.eightballer.protocols.http.message import HttpMessage as ApiHttpMessage
+from packages.xiuxiuxar.skills.simple_fsm.handlers import WebsocketHandler
+from packages.eightballer.protocols.websockets.message import WebsocketsMessage as ApiWebsocketsMessage
 
 from . import db, api
 
@@ -554,3 +556,29 @@ class DyorApiHandler(Handler):
     def handle_unexpected_message(self, message):
         """Handler for unexpected messages."""
         self.context.logger.info(f"Received unexpected message: {message}")
+
+
+class DyorWsHandler(WebsocketHandler):
+    """Implements the WebSocket handler for DYOR API."""
+
+    SUPPORTED_PROTOCOL = ApiWebsocketsMessage.protocol_id
+
+    def handle(self, message: ApiWebsocketsMessage) -> None:
+        """Handle incoming WebSocket messages with action-based routing."""
+        try:
+            data = json.loads(message.data)
+            action = data.get("action")
+            payload = data.get("payload", {})
+            dialogue = self._find_dialogue_for_message(message)
+            handler = getattr(self, f"handle_{action}", None)
+            if handler:
+                return handler(message, payload, dialogue)
+            return self.ws_error(message, f"Unknown action: {action}", dialogue)
+        except Exception as e:
+            dialogue = self._find_dialogue_for_message(message)
+            self.context.logger.exception(f"Error handling WebSocket message: {e}")
+            return self.ws_error(message, f"Internal error: {e!s}", dialogue)
+
+    def handle_ping(self, message, _payload, dialogue):
+        """Respond to ping with pong."""
+        return self.ws_success(message, "pong", {"timestamp": datetime.now(UTC).isoformat()}, dialogue)

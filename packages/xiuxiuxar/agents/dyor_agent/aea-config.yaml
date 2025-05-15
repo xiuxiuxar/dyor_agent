@@ -22,9 +22,9 @@ protocols:
 - open_aea/signing:1.0.0:bafybeig2d36zxy65vd7fwhs7scotuktydcarm74aprmrb5nioiymr3yixm
 skills:
 - eightballer/prometheus:0.1.0:bafybeicl5i7e467aowfarke4bbyixo2dggar276njmvyuwbsby5pxshhtu
-- xiuxiuxar/simple_fsm:0.1.0:bafybeih6a5uv5uxhpuqqg6mqthlfrhcrvh2pbakz4rgoiyjj5vlijxx4ia
+- xiuxiuxar/simple_fsm:0.1.0:bafybeihel4qe2towatvkssweqkl7fp22lcxtrs7efgvs3d6sn6dr2lwkoa
 customs:
-- xiuxiuxar/dyor_api:0.1.0:bafybeihgzbz34p7k6ajqgog7tap4srwg3gn4iuydyzxelyxfmbjueuzfji
+- xiuxiuxar/dyor_api:0.1.0:bafybeibveglxfnv6nrkjtsu4ho7zbd57ntq67tupy56e4xqnn2snqq6k4m
 default_ledger: ethereum
 required_ledgers:
 - ethereum

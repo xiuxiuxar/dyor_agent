@@ -11,21 +11,21 @@ DATA_SOURCES = {
         "processor": "serialize_trendmoon_data",
         "data_type_handler": "multi",
     },
-    "lookonchain": {
-        "fetcher": lambda client, symbol, **_: client.search(query=symbol, count=25),
-        "processor": "serialize_lookonchain_data",
-        "data_type_handler": "single",
-    },
-    "treeofalpha": {
-        "fetcher": lambda client, symbol, **_: client.search_news(query=symbol),
-        "processor": "serialize_treeofalpha_data",
-        "data_type_handler": "single",
-    },
-    "researchagent": {
-        "fetcher": lambda client, symbol, asset_name=None, **_: client.get_tweets_filter(
-            account="aixbt_agent", filter=asset_name or symbol, limit=25
-        ),
-        "processor": "serialize_researchagent_data",
-        "data_type_handler": "single",
-    },
+    # "lookonchain": {
+    #     "fetcher": lambda client, symbol, **_: client.search(query=symbol, count=25),
+    #     "processor": "serialize_lookonchain_data",
+    #     "data_type_handler": "single",
+    # },
+    # "treeofalpha": {
+    #     "fetcher": lambda client, symbol, **_: client.search_news(query=symbol),
+    #     "processor": "serialize_treeofalpha_data",
+    #     "data_type_handler": "single",
+    # },
+    # "researchagent": {
+    #     "fetcher": lambda client, symbol, asset_name=None, **_: client.get_tweets_filter(
+    #         account="aixbt_agent", filter=asset_name or symbol, limit=25
+    #     ),
+    #     "processor": "serialize_researchagent_data",
+    #     "data_type_handler": "single",
+    # },
 }
