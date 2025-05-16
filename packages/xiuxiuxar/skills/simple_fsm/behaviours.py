@@ -21,6 +21,9 @@
 import os
 import re
 import sys
+import json
+import time
+import random
 import importlib
 from abc import ABC
 from enum import Enum
@@ -571,15 +574,14 @@ class ProcessDataRound(BaseState):
             }
             self._event = DyorabciappEvents.ERROR
 
-        except Exception as e:
-            self.context.logger.exception(f"Unexpected error: {e}")
+        except (requests.RequestException, requests.Timeout, requests.ConnectionError) as e:
+            self.context.logger.exception(f"Unexpected error during HTTP request: {e}")
             self.context.error_context = {
-                "error_type": "unexpected_error",
+                "error_type": "http_error",
                 "error_message": str(e),
-                "error_source": "process_data",
+                "error_source": "http_request",
                 "trigger_id": trigger_id,
                 "asset_id": asset_id,
-                "recoverable": False,
             }
             self._event = DyorabciappEvents.ERROR
 
@@ -711,29 +713,46 @@ class SetupDYORRound(BaseState):
                     f"Available protocols: {list(PROTOCOL_HANDLER_MAP.keys())}"
                 )
 
+    def _initialize_api_clients(self):
+        """Initialize API clients and collect errors."""
+        self.context.api_clients = {}
+        errors = {}
+
+        try:
+            self.context.api_clients["lookonchain"] = self.context.lookonchain_client
+        except ValueError as e:
+            errors["lookonchain_init"] = str(e)
+
+        try:
+            self.context.api_clients["treeofalpha"] = self.context.treeofalpha_client
+        except ValueError as e:
+            errors["treeofalpha_init"] = str(e)
+
+        try:
+            self.context.api_clients["researchagent"] = self.context.researchagent_client
+        except ValueError as e:
+            errors["researchagent_init"] = str(e)
+
+        try:
+            self.context.api_clients["trendmoon"] = self.context.trendmoon_client
+        except ValueError as e:
+            errors["trendmoon_init"] = str(e)
+
+        return errors
+
     def act(self) -> None:
-        """Act:
-        1. Retrieve DB connection parameters from context/config.
-        2. Construct the database URL.
-        3. Create the SQLAlchemy engine (connection pool).
-        4. Test the connection.
-        5. Set DONE event on success, ERROR on failure.
-        """
+        """Setup the database connection and load the handlers."""
         self.context.logger.info(f"In state: {self._state}")
 
         try:
-            # Setup database connection
             self.context.db_model.setup()
             is_valid, error_msg = self.context.strategy.validate_database_schema()
             if not is_valid:
                 raise ValueError(error_msg)
 
-            # Setup API server
-            self.context.logger.info(f"Loading API Interface: {self.api_name}")
             author, component_name, directory, config = self.custom_api_component
 
             if config.get("handlers", False):
-                self.context.logger.info("About to load handlers...")
                 try:
                     self.load_handlers(author, component_name, directory, config)
                     self.context.logger.info("Handlers loaded successfully")
@@ -742,32 +761,17 @@ class SetupDYORRound(BaseState):
             else:
                 self.context.logger.info("No handlers found in config")
 
-            # Initialize API clients
-            self.context.api_clients = {}
-            errors = {}
-
-            try:
-                self.context.api_clients["lookonchain"] = self.context.lookonchain_client
-            except ValueError as e:
-                errors["lookonchain_init"] = str(e)
-
-            try:
-                self.context.api_clients["treeofalpha"] = self.context.treeofalpha_client
-            except ValueError as e:
-                errors["treeofalpha_init"] = str(e)
-
-            try:
-                self.context.api_clients["researchagent"] = self.context.researchagent_client
-            except ValueError as e:
-                errors["researchagent_init"] = str(e)
-
-            try:
-                self.context.api_clients["trendmoon"] = self.context.trendmoon_client
-            except ValueError as e:
-                errors["trendmoon_init"] = str(e)
+            errors = self._initialize_api_clients()
 
             if errors:
                 self.context.logger.warning(f"Failed to initialize API clients: {errors}")
+                self.context.error_context = {
+                    "error_type": "configuration_error",
+                    "error_message": str(errors),
+                    "originating_round": str(self._state),
+                    "trigger_id": getattr(self.context, "trigger_context", {}).get("trigger_id"),
+                    "asset_id": getattr(self.context, "trigger_context", {}).get("asset_id"),
+                }
                 self._event = DyorabciappEvents.ERROR
             else:
                 self.context.logger.info("Successfully initialized API clients")
@@ -775,10 +779,24 @@ class SetupDYORRound(BaseState):
 
         except ValueError as e:
             self.context.logger.exception(f"Configuration error during DB setup: {e}")
+            self.context.error_context = {
+                "error_type": "configuration_error",
+                "error_message": str(e),
+                "originating_round": str(self._state),
+                "trigger_id": getattr(self.context, "trigger_context", {}).get("trigger_id"),
+                "asset_id": getattr(self.context, "trigger_context", {}).get("asset_id"),
+            }
             self._event = DyorabciappEvents.ERROR
 
         except (sqlalchemy.exc.SQLAlchemyError, requests.exceptions.RequestException) as e:
             self.context.logger.exception(f"Unexpected error during DB setup: {e}")
+            self.context.error_context = {
+                "error_type": "database_error",
+                "error_message": str(e),
+                "originating_round": str(self._state),
+                "trigger_id": getattr(self.context, "trigger_context", {}).get("trigger_id"),
+                "asset_id": getattr(self.context, "trigger_context", {}).get("asset_id"),
+            }
             self._event = DyorabciappEvents.ERROR
 
         self._is_done = True
@@ -1093,6 +1111,13 @@ class IngestDataRound(BaseState):
             self._event = DyorabciappEvents.DONE
         except Exception as e:
             self.context.logger.exception(f"Error during data ingestion: {e}")
+            self.context.error_context = {
+                "error_type": "ingestion_error",
+                "error_message": str(e),
+                "originating_round": str(self._state),
+                "trigger_id": getattr(self.context, "trigger_context", {}).get("trigger_id"),
+                "asset_id": getattr(self.context, "trigger_context", {}).get("asset_id"),
+            }
             self._event = DyorabciappEvents.ERROR
         self._is_done = True
 
@@ -1222,9 +1247,154 @@ class GenerateReportRound(BaseState):
 class HandleErrorRound(BaseState):
     """This class implements the behaviour of the state HandleErrorRound."""
 
+    # Error classification rules
+    RETRYABLE_ERRORS = {
+        "database_error": True,
+        "storage_error": True,
+        "api_error": True,
+        "timeout_error": True,
+        "llm_api_error": True,
+        "llm_rate_limit": True,
+        "llm_generation_error": True,  # Sometimes retryable
+        "scraping_error": True,
+    }
+    NON_RETRYABLE_ERRORS = {
+        "configuration_error": False,
+        "validation_error": False,
+        "data_validation_error": False,
+        "internal_logic_error": False,
+        "resource_exhaustion": False,
+        "llm_content_filter": False,
+    }
+    # Default retry/backoff config
+    BASE_DELAY = 5  # seconds
+    MAX_DELAY = 300  # seconds
+    MAX_ATTEMPTS = 5
+    JITTER = 0.2  # 20% jitter
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
+        self.ntfy_topic = kwargs.get("ntfy_topic", "alerts")
         self._state = DyorabciappStates.HANDLEERRORROUND
+        self._retry_states = {}  # Store retry states in the class instance
+
+    def _classify_error(self, error_context: dict) -> tuple[bool, str]:
+        """Classify error and determine if retryable."""
+        error_type = (error_context.get("error_type") or "").lower()
+        if error_type in self.RETRYABLE_ERRORS:
+            return True, error_type
+        if error_type in self.NON_RETRYABLE_ERRORS:
+            return False, error_type
+        # Fallback: retry on API/DB/timeout, not on validation/config
+        if "api" in error_type or "timeout" in error_type or "storage" in error_type or "database" in error_type:
+            return True, error_type
+        if "validation" in error_type or "config" in error_type or "resource" in error_type:
+            return False, error_type
+        return False, error_type or "unknown"
+
+    def _get_retry_state(self, trigger_id: int) -> dict:
+        """Get or initialize retry state for this trigger."""
+        return self._retry_states.setdefault(trigger_id, {"attempt": 0, "last_ts": None})
+
+    def _increment_error_metrics(self, error_type: str) -> None:
+        """Increment error metrics in strategy if available."""
+        if hasattr(self.context, "strategy") and hasattr(self.context.strategy, "_metrics"):
+            metrics = self.context.strategy._metrics  # noqa: SLF001
+            key = f"errors_{error_type}"
+            metrics[key] = metrics.get(key, 0) + 1
+
+    def _log_json_error(self, error_context: dict, retryable: bool, attempt: int, max_attempts: int) -> None:
+        log_record = {
+            "timestamp": datetime.now(tz=UTC).isoformat(),
+            "level": "ERROR" if retryable else "CRITICAL",
+            "round": error_context.get("originating_round", "unknown"),
+            "asset_id": error_context.get("asset_id"),
+            "trigger_id": error_context.get("trigger_id"),
+            "error_type": error_context.get("error_type"),
+            "message": error_context.get("error_message"),
+            "stack": error_context.get("stack_trace"),
+            "retryable": retryable,
+            "attempt": attempt,
+            "max_attempts": max_attempts,
+        }
+        self.context.logger.error(json.dumps(log_record, default=str))
+
+    def _send_alert(self, error_context: dict, critical: bool = False) -> None:
+        # Integrate with ntfy.sh alerting system, else log CRITICAL
+        alert_msg = (
+            f"ALERT: {error_context.get('error_type')} | {error_context.get('error_message')} | "
+            f"Trigger: {error_context.get('trigger_id')} | Asset: {error_context.get('asset_id')}"
+        )
+        try:
+            requests.post(
+                f"https://ntfy.sh/{self.ntfy_topic}",
+                data=alert_msg.encode("utf-8"),
+                headers={
+                    "Title": f"{error_context.get('error_type', 'Error').replace('_', ' ').title()} detected",
+                    "Priority": "urgent" if critical else "high",
+                    "Tags": "warning,skull" if critical else "warning",
+                },
+                timeout=5,
+            )
+        except (requests.RequestException, requests.Timeout, requests.ConnectionError) as e:
+            self.context.logger.critical(f"Failed to send alert to ntfy.sh: {e!s} | {alert_msg}")
+            self.context.logger.critical(alert_msg)
+
+    def _update_trigger_status_error(self, trigger_id: int) -> None:
+        # Mark the trigger as errored in the DB
+        try:
+            with self.context.db_model.engine.connect() as conn:
+                conn.execute(
+                    text("""
+                        UPDATE triggers
+                        SET status = 'error', error_at = NOW()
+                        WHERE trigger_id = :trigger_id
+                    """),
+                    {"trigger_id": trigger_id},
+                )
+                conn.commit()
+        except sqlalchemy.exc.SQLAlchemyError as e:
+            self.context.logger.critical(f"Failed to update trigger status to error for trigger_id={trigger_id}: {e!s}")
+
+    def _calculate_backoff(self, attempt: int) -> float:
+        base = self.BASE_DELAY * (2**attempt)
+        jitter = base * self.JITTER * (random.random() * 2 - 1)  # +/- jitter  # noqa: S311
+        return min(self.MAX_DELAY, max(1, base + jitter))
+
+    def act(self) -> None:
+        """Handle error: log, increment metrics, retry or mark as failed, alert if critical."""
+        self.context.logger.info(f"Entering state: {self._state}")
+        error_context = getattr(self.context, "error_context", {}) or {}
+        trigger_id = error_context.get("trigger_id")
+
+        originating_round = error_context.get("originating_round", "unknown")
+
+        retryable, error_type = self._classify_error(error_context)
+        retry_state = self._get_retry_state(trigger_id) if trigger_id is not None else {"attempt": 0}
+        attempt = retry_state["attempt"]
+
+        self._log_json_error(error_context, retryable, attempt, self.MAX_ATTEMPTS)
+
+        self._increment_error_metrics(error_type)
+
+        if not retryable or attempt >= self.MAX_ATTEMPTS:
+            self._send_alert(error_context, critical=True)
+
+        if retryable and attempt < self.MAX_ATTEMPTS:
+            delay = self._calculate_backoff(attempt)
+            retry_state["attempt"] += 1
+            retry_state["last_ts"] = datetime.now(tz=UTC).isoformat()
+            self.context.logger.info(
+                f"Retrying {originating_round} for trigger_id={trigger_id} in {delay:.1f}s"
+                f"(attempt {attempt + 1}/{self.MAX_ATTEMPTS})"
+            )
+            time.sleep(delay)
+            self._event = DyorabciappEvents.RETRY
+        else:
+            if trigger_id is not None:
+                self._update_trigger_status_error(trigger_id)
+            self._event = DyorabciappEvents.DONE
+        self._is_done = True
 
 
 class DyorabciappFsmBehaviour(FSMBehaviour):

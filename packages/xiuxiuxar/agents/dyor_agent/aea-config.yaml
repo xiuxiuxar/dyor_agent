@@ -22,7 +22,7 @@ protocols:
 - open_aea/signing:1.0.0:bafybeig2d36zxy65vd7fwhs7scotuktydcarm74aprmrb5nioiymr3yixm
 skills:
 - eightballer/prometheus:0.1.0:bafybeicl5i7e467aowfarke4bbyixo2dggar276njmvyuwbsby5pxshhtu
-- xiuxiuxar/simple_fsm:0.1.0:bafybeihel4qe2towatvkssweqkl7fp22lcxtrs7efgvs3d6sn6dr2lwkoa
+- xiuxiuxar/simple_fsm:0.1.0:bafybeigdjtkqw5y5wl6mssiharrqpdx6onnyfwrwefsaizbkx3lwkpeysa
 customs:
 - xiuxiuxar/dyor_api:0.1.0:bafybeibveglxfnv6nrkjtsu4ho7zbd57ntq67tupy56e4xqnn2snqq6k4m
 default_ledger: ethereum
@@ -80,6 +80,7 @@ behaviours:
     args:
       max_workers: ${MAX_WORKERS:int:4}
       api_name: ${API_NAME:str:xiuxiuxar/dyor_api}
+      ntfy_topic: ${NTFY_TOPIC:str:alerts}
 handlers:
   metrics_handler:
     args:
