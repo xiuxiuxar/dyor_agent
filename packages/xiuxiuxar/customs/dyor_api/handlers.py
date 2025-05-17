@@ -492,9 +492,42 @@ class DyorApiHandler(Handler):
 
     def _handle_create_trigger(self, message: ApiHttpMessage, body: bytes) -> ApiHttpMessage:
         try:
-            trigger_create = TriggerCreate.model_validate(json.loads(body))
+            data = json.loads(body)
+            # Validate input using TriggerCreate (which now allows asset_id or asset_symbol)
+            trigger_create = TriggerCreate.model_validate(data)
+            asset_id = trigger_create.asset_id
+            asset_symbol = trigger_create.asset_symbol
             with self.get_session() as session:
-                new_trigger = Trigger(**trigger_create.model_dump(), processing_started_at=datetime.now(UTC))
+                # If asset_symbol is provided, resolve or create asset
+                if asset_symbol:
+                    asset = session.execute(select(Asset).where(Asset.symbol == asset_symbol)).scalar_one_or_none()
+                    if asset is None:
+                        # Create new asset with symbol and a default name (use symbol as name if not provided)
+                        asset_name = data.get("asset_name") or asset_symbol.upper()
+                        new_asset = Asset(symbol=asset_symbol, name=asset_name)
+                        session.add(new_asset)
+                        session.commit()
+                        session.refresh(new_asset)
+                        asset_id = new_asset.asset_id
+                    else:
+                        asset_id = asset.asset_id
+                elif asset_id is not None:
+                    # Validate asset_id exists
+                    asset = session.execute(select(Asset).where(Asset.asset_id == asset_id)).scalar_one_or_none()
+                    if asset is None:
+                        return self.not_found_response(message, "Asset", str(asset_id))
+                else:
+                    return self.error_response(
+                        message=message,
+                        error_msg="Either asset_id or asset_symbol must be provided.",
+                        status_code=400,
+                        error_code="BAD_REQUEST",
+                    )
+                # Prepare trigger creation dict
+                trigger_dict = trigger_create.model_dump()
+                trigger_dict["asset_id"] = asset_id
+                trigger_dict.pop("asset_symbol", None)  # Not a DB column
+                new_trigger = Trigger(**trigger_dict, processing_started_at=datetime.now(UTC))
                 session.add(new_trigger)
                 session.commit()
                 session.refresh(new_trigger)
