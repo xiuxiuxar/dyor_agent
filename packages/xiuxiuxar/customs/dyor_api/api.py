@@ -87,7 +87,8 @@ class TriggerBase(BaseModel):
     status: str = Field(default="pending", max_length=32)
 
     @root_validator(pre=True)
-    def check_asset_id_or_symbol(self, values: dict[str, Any]) -> dict[str, Any]:
+    @classmethod
+    def check_asset_id_or_symbol(cls, values: dict[str, Any]) -> dict[str, Any]:
         """Check that either asset_id or asset_symbol is provided."""
         if isinstance(values, dict):
             asset_id = values.get("asset_id")
