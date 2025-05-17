@@ -981,8 +981,8 @@ class TriggerRound(BaseState):
                         # Create test asset
                         result = conn.execute(
                             text("""
-                                INSERT INTO assets (symbol, name, status)
-                                VALUES (:symbol, :name, 'active')
+                                INSERT INTO assets (symbol, name)
+                                VALUES (:symbol, :name)
                                 RETURNING asset_id
                             """),
                             {"symbol": self.test_asset_symbol, "name": self.test_asset_name},
