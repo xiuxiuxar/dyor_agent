@@ -92,4 +92,3 @@ HttpDialogues = BaseHttpDialogues
 
 WebsocketsDialogue = BaseWebsocketsDialogue
 WebsocketsDialogues = BaseWebsocketsDialogues
-
