@@ -1374,7 +1374,7 @@ class HandleErrorRound(BaseState):
                 conn.execute(
                     text("""
                         UPDATE triggers
-                        SET status = 'error', error_at = NOW()
+                        SET status = 'error', completed_at = NOW()
                         WHERE trigger_id = :trigger_id
                     """),
                     {"trigger_id": trigger_id},
