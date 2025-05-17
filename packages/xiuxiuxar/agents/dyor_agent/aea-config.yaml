@@ -85,7 +85,7 @@ handlers:
   metrics_handler:
     args:
       enable_cors: false
-      expected_api_key: ${str:key}
+      expected_api_key: ${DYOR_API_KEY:str:key}
 models:
   db_model:
     args:
