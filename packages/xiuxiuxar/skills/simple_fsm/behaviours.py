@@ -517,6 +517,30 @@ class ProcessDataRound(BaseState):
                 context.logger.warning(f"Failed to parse ISO timestamp '{ts}': {e}")
         return None
 
+    def _update_asset_metadata_from_trendmoon(self, asset_id: int) -> None:
+        trendmoon_raw = self.context.raw_data.get("trendmoon", {})
+        coin_details = trendmoon_raw.get("coin_details", {}) if isinstance(trendmoon_raw, dict) else {}
+        coingecko_id = coin_details.get("id")
+        categories = coin_details.get("categories")
+        category = categories[0] if categories and isinstance(categories, list) and categories else None
+        if coingecko_id or category:
+            try:
+                with self.context.db_model.engine.connect() as conn:
+                    result = conn.execute(
+                        text("SELECT coingecko_id, category FROM assets WHERE asset_id = :asset_id"),
+                        {"asset_id": asset_id},
+                    ).fetchone()
+                    current_coingecko_id, current_category = result or (None, None)
+                # Only update fields that are currently null
+                patch_coingecko_id = coingecko_id if current_coingecko_id is None else current_coingecko_id
+                patch_category = category if current_category is None else current_category
+                if (current_coingecko_id is None and coingecko_id is not None) or (
+                    current_category is None and category is not None
+                ):
+                    self.context.db_model.update_asset_metadata(asset_id, patch_coingecko_id, patch_category)
+            except (sqlalchemy.exc.SQLAlchemyError, TypeError, ValueError) as e:
+                self.context.logger.warning(f"Failed to patch asset metadata: {e}")
+
     def act(self) -> None:
         """Process raw data → validate/structure → store."""
         self.context.logger.info(f"Entering state: {self._state}")
@@ -541,6 +565,9 @@ class ProcessDataRound(BaseState):
 
         try:
             self._store_all_raw_data(trigger_id, asset_id)
+
+            self._update_asset_metadata_from_trendmoon(asset_id)
+
             payload = self._try_build_structured_payload()
             if payload is None:
                 msg = "Failed to build structured payload"
