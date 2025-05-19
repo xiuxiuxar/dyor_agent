@@ -916,7 +916,7 @@ class TriggerRound(BaseState):
         try:
             result = conn.execute(
                 text("""
-                    SELECT a.asset_id, a.symbol, a.name, a.status
+                    SELECT a.asset_id, a.symbol, a.name
                     FROM assets a
                     WHERE a.asset_id = :asset_id
                 """),
@@ -926,9 +926,6 @@ class TriggerRound(BaseState):
 
             if not asset:
                 return False, "Asset not found", {}
-
-            if asset[3] != "active":  # status check
-                return False, f"Asset {asset[1]} is not active", {}
 
             return True, "", {"asset_id": asset[0], "symbol": asset[1], "name": asset[2]}
         except sqlalchemy.exc.SQLAlchemyError as e:
@@ -967,11 +964,20 @@ class TriggerRound(BaseState):
         try:
             with self.context.db_model.engine.connect() as conn:
                 # Validate asset and check recent report
-                is_valid, error_msg = self._validate_asset(conn)
+                is_valid, error_msg, asset_info = self._validate_asset(conn)
                 if not is_valid:
                     raise ValueError(error_msg)
 
-                can_proceed, error_msg = self._check_recent_report(conn, self.context.trigger_context["asset_id"])
+                # Update trigger context with validated asset info
+                self.context.trigger_context.update(
+                    {
+                        "asset_id": asset_info["asset_id"],
+                        "asset_symbol": asset_info["symbol"],
+                        "asset_name": asset_info["name"],
+                    }
+                )
+
+                can_proceed, error_msg = self._check_recent_report(conn, asset_info["asset_id"])
                 if not can_proceed:
                     raise ValueError(error_msg)
 
