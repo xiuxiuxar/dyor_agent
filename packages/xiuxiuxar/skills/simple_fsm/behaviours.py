@@ -910,9 +910,6 @@ class TriggerRound(BaseState):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self._state = DyorabciappStates.TRIGGERROUND
-        if kwargs.get("test_asset_symbol") and kwargs.get("test_asset_name"):
-            self.test_asset_symbol = kwargs.get("test_asset_symbol")
-            self.test_asset_name = kwargs.get("test_asset_name")
 
     def _validate_asset(self, conn) -> tuple[bool, str, dict]:
         """Validate asset exists and is active."""
@@ -969,55 +966,14 @@ class TriggerRound(BaseState):
 
         try:
             with self.context.db_model.engine.connect() as conn:
-                # Handle test asset case
-                if hasattr(self, "test_asset_symbol"):
-                    # Try to get existing asset first
-                    result = conn.execute(
-                        text("SELECT asset_id FROM assets WHERE symbol = :symbol"), {"symbol": self.test_asset_symbol}
-                    )
-                    asset = result.fetchone()
+                # Validate asset and check recent report
+                is_valid, error_msg = self._validate_asset(conn)
+                if not is_valid:
+                    raise ValueError(error_msg)
 
-                    if asset is None:
-                        # Create test asset
-                        result = conn.execute(
-                            text("""
-                                INSERT INTO assets (symbol, name)
-                                VALUES (:symbol, :name)
-                                RETURNING asset_id
-                            """),
-                            {"symbol": self.test_asset_symbol, "name": self.test_asset_name},
-                        )
-                        asset_id = result.scalar_one()
-                        conn.commit()
-                        self.context.logger.info(f"Created test asset with ID {asset_id}")
-
-                        # Create test trigger
-                        trigger_id = self.context.db_model.create_trigger(
-                            asset_id=asset_id,
-                            trigger_type="manual_test",
-                            trigger_details={"source": "test", "description": "Test trigger for data ingestion"},
-                        )
-
-                        self.context.trigger_context = {
-                            "trigger_id": trigger_id,
-                            "asset_id": asset_id,
-                            "asset_symbol": self.test_asset_symbol,
-                            "asset_name": self.test_asset_name,
-                            "trigger_type": "manual_test",
-                        }
-                    else:
-                        asset_id = asset[0]
-                        self.context.logger.info(f"Using existing test asset with ID {asset_id}")
-
-                # For non-test case, validate asset and check recent report
-                if not hasattr(self, "test_asset_symbol"):
-                    is_valid, error_msg = self._validate_asset(conn)
-                    if not is_valid:
-                        raise ValueError(error_msg)
-
-                    can_proceed, error_msg = self._check_recent_report(conn, self.context.trigger_context["asset_id"])
-                    if not can_proceed:
-                        raise ValueError(error_msg)
+                can_proceed, error_msg = self._check_recent_report(conn, self.context.trigger_context["asset_id"])
+                if not can_proceed:
+                    raise ValueError(error_msg)
 
                 # Update metrics
                 self.context.strategy.increment_active_triggers()
