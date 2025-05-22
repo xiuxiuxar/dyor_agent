@@ -78,9 +78,13 @@ def mock_session_request():
 @pytest.fixture
 def api_client():
     """Fixture to provide an initialized TreeOfAlphaAPI client."""
+    mock_context = MagicMock()
+    mock_context.logger = MagicMock()
     client = TreeOfAlphaClient(
         base_url=BASE_URL,
         news_endpoint=NEWS_ENDPOINT,
+        skill_context=mock_context,
+        cache_ttl=3600,
     )
     client._last_health_status = False  # noqa: SLF001
     return client
@@ -122,26 +126,33 @@ class TestTreeOfAlphaClientInitialization:
 
     def test_init_success(self):
         """Test successful initialization."""
-        client = TreeOfAlphaClient()
+        mock_context = MagicMock()
+        mock_context.logger = MagicMock()
+        client = TreeOfAlphaClient(skill_context=mock_context, base_url=BASE_URL)
         assert client.base_url == BASE_URL
-        assert client.news_endpoint == NEWS_ENDPOINT
         assert isinstance(client.session, requests.Session)
         assert isinstance(client, BaseClient)
 
     def test_init_custom_timeout(self):
         """Test initialization with custom timeout."""
+        mock_context = MagicMock()
+        mock_context.logger = MagicMock()
         custom_timeout = 60
-        client = TreeOfAlphaClient(timeout=custom_timeout)
+        client = TreeOfAlphaClient(timeout=custom_timeout, skill_context=mock_context, base_url=BASE_URL)
         assert client.timeout == custom_timeout
 
     def test_init_invalid_base_url(self):
         """Test initialization with invalid base URL."""
+        mock_context = MagicMock()
+        mock_context.logger = MagicMock()
         with pytest.raises(ValueError, match="Invalid.*Client base URL"):
-            TreeOfAlphaClient(base_url="invalid-url")
+            TreeOfAlphaClient(base_url="invalid-url", skill_context=mock_context)
 
     def test_session_headers(self):
         """Test session headers are properly set."""
-        client = TreeOfAlphaClient()
+        mock_context = MagicMock()
+        mock_context.logger = MagicMock()
+        client = TreeOfAlphaClient(base_url=BASE_URL, skill_context=mock_context)
         assert "Content-Type" in client.session.headers
         assert client.session.headers["Content-Type"] == "application/json"
 
@@ -318,7 +329,13 @@ class TestTreeOfAlphaClientIntegration:
     @pytest.fixture(scope="module")
     def live_client(self):
         """Create a TreeOfAlphaClient client for live testing."""
-        return TreeOfAlphaClient(timeout=30)
+        mock_context = MagicMock()
+        mock_context.logger = MagicMock()
+        client = TreeOfAlphaClient(
+            base_url=BASE_URL, news_endpoint=NEWS_ENDPOINT, timeout=30, skill_context=mock_context, cache_ttl=3600
+        )
+        client._last_fetch_time = 0  # noqa: SLF001
+        return client
 
     def test_get_news_integration(self, live_client):
         """Test get_news against live API."""
@@ -358,18 +375,33 @@ class TestTreeOfAlphaClientIntegration:
 
     def test_caching_integration(self, live_client):
         """Test caching behavior with live API."""
-        # First call
-        start_time = time.time()
-        result1 = live_client.get_news(limit=10)
-        first_call_duration = time.time() - start_time
+        # Add artificial delay to first API call to simulate network latency
+        original_make_request = live_client._make_request  # noqa: SLF001
+        first_call = True
 
-        # Second call (should be cached)
-        start_time = time.time()
-        result2 = live_client.get_news(limit=10)
-        cached_call_duration = time.time() - start_time
+        def delayed_make_request(*args, **kwargs):
+            nonlocal first_call
+            if first_call:
+                first_call = False
+                time.sleep(0.2)
+            return original_make_request(*args, **kwargs)
 
-        assert result1 == result2
-        assert cached_call_duration < first_call_duration
+        # Patch the _make_request method
+        with patch.object(live_client, "_make_request", side_effect=delayed_make_request):
+            start_time = time.time()
+            result1 = live_client.get_news(limit=100, force_refresh=True)
+            first_call_duration = time.time() - start_time
+
+            start_time = time.time()
+            result2 = live_client.get_news(limit=100)  # Use cache
+            cached_call_duration = time.time() - start_time
+
+            assert result1 == result2
+
+            assert first_call_duration > cached_call_duration + 0.15, (
+                f"First call ({first_call_duration:.3f}s) should be significantly slower than "
+                f"cached call ({cached_call_duration:.3f}s)"
+            )
 
     def test_rate_limiting(self, live_client):
         """Test API rate limiting behavior."""

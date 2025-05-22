@@ -14,7 +14,7 @@ fingerprint:
   data_sources.py: bafybeibgdk3zh73idd5qp5rf7scsueiixjwisfi55cau6ah5wxnwcjgori
   dialogues.py: bafybeidr23gipmyw5t6o6jf52y4j733adbt4pnasjxrzfohsgpwt7ex6ea
   handlers.py: bafybeibvw24jf77gyscqlcde2pxbe5ajlny3dzcq6ses6rmrwbfcjhxozu
-  lookonchain_client.py: bafybeih4jngtvwf2cv22kadz6bcpblmbwed5lk2xi3dws3yd3pprjtutve
+  lookonchain_client.py: bafybeifcef6g3pmuppwzpzlzvmvhvftpkwgg4ax3okxmzyjlmifjkulwwe
   models.py: bafybeigkvhugqmz3e2ekdxvlvt7bj27t2pyr464vkr2bzf7sf77gecaj5y
   prompt.py: bafybeig4skghqp2w7ofhime254useomdgdha523y7gx6dt32kc4hnn3e24
   prompt_template.jinja: bafybeiayi6pfxz5suxl7csroti2wxu4req5l6bukty25entaroxhgakagq
@@ -22,12 +22,12 @@ fingerprint:
   strategy.py: bafybeighe2emfcjlvw6jninea3td3czbvvohuwo2xmmp45tdosy2z3gmm4
   tests/__init__.py: bafybeigb2ji4vkcap3hokcedggjwsrah7te2nxjhkorwf3ibwgyaa2glma
   tests/conftest.py: bafybeicvznjlmanmoghlq6y3atuuh62ke6wdfxkgwfmh5zrvjvmclatrl4
-  tests/test_lookonchain_client.py: bafybeidgzbo3nhefdtbkvrxgloawbbpkvq4kc22isth7bzjruvw24yfhk4
-  tests/test_researchagent_client.py: bafybeietij2hk6nkuuloz6miwyqnn6p4hj47mzjf3io64sssrgkc75ehey
-  tests/test_treeofalpha_client.py: bafybeifxwvxngti5zyitakmamx2ruvurwhpdpke3gjhvso2y6puwrxve2m
-  tests/test_trendmoon_client.py: bafybeiahw4vt6wo25wcvofv7qedvppxqe5m3pwpybbhsgaon5xk6fytnom
-  treeofalpha_client.py: bafybeife25othevjmn5s377mwdha3ewn7prl7xbrtn2ye64p4qc2ikwry4
-  trendmoon_client.py: bafybeic32vbdyrls6eiavdhtcvvhpizyhdhiqz6zlo47m7nlc3oxfm5vhq
+  tests/test_lookonchain_client.py: bafybeigp57wqdeiwx3oop43m3cbnq4n4ridn4sm6k5wmyg33njl6keh5tu
+  tests/test_researchagent_client.py: bafybeif26rk3b7ls6afxtmnld24nhllbpkczvpfjuh5nxabuzqdbe2mfsm
+  tests/test_treeofalpha_client.py: bafybeigsm3xdvfxrua3aptij4guk2nnrry5npucllkpiqh3yz2bbbk6pey
+  tests/test_trendmoon_client.py: bafybeicqrmixmu3g4ig2ut4ujt4pjwgkzu72dsppu4hdxsdnbiizsmum3e
+  treeofalpha_client.py: bafybeidan2hkrro6krfq4wortagh5q3yioznh5q7drhuapoz4cjteso5su
+  trendmoon_client.py: bafybeie3mg5keqj5k7oe5e3kocno7rvbz5kukovbrog26rawvpvoz52mfy
 fingerprint_ignore_patterns: []
 connections: []
 contracts: []

@@ -67,11 +67,20 @@ def mock_session_request():
 
 
 @pytest.fixture
-def api_client():
+def mock_skill_context():
+    """Fixture to provide a mock skill context."""
+    mock_context = MagicMock()
+    mock_context.logger = logging.getLogger("test_logger")
+    return mock_context
+
+
+@pytest.fixture
+def api_client(mock_skill_context):
     """Fixture to provide an initialized LookOnChainClient."""
     client = LookOnChainClient(
         base_url=BASE_DOMAIN,
         search_endpoint=SEARCH_ENDPOINT,
+        skill_context=mock_skill_context,
     )
     client._last_health_status = False  # noqa: SLF001
     return client
@@ -108,7 +117,9 @@ def mock_response():
 @pytest.fixture(scope="module")
 def live_client():
     """Create a LookOnChainClient for live testing."""
-    return LookOnChainClient()
+    mock_context = MagicMock()
+    mock_context.logger = MagicMock()
+    return LookOnChainClient(skill_context=mock_context, base_url=BASE_DOMAIN, search_endpoint=SEARCH_ENDPOINT)
 
 
 # --- Test Classes ---
@@ -119,7 +130,9 @@ class TestLookOnChainClientInitialization:
 
     def test_init_success(self):
         """Test successful initialization."""
-        client = LookOnChainClient()
+        mock_context = MagicMock()
+        mock_context.logger = MagicMock()
+        client = LookOnChainClient(skill_context=mock_context, base_url=BASE_DOMAIN)
         assert client.source_name == "lookonchain"
         assert client.base_url == BASE_DOMAIN
         assert isinstance(client.session, requests.Session)
@@ -127,18 +140,22 @@ class TestLookOnChainClientInitialization:
 
     def test_init_custom_timeout(self):
         """Test initialization with custom timeout."""
+        mock_context = MagicMock()
+        mock_context.logger = MagicMock()
         custom_timeout = 30
-        client = LookOnChainClient(timeout=custom_timeout)
+        client = LookOnChainClient(timeout=custom_timeout, skill_context=mock_context, base_url=BASE_DOMAIN)
         assert client.timeout == custom_timeout
 
     def test_init_invalid_search_endpoint(self):
         """Test initialization with invalid search endpoint."""
-        with pytest.raises(ValueError, match="Invalid LookOnChain search endpoint URL"):
-            LookOnChainClient(search_endpoint="invalid-url")
+        mock_context = MagicMock()
+        mock_context.logger = MagicMock()
+        with pytest.raises(ValueError, match=f"Invalid {LookOnChainClient.__name__} base URL invalid-url"):
+            LookOnChainClient(base_url=BASE_DOMAIN, search_endpoint="invalid-url", skill_context=mock_context)
 
-    def test_session_headers(self):
+    def test_session_headers(self, mock_skill_context):
         """Test session headers are properly set."""
-        client = LookOnChainClient()
+        client = LookOnChainClient(skill_context=mock_skill_context, base_url=BASE_DOMAIN)
         assert "User-Agent" in client.session.headers
         assert isinstance(client.session.headers["User-Agent"], str)
 

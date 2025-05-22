@@ -40,6 +40,8 @@ class TreeOfAlphaClient(Model, BaseClient):
     """Client for interacting with the Tree of Alpha."""
 
     def __init__(self, **kwargs: Any):
+        name = kwargs.pop("name", "treeofalpha_client")
+        skill_context = kwargs.pop("skill_context", None)
         base_url = kwargs.pop("base_url", None)
         news_endpoint = kwargs.pop("news_endpoint", None)
         cache_ttl = kwargs.pop("cache_ttl", None)
@@ -47,7 +49,7 @@ class TreeOfAlphaClient(Model, BaseClient):
         backoff_factor = kwargs.pop("backoff_factor", None)
         timeout = kwargs.pop("timeout", None)
 
-        Model.__init__(self, **kwargs)
+        Model.__init__(self, name=name, skill_context=skill_context, **kwargs)
         BaseClient.__init__(
             self,
             base_url=base_url,

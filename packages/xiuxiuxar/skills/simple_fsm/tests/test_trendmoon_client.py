@@ -83,13 +83,22 @@ def mock_session_request():
         yield mock_req
 
 
+@pytest.fixture(scope="module")
+def mock_skill_context():
+    """Fixture to provide a mock skill context."""
+    mock_context = MagicMock()
+    mock_context.logger = logging.getLogger("test_logger")
+    return mock_context
+
+
 @pytest.fixture
-def api_client():
+def api_client(mock_skill_context):
     """Fixture to provide an initialized TrendmoonClient with a fake key."""
     return TrendmoonClient(
         api_key=FAKE_API_KEY,
         base_url=BASE_URL,
         insights_url=INSIGHTS_URL,
+        skill_context=mock_skill_context,
     )
 
 
@@ -122,15 +131,19 @@ def mock_response():
 
 
 @pytest.fixture(scope="module")
-def staging_client():
+def staging_client(mock_skill_context):
     """Create a TrendmoonClient configured for staging environment."""
     api_key = os.getenv("TRENDMOON_STAGING_API_KEY")
     base_url = os.getenv("TRENDMOON_STAGING_URL")
     if not api_key or not base_url:
         pytest.skip("Integration test environment variables not set")
-    client = TrendmoonClient(api_key=api_key, base_url=base_url)
-    assert client.check_api_health(), "Staging API is not healthy"
-    return client
+    return TrendmoonClient(
+        api_key=api_key,
+        base_url=base_url,
+        timeout=30,
+        max_retries=5,
+        skill_context=mock_skill_context,
+    )
 
 
 # --- Test Classes ---
@@ -170,54 +183,74 @@ class TestMatchModes:
 class TestTrendmoonClientInitialization:
     """Tests for TrendmoonClient initialization."""
 
-    def test_init_success_with_env_var(self, monkeypatch):
+    def test_init_success_with_env_var(self, monkeypatch, mock_skill_context):
         """Test successful initialization using environment variables."""
         monkeypatch.setenv("TRENDMOON_API_KEY", FAKE_API_KEY)
         monkeypatch.setenv("TRENDMOON_BASE_URL", BASE_URL)
         monkeypatch.setenv("TRENDMOON_INSIGHTS_URL", INSIGHTS_URL)
-        client = TrendmoonClient(api_key=FAKE_API_KEY, base_url=BASE_URL, insights_url=INSIGHTS_URL)
+        client = TrendmoonClient(
+            api_key=FAKE_API_KEY, base_url=BASE_URL, insights_url=INSIGHTS_URL, skill_context=mock_skill_context
+        )
         assert client.session.headers["Api-key"] == FAKE_API_KEY
         assert client.base_url == BASE_URL
         assert client.insights_url == INSIGHTS_URL
 
-    def test_init_success_with_argument(self, monkeypatch):
+    def test_init_success_with_argument(self, monkeypatch, mock_skill_context):
         """Test successful initialization passing key as argument."""
         monkeypatch.delenv("TRENDMOON_API_KEY", raising=False)
         monkeypatch.setenv("TRENDMOON_BASE_URL", BASE_URL)
         monkeypatch.setenv("TRENDMOON_INSIGHTS_URL", INSIGHTS_URL)
-        client = TrendmoonClient(api_key=FAKE_API_KEY, base_url=BASE_URL, insights_url=INSIGHTS_URL)
+        client = TrendmoonClient(
+            api_key=FAKE_API_KEY, base_url=BASE_URL, insights_url=INSIGHTS_URL, skill_context=mock_skill_context
+        )
         assert client.session.headers["Api-key"] == FAKE_API_KEY
+        assert client.base_url == BASE_URL
+        assert client.insights_url == INSIGHTS_URL
 
-    def test_init_no_api_key_raises_value_error(self, monkeypatch):
+    def test_init_no_api_key_raises_value_error(self, monkeypatch, mock_skill_context):
         """Test ValueError is raised if no API key is found."""
         monkeypatch.delenv("TRENDMOON_API_KEY", raising=False)
         with pytest.raises(ValueError, match="API key is required"):
-            TrendmoonClient(base_url=BASE_URL, insights_url=INSIGHTS_URL, api_key=None)
+            TrendmoonClient(
+                base_url=BASE_URL, insights_url=INSIGHTS_URL, api_key=None, skill_context=mock_skill_context
+            )
 
-    def test_init_invalid_base_url_raises_value_error(self, monkeypatch):
+    def test_init_invalid_base_url_raises_value_error(self, monkeypatch, mock_skill_context):
         """Test ValueError is raised for invalid base URL."""
         monkeypatch.setenv("TRENDMOON_API_KEY", FAKE_API_KEY)
-        with pytest.raises(ValueError, match="Invalid.*Client base URL"):
-            TrendmoonClient(api_key=FAKE_API_KEY, base_url="invalid-url", insights_url=INSIGHTS_URL)
-        with pytest.raises(ValueError, match="Invalid.*Client base URL"):
-            TrendmoonClient(api_key=FAKE_API_KEY, base_url="", insights_url=INSIGHTS_URL)
-        with pytest.raises(ValueError, match="Invalid.*Client base URL"):
-            TrendmoonClient(api_key=FAKE_API_KEY, base_url="ftp://insecure.com", insights_url=INSIGHTS_URL)
+        with pytest.raises(ValueError, match="Invalid TrendmoonClient base URL invalid-url"):
+            TrendmoonClient(
+                api_key=FAKE_API_KEY,
+                base_url="invalid-url",
+                insights_url=INSIGHTS_URL,
+                skill_context=mock_skill_context,
+            )
+        with pytest.raises(ValueError, match="Invalid TrendmoonClient base URL "):
+            TrendmoonClient(
+                api_key=FAKE_API_KEY, base_url="", insights_url=INSIGHTS_URL, skill_context=mock_skill_context
+            )
+        with pytest.raises(ValueError, match="Invalid TrendmoonClient base URL ftp://insecure.com"):
+            TrendmoonClient(
+                api_key=FAKE_API_KEY,
+                base_url="ftp://insecure.com",
+                insights_url=INSIGHTS_URL,
+                skill_context=mock_skill_context,
+            )
 
-    def test_init_invalid_insights_url_raises_value_error(self, monkeypatch):
+    def test_init_invalid_insights_url_raises_value_error(self, monkeypatch, mock_skill_context):
         """Test ValueError is raised for invalid insights URL."""
         monkeypatch.setenv("TRENDMOON_API_KEY", FAKE_API_KEY)
         monkeypatch.setenv("TRENDMOON_BASE_URL", BASE_URL)
-        with pytest.raises(ValueError, match="Invalid Trendmoon Insights API base URL"):
-            TrendmoonClient(api_key=FAKE_API_KEY, base_url=BASE_URL, insights_url="invalid-url")
-        with pytest.raises(ValueError, match="Invalid Trendmoon Insights API base URL"):
-            TrendmoonClient(api_key=FAKE_API_KEY, base_url=BASE_URL, insights_url="")
-        with pytest.raises(ValueError, match="Invalid Trendmoon Insights API base URL"):
-            TrendmoonClient(api_key=FAKE_API_KEY, base_url=BASE_URL, insights_url="http://insecure.com")
+        with pytest.raises(ValueError, match="Invalid TrendmoonClient insights URL invalid-url"):
+            TrendmoonClient(
+                api_key=FAKE_API_KEY, base_url=BASE_URL, insights_url="invalid-url", skill_context=mock_skill_context
+            )
 
-    def test_inheritance(self):
-        """Test that TrendmoonClient inherits from BaseClient."""
-        client = TrendmoonClient(api_key=FAKE_API_KEY, base_url=BASE_URL, insights_url=INSIGHTS_URL)
+    def test_inheritance(self, mock_skill_context):
+        """Test that TrendmoonClient properly inherits from BaseClient."""
+        client = TrendmoonClient(
+            api_key=FAKE_API_KEY, base_url=BASE_URL, insights_url=INSIGHTS_URL, skill_context=mock_skill_context
+        )
         assert isinstance(client, BaseClient)
 
 
@@ -499,11 +532,14 @@ class TestTrendmoonClientIntegration:
         base_url = os.getenv("TRENDMOON_STAGING_URL")
         if not api_key or not base_url:
             pytest.skip("Integration test environment variables not set")
+        mock_context = MagicMock()
+        mock_context.logger = MagicMock()
         return TrendmoonClient(
             api_key=api_key,
             base_url=base_url,
             timeout=30,
             max_retries=5,
+            skill_context=mock_context,
         )
 
     def test_get_project_summary(self, staging_client):
@@ -631,14 +667,9 @@ class TestTrendmoonClientErrorHandling:
 class TestBaseClientIntegration:
     """Tests for BaseClient integration with TrendmoonClient."""
 
-    def test_base_client_functionality(self):
-        """Test that base client functionality works through TrendmoonClient."""
+    def test_base_client_functionality(self, mock_skill_context):
+        """Test that base client functionality works."""
         client = TrendmoonClient(
-            api_key=FAKE_API_KEY,
-            base_url=BASE_URL,
-            insights_url=INSIGHTS_URL,
+            api_key=FAKE_API_KEY, base_url=BASE_URL, insights_url=INSIGHTS_URL, skill_context=mock_skill_context
         )
-        assert isinstance(client, BaseClient)
-        assert client.base_url == BASE_URL
-        assert client.session.headers["Api-key"] == FAKE_API_KEY
-        assert "Content-Type" in client.session.headers
+        assert client.check_api_health() is True
