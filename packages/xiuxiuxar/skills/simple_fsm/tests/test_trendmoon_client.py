@@ -236,7 +236,7 @@ class TestTrendmoonAPIEndpoints:
         call_args = mock_session_request.call_args
         assert call_args.kwargs == {
             "method": "GET",
-            "url": f"{BASE_URL}/social/project-summary",
+            "url": f"{BASE_URL}/social/project_summary",
             "params": {"project_name": PROJECT_NAME},
             "json": None,
             "timeout": api_client.timeout,
@@ -472,7 +472,7 @@ class TestTrendmoonClientHealthAndLogging:
             api_client.get_project_summary("unauthorized_project")
 
         assert f"HTTP {status_code} error" in caplog.text
-        assert f"{BASE_URL}/social/project-summary" in caplog.text
+        assert f"{BASE_URL}/social/project_summary" in caplog.text
         assert response_text in caplog.text
 
     def test_info_logging_on_call(self, api_client, mock_session_request, mock_response, caplog):
