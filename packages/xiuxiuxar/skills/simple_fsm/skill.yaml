@@ -9,13 +9,13 @@ fingerprint:
   README.md: bafybeifmctcmcdtae5b3qin4fdveytwcduleekax3mgqbmfwudwcay2dny
   __init__.py: bafybeigocf4h7sv7lkbfbnpelwm6xzwv3hg7pwac2mbamholdxykzq6wiq
   base_client.py: bafybeigube5gil3hnlvynalpe5hqb5fabum66oc3uol5qkwipjzytr5ana
-  behaviours.py: bafybeihvot3lyyvtm5b4sjfdcsjrzpldbhh3obfuggkrpcfnxaa3le74ke
+  behaviours.py: bafybeicryt4pe4xt3dqarkyad6fvhxgd24roeiof7kuvasxfkcyif53tvi
   data_models.py: bafybeidra5kkdsm5dtyqnhlvmhittdz3m7vvqyfjo7lkjgg4r3vr2w5axy
-  data_sources.py: bafybeigcmeytdrezobwsdgyyoy6jztdp4bezfql42i2yxcbifvtbhvcbaq
-  dialogues.py: bafybeih55cm6qm7rmcc2dewcxbywtjguq5pdqisenivstrc5awy65ws5sm
+  data_sources.py: bafybeibgdk3zh73idd5qp5rf7scsueiixjwisfi55cau6ah5wxnwcjgori
+  dialogues.py: bafybeidr23gipmyw5t6o6jf52y4j733adbt4pnasjxrzfohsgpwt7ex6ea
   handlers.py: bafybeibvw24jf77gyscqlcde2pxbe5ajlny3dzcq6ses6rmrwbfcjhxozu
   lookonchain_client.py: bafybeih4jngtvwf2cv22kadz6bcpblmbwed5lk2xi3dws3yd3pprjtutve
-  models.py: bafybeickl6wetjensmsjyvyxq7td4gbdwwiecu2pvxng5d7fd5bdh4jthu
+  models.py: bafybeigkvhugqmz3e2ekdxvlvt7bj27t2pyr464vkr2bzf7sf77gecaj5y
   prompt.py: bafybeig4skghqp2w7ofhime254useomdgdha523y7gx6dt32kc4hnn3e24
   prompt_template.jinja: bafybeiayi6pfxz5suxl7csroti2wxu4req5l6bukty25entaroxhgakagq
   researchagent_client.py: bafybeiblaexoh4fcpwtidif3dyaiu4bkjy2jm5nj2jg4igev5nwmfjvy64
@@ -25,9 +25,9 @@ fingerprint:
   tests/test_lookonchain_client.py: bafybeidgzbo3nhefdtbkvrxgloawbbpkvq4kc22isth7bzjruvw24yfhk4
   tests/test_researchagent_client.py: bafybeietij2hk6nkuuloz6miwyqnn6p4hj47mzjf3io64sssrgkc75ehey
   tests/test_treeofalpha_client.py: bafybeifxwvxngti5zyitakmamx2ruvurwhpdpke3gjhvso2y6puwrxve2m
-  tests/test_trendmoon_client.py: bafybeifxl4jinxosa6apwhiwhegrwcwpheop7rlzwpu5hbm5beqhnkcg3u
+  tests/test_trendmoon_client.py: bafybeiahw4vt6wo25wcvofv7qedvppxqe5m3pwpybbhsgaon5xk6fytnom
   treeofalpha_client.py: bafybeife25othevjmn5s377mwdha3ewn7prl7xbrtn2ye64p4qc2ikwry4
-  trendmoon_client.py: bafybeiaaip7dmqrhad6pew5rreisd5kwqab5nd4ta5o4mdv4pqyy2nleva
+  trendmoon_client.py: bafybeic32vbdyrls6eiavdhtcvvhpizyhdhiqz6zlo47m7nlc3oxfm5vhq
 fingerprint_ignore_patterns: []
 connections: []
 contracts: []
@@ -41,9 +41,8 @@ behaviours:
   main:
     args:
       max_workers: 4
-      test_asset_symbol: olas
-      test_asset_name: Autonolas
       api_name: xiuxiuxar/dyor_api
+      ntfy_topic: alerts
     class_name: DyorabciappFsmBehaviour
 handlers:
   metrics_handler:

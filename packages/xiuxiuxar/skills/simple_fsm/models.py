@@ -352,6 +352,34 @@ class DatabaseModel(Model):
             self.context.logger.exception(f"Failed to check if report exists for trigger_id={trigger_id}: {e!s}")
             raise
 
+    def update_asset_metadata(self, asset_id: int, coingecko_id: str | None, category: str | None) -> None:
+        """Update coingecko_id and category for an asset."""
+        if not self._engine:
+            msg = "Database engine not initialized. Call setup() first."
+            raise RuntimeError(msg)
+        try:
+            query = text("""
+                UPDATE assets
+                SET coingecko_id = :coingecko_id,
+                    category = :category,
+                    updated_at = NOW()
+                WHERE asset_id = :asset_id
+            """)
+            with self._engine.connect() as conn:
+                conn.execute(
+                    query,
+                    {
+                        "asset_id": asset_id,
+                        "coingecko_id": coingecko_id,
+                        "category": category,
+                    },
+                )
+                conn.commit()
+            self.context.logger.info(f"Updated asset {asset_id} with coingecko_id={coingecko_id}, category={category}")
+        except Exception as e:
+            self.context.logger.exception(f"Failed to update asset metadata for asset_id={asset_id}: {e!s}")
+            raise
+
 
 class LLMServiceError(Exception):
     """Base exception for LLM service errors."""

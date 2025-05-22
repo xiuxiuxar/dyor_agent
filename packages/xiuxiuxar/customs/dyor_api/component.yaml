@@ -7,9 +7,9 @@ license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   __init__.py: bafybeicire46i4c2vknelq4t2jtalha2jhi5prliayeqcmlflb6nrthdbe
-  api.py: bafybeidp2iltqoqyc3hmf6xdmx4ce63emoickwkvui5chmu4myxg3dge6m
+  api.py: bafybeia4zu2rmr7id473jkcenvl64g4jw3tiurluiek56kevebuacpzztm
   db.py: bafybeibrabnrrztmeqtcd2co4y5xnm7ae5ss43bcyqseku5epalz7nswqa
-  handlers.py: bafybeia7gfybinxxctgzo2yxzsbnfungpn4srfndbz5abicz4qrl5qnm6i
+  handlers.py: bafybeidvlazisiai4dnfiosmcb2qnv3kmqkodw5xlydk35zpbtqrlomapu
   openapi3_spec.yaml: bafybeifz2xcbdvwh45ob6il5wbs5wfw7bss3xxp76xlaq4a5f7omlw6asq
 fingerprint_ignore_patterns: []
 dependencies: {}

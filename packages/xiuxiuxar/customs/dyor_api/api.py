@@ -20,7 +20,7 @@
 from typing import Any
 from datetime import datetime
 
-from pydantic import Field, BaseModel
+from pydantic import Field, BaseModel, root_validator
 
 
 class AssetBase(BaseModel):
@@ -80,10 +80,23 @@ class ReportResponse(ReportBase):
 class TriggerBase(BaseModel):
     """Base trigger model."""
 
-    asset_id: int
+    asset_id: int | None = None
+    asset_symbol: str | None = None
     trigger_type: str = Field(..., max_length=64)
     trigger_details: dict[str, Any] | None = None
     status: str = Field(default="pending", max_length=32)
+
+    @root_validator(pre=True)
+    @classmethod
+    def check_asset_id_or_symbol(cls, values: dict[str, Any]) -> dict[str, Any]:
+        """Check that either asset_id or asset_symbol is provided."""
+        if isinstance(values, dict):
+            asset_id = values.get("asset_id")
+            asset_symbol = values.get("asset_symbol")
+            if asset_id is None and not asset_symbol:
+                msg = "Either asset_id or asset_symbol must be provided."
+                raise ValueError(msg)
+        return values
 
 
 class TriggerCreate(TriggerBase):
