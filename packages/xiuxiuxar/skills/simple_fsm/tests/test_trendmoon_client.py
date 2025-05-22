@@ -135,11 +135,13 @@ def staging_client(mock_skill_context):
     """Create a TrendmoonClient configured for staging environment."""
     api_key = os.getenv("TRENDMOON_STAGING_API_KEY")
     base_url = os.getenv("TRENDMOON_STAGING_URL")
+    insights_url = os.getenv("TRENDMOON_INSIGHTS_URL")
     if not api_key or not base_url:
         pytest.skip("Integration test environment variables not set")
     return TrendmoonClient(
         api_key=api_key,
         base_url=base_url,
+        insights_url=insights_url,
         timeout=30,
         max_retries=5,
         skill_context=mock_skill_context,
@@ -530,6 +532,7 @@ class TestTrendmoonClientIntegration:
         """Create a TrendmoonClient configured for staging environment."""
         api_key = os.getenv("TRENDMOON_STAGING_API_KEY")
         base_url = os.getenv("TRENDMOON_STAGING_URL")
+        insights_url = os.getenv("TRENDMOON_INSIGHTS_URL")
         if not api_key or not base_url:
             pytest.skip("Integration test environment variables not set")
         mock_context = MagicMock()
@@ -537,6 +540,7 @@ class TestTrendmoonClientIntegration:
         return TrendmoonClient(
             api_key=api_key,
             base_url=base_url,
+            insights_url=insights_url,
             timeout=30,
             max_retries=5,
             skill_context=mock_context,
