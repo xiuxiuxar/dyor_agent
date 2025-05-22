@@ -570,7 +570,7 @@ class TestTrendmoonClientIntegration:
     def test_get_social_trend(self, staging_client):
         """Test fetching social trends from staging."""
         result = staging_client.get_social_trend(
-            symbol=TEST_SYMBOL, project_name=TEST_PROJECT, date_interval=7, time_interval=TimeIntervals.ONE_DAY
+            project_name=TEST_PROJECT, date_interval=7, time_interval=SocialTrendIntervals.ONE_DAY
         )
         assert result is not None
         assert isinstance(result, dict)
