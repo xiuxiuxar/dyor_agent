@@ -21,6 +21,7 @@
 from typing import Any
 from inspect import signature
 from functools import wraps
+from urllib.parse import urlparse
 from collections.abc import Callable
 
 from aea.skills.base import Model
@@ -112,6 +113,8 @@ class TrendmoonClient(Model, BaseClient):
     """Client for interacting with Trendmoon."""
 
     def __init__(self, **kwargs: Any):
+        name = kwargs.pop("name", "trendmoon_client")
+        skill_context = kwargs.pop("skill_context", None)
         api_key = kwargs.pop("api_key", None)
         base_url = kwargs.pop("base_url", None)
         insights_url = kwargs.pop("insights_url", None)
@@ -119,7 +122,11 @@ class TrendmoonClient(Model, BaseClient):
         backoff_factor = kwargs.pop("backoff_factor", 0.5)
         timeout = kwargs.pop("timeout", 15)
 
-        Model.__init__(self, **kwargs)
+        if not api_key:
+            msg = "API key is required"
+            raise ValueError(msg)
+
+        Model.__init__(self, name=name, skill_context=skill_context, **kwargs)
         BaseClient.__init__(
             self,
             base_url=base_url,
@@ -131,7 +138,15 @@ class TrendmoonClient(Model, BaseClient):
             api_key=api_key,
             error_class=TrendmoonAPIError,
         )
-        self.insights_url = insights_url.rstrip("/")
+
+        if insights_url:
+            parsed = urlparse(insights_url)
+            if parsed.scheme not in {"http", "https"}:
+                msg = f"Invalid {self.__class__.__name__} insights URL {insights_url}"
+                raise ValueError(msg)
+            self.insights_url = insights_url.rstrip("/")
+        else:
+            self.insights_url = None
 
     def _make_insights_request(
         self,

@@ -21,6 +21,7 @@
 import os
 from typing import Any
 from datetime import UTC, datetime
+from urllib.parse import urlparse
 
 from aea.skills.base import Model
 
@@ -66,13 +67,15 @@ class LookOnChainClient(Model, BaseClient):
         self,
         **kwargs: Any,
     ):
+        name = kwargs.pop("name", "lookonchain_client")
+        skill_context = kwargs.pop("skill_context", None)
         base_url = kwargs.pop("base_url", None)
         search_endpoint = kwargs.pop("search_endpoint", None)
         timeout = kwargs.pop("timeout", 15)
         max_retries = kwargs.pop("max_retries", 3)
         backoff_factor = kwargs.pop("backoff_factor", 0.5)
 
-        Model.__init__(self, **kwargs)
+        Model.__init__(self, name=name, skill_context=skill_context, **kwargs)
         BaseClient.__init__(
             self,
             base_url=base_url,
@@ -82,7 +85,16 @@ class LookOnChainClient(Model, BaseClient):
             status_forcelist=STATUS_FORCELIST,
             headers=DEFAULT_HEADERS,
         )
-        self.search_endpoint = search_endpoint
+
+        if search_endpoint:
+            parsed = urlparse(search_endpoint)
+            if parsed.scheme not in {"http", "https"}:
+                msg = f"Invalid {self.__class__.__name__} base URL {search_endpoint}"
+                raise ValueError(msg)
+            self.search_endpoint = search_endpoint.rstrip("/")
+        else:
+            self.search_endpoint = None
+
         self.source_name = "lookonchain"
         self.error_class = LookOnChainAPIError
 

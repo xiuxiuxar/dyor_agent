@@ -21,6 +21,7 @@
 import os
 from pathlib import Path
 from datetime import UTC, datetime, timedelta
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -54,7 +55,9 @@ def live_client():
     base_url = os.getenv("RESEARCH_AGENT_BASE_URL", "https://docker.trendmoon.io/v1")
     if not api_key:
         pytest.skip("Integration test environment variables not set")
-    return ResearchAgentClient(api_key=api_key, base_url=base_url)
+    mock_context = MagicMock()
+    mock_context.logger = MagicMock()
+    return ResearchAgentClient(api_key=api_key, base_url=base_url, skill_context=mock_context)
 
 
 @pytest.mark.skipif(os.getenv("CI") == "true", reason="Skipping in CI")
