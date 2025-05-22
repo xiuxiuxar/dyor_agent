@@ -29,6 +29,15 @@ from psycopg2.extras import Json
 from sqlalchemy.engine import Engine
 
 
+class APIClientStrategy(Model):
+    """This class represents a api client strategy."""
+
+    http_handlers: list = []
+    ws_handlers: list = []
+    routes: dict = {}
+    clients: dict = {}
+
+
 class DatabaseModel(Model):
     """Database connection and configuration."""
 
@@ -257,7 +266,7 @@ class DatabaseModel(Model):
         llm_model_used: str,
         generation_time_ms: int,
         token_usage: dict,
-    ) -> None:
+    ) -> int:
         """Store a generated report in the reports table.
 
         Args:
@@ -269,6 +278,10 @@ class DatabaseModel(Model):
             llm_model_used: The LLM model used for generation
             generation_time_ms: Time taken to generate the report (ms)
             token_usage: Token usage statistics (as dict)
+
+        Returns:
+        -------
+            The ID of the created report
 
         """
         if not self._engine:
@@ -296,9 +309,10 @@ class DatabaseModel(Model):
                     :token_usage,
                     NOW()
                 )
+                RETURNING report_id
             """)
             with self._engine.connect() as conn:
-                conn.execute(
+                result = conn.execute(
                     query,
                     {
                         "trigger_id": trigger_id,
@@ -310,14 +324,60 @@ class DatabaseModel(Model):
                         "token_usage": Json(token_usage),
                     },
                 )
+                report_id = result.scalar_one()
                 conn.commit()
-            self.context.logger.debug(
-                f"Stored report: trigger_id={trigger_id}, asset_id={asset_id}, model={llm_model_used}"
-            )
+                return report_id
         except Exception as e:
             self.context.logger.exception(
                 f"Failed to store report: trigger_id={trigger_id}, asset_id={asset_id}, error={e!s}"
             )
+            raise
+
+    def report_exists(self, trigger_id: int) -> bool:
+        """Check if a report already exists for this trigger ID."""
+        if not self._engine:
+            msg = "Database engine not initialized. Call setup() first."
+            raise RuntimeError(msg)
+
+        try:
+            query = text("""
+                SELECT EXISTS (
+                    SELECT 1 FROM reports WHERE trigger_id = :trigger_id
+                )
+            """)
+            with self._engine.connect() as conn:
+                result = conn.execute(query, {"trigger_id": trigger_id}).scalar()
+                return bool(result)
+        except Exception as e:
+            self.context.logger.exception(f"Failed to check if report exists for trigger_id={trigger_id}: {e!s}")
+            raise
+
+    def update_asset_metadata(self, asset_id: int, coingecko_id: str | None, category: str | None) -> None:
+        """Update coingecko_id and category for an asset."""
+        if not self._engine:
+            msg = "Database engine not initialized. Call setup() first."
+            raise RuntimeError(msg)
+        try:
+            query = text("""
+                UPDATE assets
+                SET coingecko_id = :coingecko_id,
+                    category = :category,
+                    updated_at = NOW()
+                WHERE asset_id = :asset_id
+            """)
+            with self._engine.connect() as conn:
+                conn.execute(
+                    query,
+                    {
+                        "asset_id": asset_id,
+                        "coingecko_id": coingecko_id,
+                        "category": category,
+                    },
+                )
+                conn.commit()
+            self.context.logger.info(f"Updated asset {asset_id} with coingecko_id={coingecko_id}, category={category}")
+        except Exception as e:
+            self.context.logger.exception(f"Failed to update asset metadata for asset_id={asset_id}: {e!s}")
             raise
 
 
