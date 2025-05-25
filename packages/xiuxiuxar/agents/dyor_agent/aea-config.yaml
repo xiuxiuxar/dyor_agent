@@ -12,16 +12,19 @@ connections:
 - eightballer/http_client:0.1.0:bafybeiaz5auftwxpt4czrmeeesggqlkc2kosmetq6adrebeu6g7bkhqc2u
 - eightballer/http_server:0.1.0:bafybeidrvllrr23mc6bvjxn6v3hny6oiwhfgi72n2b7w6ck5luousjfbbq
 - eightballer/prometheus:0.1.1:bafybeicy4ck2wvauo2vh6ji64xrzlgezh27powi6ztokr4yujtf3cft6wi
+- eightballer/websocket_server:0.1.0:bafybeic3mpzkth76cx5in6hzxtqxelzvrdbzzxhe4n7kt4zyzqsgklyy4m
 contracts: []
 protocols:
 - eightballer/default:0.1.0:bafybeicsdb3bue2xoopc6lue7njtyt22nehrnkevmkuk2i6ac65w722vwy
 - eightballer/http:0.1.0:bafybeid75xhq7hfdt7sgj7yrn44yj57xrgxscaw34ir46tndfzvodioxme
+- eightballer/websockets:0.1.0:bafybeihdxrqup26ss4jsszcinurilys5bsvzuijwb75vdk7wsh6aeztz34
 - eightballer/prometheus:1.0.0:bafybeidxo32tu43ru3xlk3kd5b6xlwf6vaytxvvhtjbh7ag52kexos4ke4
 - open_aea/signing:1.0.0:bafybeig2d36zxy65vd7fwhs7scotuktydcarm74aprmrb5nioiymr3yixm
 skills:
 - eightballer/prometheus:0.1.0:bafybeicl5i7e467aowfarke4bbyixo2dggar276njmvyuwbsby5pxshhtu
-- xiuxiuxar/simple_fsm:0.1.0:bafybeiduzke6qurns6nsp3vfre5xzma5qfo5vc2jyotbla7hljyatkrfda
-customs: []
+- xiuxiuxar/simple_fsm:0.1.0:bafybeiazdnra3kdkerfkdhzvv3ewvxmkzcwvp7yadx4uoksl2ca2ykhfgq
+customs:
+- xiuxiuxar/dyor_api:0.1.0:bafybeigeentziu2jwmtqi5ohxq525ckajvo36x7tquxgnfrfkqwydylf4y
 default_ledger: ethereum
 required_ledgers:
 - ethereum
@@ -41,7 +44,7 @@ logging_config:
       class: logging.FileHandler
       filename: log.txt
       formatter: standard
-      level: INFO
+      level: DEBUG
   loggers:
     aea:
       handlers:
@@ -63,18 +66,66 @@ config:
   port: 8888
   target_skill_id: xiuxiuxar/simple_fsm:0.1.0
 ---
+public_id: eightballer/websocket_server:0.1.0:bafybeib4t4ay6kfjokq3cydparpzs4zllyl2yujvfsbc24xogwyxsswaqy
+type: connection
+config:
+  host: 0.0.0.0
+  port: 5556
+  target_skill_id: xiuxiuxar/simple_fsm:0.1.0
+---
 public_id: xiuxiuxar/simple_fsm:0.1.0
 type: skill
+behaviours:
+  main:
+    args:
+      max_workers: ${MAX_WORKERS:int:4}
+      api_name: ${API_NAME:str:xiuxiuxar/dyor_api}
+      ntfy_topic: ${NTFY_TOPIC:str:alerts}
 handlers:
   metrics_handler:
     args:
       enable_cors: false
-      expected_api_key: ${str:key}
+      expected_api_key: ${DYOR_API_KEY:str:key}
 models:
   db_model:
     args:
-      POSTGRES_USER: ${str:user}
-      POSTGRES_PASSWORD: ${str:password}
-      POSTGRES_HOST: ${str:localhost}
-      POSTGRES_PORT: ${int:1}
-      POSTGRES_DB: ${str:db_name}
+      POSTGRES_USER: ${POSTGRES_USER:str:user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:str:pass}
+      POSTGRES_HOST: ${POSTGRES_HOST:str:host.docker.internal}
+      POSTGRES_PORT: ${POSTGRES_PORT:int:5432}
+      POSTGRES_DB: ${POSTGRES_DB:str:db_name}
+  llm_service:
+    args:
+      LLM_PRIMARY_MODEL: ${LLM_PRIMARY_MODEL:str:Meta-Llama-3-3-70B-Instruct}
+      LLM_FALLBACK_MODEL: ${LLM_FALLBACK_MODEL:str:DeepSeek-R1-Distill-Qwen-32B}
+      LLM_API_KEY: ${LLM_API_KEY:str:key}
+      LLM_BASE_URL: ${LLM_BASE_URL:str:https://api.openai.com/v1}
+      LLM_MAX_RETRIES: ${LLM_MAX_RETRIES:int:4}
+      LLM_BACKOFF_FACTOR: ${LLM_BACKOFF_FACTOR:float:1.5}
+      LLM_TIMEOUT: ${LLM_TIMEOUT:int:60}
+  lookonchain_client:
+    args:
+      base_url: ${LOOKONCHAIN_BASE_URL:str:http://localhost:8000}
+      search_endpoint: ${LOOKONCHAIN_SEARCH_ENDPOINT:str:search}
+      timeout: ${LOOKONCHAIN_TIMEOUT:int:15}
+      max_retries: ${LOOKONCHAIN_MAX_RETRIES:int:3}
+      backoff_factor: ${LOOKONCHAIN_BACKOFF_FACTOR:float:0.5}
+  researchagent_client:
+    args:
+      base_url: ${RESEARCHAGENT_BASE_URL:str:http://localhost:8000}
+      api_key: ${RESEARCHAGENT_API_KEY:str:key}
+  treeofalpha_client:
+    args:
+      base_url: ${TREEOFALPHA_BASE_URL:str:http://localhost:8000}
+      news_endpoint: ${TREEOFALPHA_NEWS_ENDPOINT:str:news}
+      cache_ttl: ${TREEOFALPHA_CACHE_TTL:int:3600}
+      max_retries: ${TREEOFALPHA_MAX_RETRIES:int:3}
+      backoff_factor: ${TREEOFALPHA_BACKOFF_FACTOR:float:0.5}
+  trendmoon_client:
+    args:
+      base_url: ${TRENDMOON_STAGING_URL:str:http://localhost:8000}
+      insights_url: ${TRENDMOON_INSIGHTS_URL:str:http://localhost:8000/insights}
+      api_key: ${TRENDMOON_API_KEY:str:key}
+      max_retries: ${TRENDMOON_MAX_RETRIES:int:3}
+      backoff_factor: ${TRENDMOON_BACKOFF_FACTOR:float:0.5}
+      timeout: ${TRENDMOON_TIMEOUT:int:15}

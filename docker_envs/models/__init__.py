@@ -5,6 +5,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.sql import func
 from sqlalchemy.dialects.postgresql import JSONB, TIMESTAMP
+import sqlalchemy as sa
 
 Base = declarative_base()
 
@@ -41,3 +42,42 @@ class Trigger(Base):
         Index('idx_triggers_asset_id_created_at', 'asset_id', 'created_at', postgresql_using='btree'),
         Index('idx_triggers_status', 'status'),
     )
+
+class Report(Base):
+    __tablename__ = 'reports'
+
+    report_id = Column(Integer, primary_key=True)
+    asset_id = Column(Integer, ForeignKey('assets.asset_id', ondelete='CASCADE'), nullable=False)
+    trigger_id = Column(Integer, ForeignKey('triggers.trigger_id', ondelete='RESTRICT'), unique=True, nullable=False)
+    report_content_markdown = Column(Text, nullable=False)
+    report_data_json = Column(JSONB)
+    llm_model_used = Column(String(128))
+    generation_time_ms = Column(Integer)
+    token_usage = Column(JSONB)
+    created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=func.now())
+
+    __table_args__ = (
+        Index('idx_reports_asset_id_created_at', 'asset_id', 'created_at', postgresql_using='btree'),
+    )
+
+class ScrapedData(Base):
+    __tablename__ = 'scraped_data'
+
+    scraped_data_id = Column(Integer, primary_key=True)
+    trigger_id = Column(Integer, ForeignKey('triggers.trigger_id', ondelete='CASCADE'), nullable=False)
+    asset_id = Column(Integer, ForeignKey('assets.asset_id', ondelete='CASCADE'), nullable=False)
+    source = Column(String(64), nullable=False)
+    data_type = Column(String(64), nullable=False)
+    raw_data = Column(JSONB, nullable=False)
+    processed_data = Column(JSONB)
+    processing_metadata = Column(JSONB)
+    is_processed = Column(sa.Boolean, server_default='false')
+    ingested_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    processed_at = Column(TIMESTAMP(timezone=True))
+
+    __table_args__ = (
+        Index('idx_scraped_data_trigger_id', 'trigger_id'),
+        Index('idx_scraped_data_asset_id', 'asset_id'),
+        Index('idx_scraped_data_source_type', 'source', 'data_type'),
+    )
+
