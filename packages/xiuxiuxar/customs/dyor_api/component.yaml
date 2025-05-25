@@ -11,6 +11,7 @@ fingerprint:
   db.py: bafybeibrabnrrztmeqtcd2co4y5xnm7ae5ss43bcyqseku5epalz7nswqa
   handlers.py: bafybeidvlazisiai4dnfiosmcb2qnv3kmqkodw5xlydk35zpbtqrlomapu
   openapi3_spec.yaml: bafybeifz2xcbdvwh45ob6il5wbs5wfw7bss3xxp76xlaq4a5f7omlw6asq
+  tests/test_simple_api.py: bafybeiaqu3mw6kq5yq7blk5vjrd5mtw5ej55vs32ftxdf225k3semjyn4u
 fingerprint_ignore_patterns: []
 dependencies: {}
 api_spec: openapi3_spec.yaml
