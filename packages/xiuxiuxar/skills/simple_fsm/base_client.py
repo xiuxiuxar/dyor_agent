@@ -71,7 +71,7 @@ class BaseClient:
     ):
         parsed = urlparse(base_url) if base_url else None
         if not base_url or parsed.scheme not in {"http", "https"}:
-            msg = f"Invalid {self.__class__.__name__} base URL"
+            msg = f"Invalid {self.__class__.__name__} base URL {base_url}"
             raise ValueError(msg)
 
         self.base_url = base_url.rstrip("/")
