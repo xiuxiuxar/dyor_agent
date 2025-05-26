@@ -67,7 +67,7 @@ END_DATE = "2024-01-02T00:00:00"
 
 # Integration test constants
 TEST_PROJECT = "taraxa"
-TEST_SYMBOL = "BTC"
+TEST_SYMBOL = "TARA"
 TEST_CONTRACT = "0xb8c77482e45f1f44de1745f52c74426c631bdd52"
 TEST_COIN_ID = "taraxa"
 TEST_KEYWORD = "bitcoin halving"
@@ -264,7 +264,7 @@ class TestTrendmoonAPIEndpoints:
         expected_data = {"summary": "data", "project": PROJECT_NAME}
         mock_session_request.return_value = mock_response(status_code=200, json_data=expected_data)
 
-        result = api_client.get_project_summary(PROJECT_NAME)
+        result = api_client.get_project_summary(project_name=PROJECT_NAME)
 
         assert result == expected_data
         mock_session_request.assert_called_once()
@@ -272,7 +272,12 @@ class TestTrendmoonAPIEndpoints:
         assert call_args.kwargs == {
             "method": "GET",
             "url": f"{BASE_URL}/social/project_summary",
-            "params": {"project_name": PROJECT_NAME},
+            "params": {
+                "project_name": PROJECT_NAME,
+                "symbol": None,
+                "contract_address": None,
+                "coin_id": None,
+            },
             "json": None,
             "timeout": api_client.timeout,
         }
@@ -548,7 +553,7 @@ class TestTrendmoonClientIntegration:
 
     def test_get_project_summary(self, staging_client):
         """Test fetching project summary from staging."""
-        result = staging_client.get_project_summary(TEST_PROJECT)
+        result = staging_client.get_project_summary(project_name=TEST_PROJECT)
         assert result is not None
         assert isinstance(result, dict)
         assert "coin_id" in result
