@@ -1,6 +1,6 @@
 """Data models for the simple FSM."""
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 from pydantic import Field, BaseModel
 
@@ -87,6 +87,36 @@ class OfficialUpdate(BaseModel):
     snippet: str
 
 
+class UnlockEvent(BaseModel):
+    """Unlock event."""
+
+    category: str
+    timestamp: int
+    noOfTokens: list[float]  # noqa: N815
+    unlockType: str  # noqa: N815
+    description: str
+
+    @property
+    def formatted_date(self) -> str:
+        """Return formatted date string from timestamp."""
+        return datetime.fromtimestamp(self.timestamp, UTC).strftime("%Y-%m-%d")
+
+    @property
+    def formatted_amount(self) -> str:
+        """Return formatted token amount."""
+        if not self.noOfTokens:
+            return "0"
+        amount = self.noOfTokens[0] if isinstance(self.noOfTokens, list) else self.noOfTokens
+        return f"{amount:,.2f}"
+
+    def format_description(self) -> str:
+        """Return formatted description with actual values."""
+        try:
+            return self.description.format(timestamp=self.formatted_date, tokens=self.noOfTokens)
+        except (KeyError, ValueError, TypeError):
+            return self.description
+
+
 class StructuredPayload(BaseModel):
     """Structured payload."""
 
@@ -98,3 +128,6 @@ class StructuredPayload(BaseModel):
     onchain_highlights: list[OnchainHighlight]
     official_updates: list[OfficialUpdate]
     project_summary: ProjectSummary | None = None
+    unlocks_data: dict | None = None  # Raw unlocks data for reporting/LLM
+    unlocks_recent: list[UnlockEvent] = []  # Recent unlocks data for reporting/LLM
+    unlocks_upcoming: list[UnlockEvent] = []  # Upcoming unlocks data for reporting/LLM

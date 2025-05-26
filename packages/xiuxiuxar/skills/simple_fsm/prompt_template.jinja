@@ -5,13 +5,16 @@ You are a crypto markets analyst with deep expertise in decentralized finance, m
 - Use **only** the provided data; do not invent or hallucinate facts.
 - The tone must be analytical, data-driven, concise, and actionable, as for a professional investor audience.
 - If a section lacks relevant data, briefly state this (e.g., "No recent updates available.").
+- **In the Unlocks section, always output two bulleted lists**—one for recent unlocks (last 14 days) and one for upcoming unlocks (next 30 days)—and then a 2-sentence summary.
+
 
 ### REQUIRED_SECTIONS:
 1. Overview  
 2. Key Recent Changes  
 3. Recent News/Events  
-4. Analysis  
-5. Conclusion
+4. Unlock Events  
+5. Analysis  
+6. Conclusion
 
 ---
 
@@ -51,6 +54,10 @@ You are a crypto markets analyst with deep expertise in decentralized finance, m
 {% endfor %}
 {% endif %}
 
+### Unlocks Data
+unlocks_recent: {{ unlocks_recent | default([]) }}
+unlocks_upcoming: {{ unlocks_upcoming | default([]) }}
+
 ---
 
 # Now generate the report using ONLY the following sections:
@@ -78,9 +85,49 @@ You are a crypto markets analyst with deep expertise in decentralized finance, m
 
 ---
 
+### Unlocks:
+{% if unlocks_data %}
+    {% if unlocks_recent or unlocks_upcoming %}
+        - **First, list each recent unlock (last 14 days) and each upcoming unlock (next 30 days) in bullet form.**
+            - For each: date, number of tokens, category, and brief description.
+            - If none, state: "No unlocks in this period."
+        - **Then, summarize unlock activity:**
+            - Note whether any recent unlocks may have contributed to observed price shifts (reference 24h price/volume changes if present).
+            - Indicate if upcoming unlocks may be significant for price or liquidity, based strictly on the data.
+
+        #### Recent Unlocks (last 14 days):
+        {% if unlocks_recent %}
+            {% for event in unlocks_recent %}
+                - On {{ event.timestamp|timestamp_to_date }} {{ event.noOfTokens[0]|round(2)|intcomma }} of {{ event.description|replace("On {timestamp} {tokens[0]} of ", "")|replace(" tokens were unlocked", "")|replace(" tokens will be unlocked", "") }} ({{ event.category }})
+            {% endfor %}
+        {% else %}
+            - No unlocks in the last 14 days.
+        {% endif %}
+
+        #### Upcoming Unlocks (next 30 days):
+        {% if unlocks_upcoming %}
+            {% for event in unlocks_upcoming %}
+                - On {{ event.timestamp|timestamp_to_date }} {{ event.noOfTokens[0]|round(2)|intcomma }} of {{ event.description|replace("On {timestamp} {tokens[0]} of ", "")|replace(" tokens were unlocked", "")|replace(" tokens will be unlocked", "") }} ({{ event.category }})
+            {% endfor %}
+        {% else %}
+            - No unlocks in the next 30 days.
+        {% endif %}
+
+        - **Summary:**  
+            - Analyze whether recent unlocks align with notable price or volume changes.
+            - State whether any upcoming unlocks may represent significant events for the asset.
+    {% else %}
+        No unlocks in the last 14 days or next 30 days.
+    {% endif %}
+{% else %}
+    No unlock data available.
+{% endif %}
+
+---
+
 ### Analysis  
 - **Interpret** the data: What is driving current trends?  
-- Use project summary and sentiment data as a base; highlight possible causes for volatility or shifts in trader/investor behavior.
+- Use project summary, sentiment data, and unlocks context as a base; highlight possible causes for volatility or shifts in trader/investor behavior.
 - Focus on actionable, data-backed observations—never speculate beyond what is provided.
 
 ---
