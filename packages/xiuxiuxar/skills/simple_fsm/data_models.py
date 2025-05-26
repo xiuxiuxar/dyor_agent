@@ -5,6 +5,18 @@ from datetime import datetime
 from pydantic import Field, BaseModel
 
 
+class ProjectSummary(BaseModel):
+    """Project summary information."""
+
+    coin_id: str | None = None
+    name: str | None = None
+    symbol: str | None = None
+    start_date: str | None = None
+    end_date: str | None = None
+    summary: str | None = None
+    created_at: datetime | None = None
+
+
 class AssetInfo(BaseModel):
     """Asset information."""
 
@@ -85,3 +97,4 @@ class StructuredPayload(BaseModel):
     recent_news: list[NewsItem]
     onchain_highlights: list[OnchainHighlight]
     official_updates: list[OfficialUpdate]
+    project_summary: ProjectSummary | None = None

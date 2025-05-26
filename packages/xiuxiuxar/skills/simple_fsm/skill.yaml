@@ -9,15 +9,15 @@ fingerprint:
   README.md: bafybeifmctcmcdtae5b3qin4fdveytwcduleekax3mgqbmfwudwcay2dny
   __init__.py: bafybeigocf4h7sv7lkbfbnpelwm6xzwv3hg7pwac2mbamholdxykzq6wiq
   base_client.py: bafybeigube5gil3hnlvynalpe5hqb5fabum66oc3uol5qkwipjzytr5ana
-  behaviours.py: bafybeicryt4pe4xt3dqarkyad6fvhxgd24roeiof7kuvasxfkcyif53tvi
-  data_models.py: bafybeidra5kkdsm5dtyqnhlvmhittdz3m7vvqyfjo7lkjgg4r3vr2w5axy
-  data_sources.py: bafybeibgdk3zh73idd5qp5rf7scsueiixjwisfi55cau6ah5wxnwcjgori
+  behaviours.py: bafybeiamrf7xlo77my6d3trlcmrkfr3i3wn67dzlxgu7x5rvrqdtb2hf6u
+  data_models.py: bafybeightbyimoc6ozgkgsw7bgsu2bh2jelnkfpx7m6lcyyancgi3soh3e
+  data_sources.py: bafybeiaiz6fp5r2w7igygckerfo5u7es347nl6zyoh4dhuwrhnzvcq43lu
   dialogues.py: bafybeidr23gipmyw5t6o6jf52y4j733adbt4pnasjxrzfohsgpwt7ex6ea
   handlers.py: bafybeibvw24jf77gyscqlcde2pxbe5ajlny3dzcq6ses6rmrwbfcjhxozu
   lookonchain_client.py: bafybeifcef6g3pmuppwzpzlzvmvhvftpkwgg4ax3okxmzyjlmifjkulwwe
   models.py: bafybeigkvhugqmz3e2ekdxvlvt7bj27t2pyr464vkr2bzf7sf77gecaj5y
   prompt.py: bafybeig4skghqp2w7ofhime254useomdgdha523y7gx6dt32kc4hnn3e24
-  prompt_template.jinja: bafybeiayi6pfxz5suxl7csroti2wxu4req5l6bukty25entaroxhgakagq
+  prompt_template.jinja: bafybeicqqbie7wtd2idox5sldbosh7xv4iwyfdmfbwjexjoyyuqqegbamm
   researchagent_client.py: bafybeiblaexoh4fcpwtidif3dyaiu4bkjy2jm5nj2jg4igev5nwmfjvy64
   strategy.py: bafybeighe2emfcjlvw6jninea3td3czbvvohuwo2xmmp45tdosy2z3gmm4
   tests/__init__.py: bafybeigb2ji4vkcap3hokcedggjwsrah7te2nxjhkorwf3ibwgyaa2glma
@@ -27,7 +27,7 @@ fingerprint:
   tests/test_treeofalpha_client.py: bafybeigsm3xdvfxrua3aptij4guk2nnrry5npucllkpiqh3yz2bbbk6pey
   tests/test_trendmoon_client.py: bafybeifb4y4w6crk5htdnzbg24ydxvbad5le4ngayuh2hdabotxfxzjgea
   treeofalpha_client.py: bafybeidan2hkrro6krfq4wortagh5q3yioznh5q7drhuapoz4cjteso5su
-  trendmoon_client.py: bafybeie3mg5keqj5k7oe5e3kocno7rvbz5kukovbrog26rawvpvoz52mfy
+  trendmoon_client.py: bafybeie5xslsmmt7av4tmbkje7fmqfosoy5avvxw3tjgerfohaaro47jxe
 fingerprint_ignore_patterns: []
 connections: []
 contracts: []
@@ -114,7 +114,7 @@ models:
       api_key: key
       max_retries: 3
       backoff_factor: 0.5
-      timeout: 15
+      timeout: 45
   strategy:
     class_name: DYORStrategy
     args: {}
