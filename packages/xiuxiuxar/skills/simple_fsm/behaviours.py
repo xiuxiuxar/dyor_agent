@@ -148,7 +148,7 @@ class WatchingRound(BaseState):
             with self.context.db_model.engine.connect() as conn:
                 result = conn.execute(
                     text("""
-                    SELECT t.trigger_id, t.asset_id, a.symbol, a.name
+                    SELECT t.trigger_id, t.asset_id, a.symbol, a.name, t.trigger_details
                     FROM triggers t
                     JOIN assets a ON t.asset_id = a.asset_id
                     WHERE t.status = 'pending'
@@ -165,6 +165,7 @@ class WatchingRound(BaseState):
                         "asset_id": trigger[1],
                         "asset_symbol": trigger[2],
                         "asset_name": trigger[3],
+                        "trigger_details": trigger[4],
                     }
                     self.context.logger.info(f"Found trigger {trigger[0]} for asset {trigger[2]} (ID: {trigger[1]})")
                     self._event = DyorabciappEvents.TRIGGER
@@ -354,7 +355,7 @@ class ProcessDataRound(BaseState):
         look_raw = context.raw_data.get("lookonchain")
         research_raw = context.raw_data.get("researchagent")
 
-        social_data, coin_details = self._extract_trendmoon_social_and_coin_details(trendmoon_raw)
+        social_data, coin_details, project_summary = self._extract_trendmoon_social_and_coin_details(trendmoon_raw)
         trend_market_data = self._extract_trend_market_data(social_data)
         key_metrics = self._build_key_metrics(trend_market_data)
         social_summary = self._build_social_summary(social_data)
@@ -374,18 +375,21 @@ class ProcessDataRound(BaseState):
             recent_news=news_items,
             onchain_highlights=onchain_highlights,
             official_updates=official_updates,
+            project_summary=project_summary,
         )
 
     def _extract_trendmoon_social_and_coin_details(self, trendmoon_raw):
         if isinstance(trendmoon_raw, dict):
             social_data = trendmoon_raw.get("social", {})
             coin_details = trendmoon_raw.get("coin_details", {})
+            project_summary = trendmoon_raw.get("project_summary", {})
         else:
             social_data = {}
             coin_details = {}
+            project_summary = {}
         if isinstance(social_data, list):
             social_data = social_data[0] if social_data else {}
-        return social_data, coin_details
+        return social_data, coin_details, project_summary
 
     def _extract_trend_market_data(self, social_data):
         return social_data.get("trend_market_data", [])
