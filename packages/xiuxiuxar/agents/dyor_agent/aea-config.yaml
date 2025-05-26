@@ -22,7 +22,7 @@ protocols:
 - open_aea/signing:1.0.0:bafybeig2d36zxy65vd7fwhs7scotuktydcarm74aprmrb5nioiymr3yixm
 skills:
 - eightballer/prometheus:0.1.0:bafybeicl5i7e467aowfarke4bbyixo2dggar276njmvyuwbsby5pxshhtu
-- xiuxiuxar/simple_fsm:0.1.0:bafybeihtojw7qzvrskp65sscqrmznvbgvlajjmchi2kxt5tyuuxzfmz6nm
+- xiuxiuxar/simple_fsm:0.1.0:bafybeidq7ufvd3t5lgflpcfwktycu3ipvac4lv4vwzdkrnk4qpun5v52va
 customs:
 - xiuxiuxar/dyor_api:0.1.0:bafybeigeentziu2jwmtqi5ohxq525ckajvo36x7tquxgnfrfkqwydylf4y
 default_ledger: ethereum
