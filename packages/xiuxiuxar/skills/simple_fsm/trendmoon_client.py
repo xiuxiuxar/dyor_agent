@@ -167,11 +167,26 @@ class TrendmoonClient(Model, BaseClient):
     # -- API Endpoint Methods
 
     # -- Processed Insights
-    def get_project_summary(self, project_name: str) -> dict[str, Any] | None:
+    def get_project_summary(
+        self,
+        contract_address: str | None = None,
+        coin_id: str | None = None,
+        project_name: str | None = None,
+        symbol: str | None = None,
+    ) -> dict[str, Any] | None:
         """Retrieves a summary for a specific project."""
         endpoint = "/social/project_summary"
-        params = {"project_name": project_name}
-        self.context.logger.info(f"Fetching project summary for: {project_name}")
+        params = {
+            "contract_address": contract_address,
+            "coin_id": coin_id,
+            "project_name": project_name,
+            "symbol": symbol,
+        }
+        if not any(params.values()):
+            msg = "Either contract_address, coin_id, project_name, or symbol must be provided"
+            raise ValueError(msg)
+        provided_params = {k: v for k, v in params.items() if v is not None and v != ""}
+        self.context.logger.info(f"Fetching project summary for: {provided_params}")
         return self._make_request("GET", endpoint, params=params)
 
     def get_top_categories_today(self) -> dict[str, Any] | None:

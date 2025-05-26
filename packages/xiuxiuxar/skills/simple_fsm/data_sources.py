@@ -7,6 +7,7 @@ DATA_SOURCES = {
                 symbol=symbol, time_interval="1d", date_interval=3
             ),
             "coin_details": lambda client, symbol, **_: client.get_coin_details(symbol=symbol),
+            "project_summary": lambda client, symbol, **_: client.get_project_summary(symbol=symbol),
         },
         "processor": "serialize_trendmoon_data",
         "data_type_handler": "multi",
