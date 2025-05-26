@@ -380,6 +380,18 @@ class DatabaseModel(Model):
             self.context.logger.exception(f"Failed to update asset metadata for asset_id={asset_id}: {e!s}")
             raise
 
+    def get_asset_name_by_symbol(self, symbol: str) -> str | None:
+        """Return the asset name for a given symbol, or None if not found."""
+        if not self._engine:
+            msg = "Database engine not initialized. Call setup() first."
+            raise RuntimeError(msg)
+        query = text("SELECT name FROM assets WHERE symbol = :symbol LIMIT 1")
+        with self._engine.connect() as conn:
+            result = conn.execute(query, {"symbol": symbol}).fetchone()
+            if result:
+                return result[0]
+            return None
+
 
 class LLMServiceError(Exception):
     """Base exception for LLM service errors."""
