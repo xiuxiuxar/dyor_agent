@@ -914,7 +914,7 @@ class DeliverReportRound(BaseState):
             conn.execute(
                 text("""
                     UPDATE triggers
-                    SET status = 'processed'
+                    SET status = 'processed', completed_at = NOW()
                     WHERE trigger_id = :trigger_id
                 """),
                 {"trigger_id": self.context.trigger_context["trigger_id"]},
