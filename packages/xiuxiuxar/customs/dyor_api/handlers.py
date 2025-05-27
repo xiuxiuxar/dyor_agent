@@ -25,7 +25,7 @@ from contextlib import contextmanager
 from urllib.parse import unquote, urlparse
 
 from sqlalchemy import func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 from aea.skills.base import Handler
 
 from packages.eightballer.protocols.http.message import HttpMessage as ApiHttpMessage
@@ -454,6 +454,22 @@ class DyorApiHandler(Handler):
         self, model_class, response_class, message: ApiHttpMessage, id_value: str, id_field: str
     ) -> ApiHttpMessage:
         with self.get_session() as session:
+            # Special handling for Trigger: join Asset to get asset_symbol
+            if model_class == Trigger:
+                asset_alias = aliased(Asset)
+                query = (
+                    select(Trigger, asset_alias.symbol)
+                    .join(asset_alias, Trigger.asset_id == asset_alias.asset_id)
+                    .where(getattr(Trigger, id_field) == id_value)
+                )
+                result = session.execute(query).first()
+                if result is None:
+                    return self.not_found_response(message, model_class.__name__, id_value)
+                trigger_obj, asset_symbol = result
+                data = response_class.model_validate(trigger_obj).model_dump()
+                data["asset_symbol"] = asset_symbol
+                return self.success_response(message, data, 200, "OK")
+            # Default for other models
             data, status_code, status_text = self.execute_db_query(
                 session=session,
                 query=select(model_class).where(getattr(model_class, id_field) == id_value),

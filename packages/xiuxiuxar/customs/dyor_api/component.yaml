@@ -9,7 +9,7 @@ fingerprint:
   __init__.py: bafybeicire46i4c2vknelq4t2jtalha2jhi5prliayeqcmlflb6nrthdbe
   api.py: bafybeia4zu2rmr7id473jkcenvl64g4jw3tiurluiek56kevebuacpzztm
   db.py: bafybeibrabnrrztmeqtcd2co4y5xnm7ae5ss43bcyqseku5epalz7nswqa
-  handlers.py: bafybeidvlazisiai4dnfiosmcb2qnv3kmqkodw5xlydk35zpbtqrlomapu
+  handlers.py: bafybeic5ffl3r2syeays376jpvth3ijsyxwre57u6qwr74c6om6elfeipi
   openapi3_spec.yaml: bafybeifz2xcbdvwh45ob6il5wbs5wfw7bss3xxp76xlaq4a5f7omlw6asq
   tests/test_simple_api.py: bafybeiaqu3mw6kq5yq7blk5vjrd5mtw5ej55vs32ftxdf225k3semjyn4u
 fingerprint_ignore_patterns: []
