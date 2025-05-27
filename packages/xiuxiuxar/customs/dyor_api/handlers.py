@@ -513,13 +513,15 @@ class DyorApiHandler(Handler):
             trigger_create = TriggerCreate.model_validate(data)
             asset_id = trigger_create.asset_id
             asset_symbol = trigger_create.asset_symbol
+            if asset_symbol:
+                asset_symbol = asset_symbol.upper()  # Ensure uppercase for DB
             with self.get_session() as session:
                 # If asset_symbol is provided, resolve or create asset
                 if asset_symbol:
                     asset = session.execute(select(Asset).where(Asset.symbol == asset_symbol)).scalar_one_or_none()
                     if asset is None:
                         # Create new asset with symbol and a default name (use symbol as name if not provided)
-                        asset_name = data.get("asset_name") or asset_symbol.upper()
+                        asset_name = data.get("asset_name") or asset_symbol
                         new_asset = Asset(symbol=asset_symbol, name=asset_name)
                         session.add(new_asset)
                         session.commit()
