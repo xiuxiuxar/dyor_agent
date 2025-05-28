@@ -60,6 +60,7 @@ class Trigger(Base):
     processing_started_at = Column(TIMESTAMP(timezone=True))
     completed_at = Column(TIMESTAMP(timezone=True))
     error_message = Column(Text)
+    report_id = Column(Integer, ForeignKey("reports.report_id", ondelete="SET NULL"), nullable=True)
 
     __table_args__ = (
         Index("idx_triggers_asset_id_created_at", "asset_id", "created_at", postgresql_using="btree"),
