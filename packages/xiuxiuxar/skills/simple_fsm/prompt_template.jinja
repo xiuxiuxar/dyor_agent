@@ -86,7 +86,9 @@ unlocks_upcoming: {{ unlocks_upcoming | default([]) }}
 ---
 
 ### Unlocks:
-{% if unlocks_data %}
+{% if unlocks_data and unlocks_data.summary == 'No unlock data available.' %}
+    No unlock data available.
+{% elif unlocks_data %}
     {% if unlocks_recent or unlocks_upcoming %}
         - **First, list each recent unlock (last 14 days) and each upcoming unlock (next 30 days) in bullet form.**
             - For each: date, number of tokens, category, and brief description.
