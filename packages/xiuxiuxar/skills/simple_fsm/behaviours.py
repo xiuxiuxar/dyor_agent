@@ -39,6 +39,7 @@ import requests
 import sqlalchemy
 from pydantic import ValidationError
 from sqlalchemy import text
+from requests.exceptions import HTTPError
 from aea.skills.behaviours import State, FSMBehaviour
 
 from packages.xiuxiuxar.skills.simple_fsm.prompt import build_report_prompt
@@ -53,6 +54,7 @@ from packages.xiuxiuxar.skills.simple_fsm.data_models import (
     StructuredPayload,
 )
 from packages.xiuxiuxar.skills.simple_fsm.data_sources import DATA_SOURCES
+from packages.xiuxiuxar.skills.simple_fsm.unlocks_client import UnlocksClientError
 from packages.xiuxiuxar.skills.simple_fsm.trendmoon_client import TrendmoonAPIError
 from packages.xiuxiuxar.skills.simple_fsm.lookonchain_client import LookOnChainAPIError
 from packages.xiuxiuxar.skills.simple_fsm.treeofalpha_client import TreeOfAlphaAPIError
@@ -914,7 +916,7 @@ class DeliverReportRound(BaseState):
             conn.execute(
                 text("""
                     UPDATE triggers
-                    SET status = 'processed'
+                    SET status = 'processed', completed_at = NOW()
                     WHERE trigger_id = :trigger_id
                 """),
                 {"trigger_id": self.context.trigger_context["trigger_id"]},
@@ -1196,6 +1198,10 @@ class IngestDataRound(BaseState):
                 unlocks_fetcher = DATA_SOURCES["unlocks"]["fetcher"]
                 unlocks_result = unlocks_fetcher(unlocks_client, asset_symbol, asset_name=asset_name)
                 self._process_future_result("unlocks", unlocks_result)
+            except (UnlocksClientError, HTTPError) as e:
+                error_dump = {"error": str(e)}
+                self._process_future_result("unlocks", None, error=error_dump)
+                self.context.logger.warning(f"Unlocks unavailable: {e}")
             except (sqlalchemy.exc.SQLAlchemyError, TypeError, ValueError) as e:
                 error_dump = {"error": str(e)}
                 self._process_future_result("unlocks", None, error=error_dump)
