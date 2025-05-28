@@ -1207,7 +1207,6 @@ class IngestDataRound(BaseState):
                 self._process_future_result("unlocks", None, error=error_dump)
                 self.context.logger.warning(f"Error fetching unlocks: {e}")
 
-
     def _process_future_result(self, name, result, error=None):
         if error:
             if not hasattr(self.context, "raw_errors"):
