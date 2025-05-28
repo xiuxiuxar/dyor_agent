@@ -94,12 +94,14 @@ class UnlocksClient(Model, BaseClient):
             resp = requests.get(url, headers=DEFAULT_HEADERS, timeout=self.timeout)
             try:
                 resp.raise_for_status()
-            except requests.exceptions.HTTPError as e:
+            except requests.exceptions.HTTPError:
                 if resp.status_code == 500:
-                    self.logger.warning(f"No unlock data available for {project} (500 error from {url}). Skipping unlocks fetch.")
+                    self.logger.warning(
+                        f"No unlock data available for {project} (500 error from {url}). Skipping unlocks fetch."
+                    )
                     # Return a ScrapedDataItem with empty/unavailable data
                     timestamp = datetime.now(UTC).isoformat()
-                    item = ScrapedDataItem(
+                    return ScrapedDataItem(
                         source=self.source_name,
                         title=f"{project.capitalize()} Unlocks",
                         url=url,
@@ -107,9 +109,7 @@ class UnlocksClient(Model, BaseClient):
                         timestamp=timestamp,
                         metadata={},
                     )
-                    return item
-                else:
-                    raise
+                raise
         except Exception as e:
             self.logger.exception(f"Failed to fetch unlocks page: {e}")
             msg = f"Failed to fetch unlocks page: {e}"

@@ -85,6 +85,7 @@ class TriggerBase(BaseModel):
     trigger_type: str = Field(..., max_length=64)
     trigger_details: dict[str, Any] | None = None
     status: str = Field(default="pending", max_length=32)
+    report_id: int | None = None
 
     @root_validator(pre=True)
     @classmethod
@@ -111,6 +112,7 @@ class TriggerResponse(TriggerBase):
     processing_started_at: datetime | None = None
     completed_at: datetime | None = None
     error_message: str | None = None
+    report_id: int | None = None
 
     class Config:
         """Config for the trigger response model."""

@@ -468,6 +468,7 @@ class DyorApiHandler(Handler):
                 trigger_obj, asset_symbol = result
                 data = response_class.model_validate(trigger_obj).model_dump()
                 data["asset_symbol"] = asset_symbol
+                data["report_id"] = getattr(trigger_obj, "report_id", None)
                 return self.success_response(message, data, 200, "OK")
             # Default for other models
             data, status_code, status_text = self.execute_db_query(

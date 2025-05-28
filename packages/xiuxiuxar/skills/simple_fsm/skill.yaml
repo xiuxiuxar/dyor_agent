@@ -9,15 +9,15 @@ fingerprint:
   README.md: bafybeifmctcmcdtae5b3qin4fdveytwcduleekax3mgqbmfwudwcay2dny
   __init__.py: bafybeigocf4h7sv7lkbfbnpelwm6xzwv3hg7pwac2mbamholdxykzq6wiq
   base_client.py: bafybeigube5gil3hnlvynalpe5hqb5fabum66oc3uol5qkwipjzytr5ana
-  behaviours.py: bafybeif62l6qmar7ohmi7hxgod2zqyturnzztifa562l26nwhudxwpej3u
+  behaviours.py: bafybeifmbyi54zhoybk2xfz4ksuctbl3q7544b7ohwsa4d3rzyotc2h3ce
   data_models.py: bafybeihu2tcoaz7u7ytdksa5lfzmr6nneqxlim5oi34oivxecvwxp6f4zi
   data_sources.py: bafybeibfmhsmhzyzj4hu5xzb5nwj4oufno6j325eakrypjsp7nfns5aema
   dialogues.py: bafybeidr23gipmyw5t6o6jf52y4j733adbt4pnasjxrzfohsgpwt7ex6ea
   handlers.py: bafybeibvw24jf77gyscqlcde2pxbe5ajlny3dzcq6ses6rmrwbfcjhxozu
   lookonchain_client.py: bafybeifcef6g3pmuppwzpzlzvmvhvftpkwgg4ax3okxmzyjlmifjkulwwe
-  models.py: bafybeieeh27iyhkcueezw4bf4eqbze3pwpf5pcibxc6bddbprga6axydwi
+  models.py: bafybeiezpom5g23b4ialqwqcwubgw5jm72h5l63btntcmjjlv32g3aa4ci
   prompt.py: bafybeiabqzblbtlkngkpz5gfjo66ryngiatzfmjgx4bq3i4fpqodkitiqa
-  prompt_template.jinja: bafybeihw7kq5rd6gk3hvdhgyoo5sqimv5xj6disdkeyjcvfjsozgkstjhu
+  prompt_template.jinja: bafybeifs5cpi2g45w6wlgstu64lob6zqux6btzwjnfupxusc745mszuexu
   researchagent_client.py: bafybeiblaexoh4fcpwtidif3dyaiu4bkjy2jm5nj2jg4igev5nwmfjvy64
   strategy.py: bafybeighe2emfcjlvw6jninea3td3czbvvohuwo2xmmp45tdosy2z3gmm4
   tests/__init__.py: bafybeigb2ji4vkcap3hokcedggjwsrah7te2nxjhkorwf3ibwgyaa2glma
@@ -28,7 +28,7 @@ fingerprint:
   tests/test_trendmoon_client.py: bafybeiasl7mvuf4cpgyotcxkio5rkbp3a6743wq2no7t63x25zgv3kebmm
   treeofalpha_client.py: bafybeidan2hkrro6krfq4wortagh5q3yioznh5q7drhuapoz4cjteso5su
   trendmoon_client.py: bafybeie5xslsmmt7av4tmbkje7fmqfosoy5avvxw3tjgerfohaaro47jxe
-  unlocks_client.py: bafybeibjhvvcnw3ax2xei6cqltx4xsmn4i7rggbb6baqsedf2ptkehohh4
+  unlocks_client.py: bafybeiakwxz3ggedixdhgos7yezy2zznf7yaigc4otbeufaxqq4gihlryi
 fingerprint_ignore_patterns: []
 connections: []
 contracts: []
