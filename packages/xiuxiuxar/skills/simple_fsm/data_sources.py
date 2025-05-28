@@ -29,4 +29,9 @@ DATA_SOURCES = {
         "processor": "serialize_researchagent_data",
         "data_type_handler": "single",
     },
+    "unlocks": {
+        "fetcher": lambda client, symbol, asset_name=None, **_: client.fetch_unlocks(asset_name or symbol),
+        "processor": "serialize_unlocks_data",
+        "data_type_handler": "single",
+    },
 }
