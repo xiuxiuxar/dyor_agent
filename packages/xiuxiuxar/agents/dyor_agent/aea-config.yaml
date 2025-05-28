@@ -22,9 +22,9 @@ protocols:
 - open_aea/signing:1.0.0:bafybeig2d36zxy65vd7fwhs7scotuktydcarm74aprmrb5nioiymr3yixm
 skills:
 - eightballer/prometheus:0.1.0:bafybeicl5i7e467aowfarke4bbyixo2dggar276njmvyuwbsby5pxshhtu
-- xiuxiuxar/simple_fsm:0.1.0:bafybeidq7ufvd3t5lgflpcfwktycu3ipvac4lv4vwzdkrnk4qpun5v52va
+- xiuxiuxar/simple_fsm:0.1.0:bafybeidbirslemij63iizs3yvlikkrlj5gsh3yt6e57sppqmvfvfuxa3ry
 customs:
-- xiuxiuxar/dyor_api:0.1.0:bafybeigeentziu2jwmtqi5ohxq525ckajvo36x7tquxgnfrfkqwydylf4y
+- xiuxiuxar/dyor_api:0.1.0:bafybeicbk27qzvfxxpfeqgdqk6r6kgpsbgckf6dqpk4qzdlqdtqovdxki4
 default_ledger: ethereum
 required_ledgers:
 - ethereum
@@ -129,3 +129,9 @@ models:
       max_retries: ${TRENDMOON_MAX_RETRIES:int:3}
       backoff_factor: ${TRENDMOON_BACKOFF_FACTOR:float:0.5}
       timeout: ${TRENDMOON_TIMEOUT:int:15}
+  unlocks_client:
+    args:
+      base_url: ${UNLOCKS_BASE_URL:str:http://localhost:8000}
+      timeout: ${UNLOCKS_TIMEOUT:int:15}
+      max_retries: ${UNLOCKS_MAX_RETRIES:int:3}
+      backoff_factor: ${UNLOCKS_BACKOFF_FACTOR:float:0.5}

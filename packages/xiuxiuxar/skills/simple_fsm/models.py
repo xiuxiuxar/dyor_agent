@@ -326,6 +326,7 @@ class DatabaseModel(Model):
                 )
                 report_id = result.scalar_one()
                 conn.commit()
+                self.update_trigger_report_id(trigger_id, report_id)
                 return report_id
         except Exception as e:
             self.context.logger.exception(
@@ -378,6 +379,36 @@ class DatabaseModel(Model):
             self.context.logger.info(f"Updated asset {asset_id} with coingecko_id={coingecko_id}, category={category}")
         except Exception as e:
             self.context.logger.exception(f"Failed to update asset metadata for asset_id={asset_id}: {e!s}")
+            raise
+
+    def get_asset_name_by_symbol(self, symbol: str) -> str | None:
+        """Return the asset name for a given symbol, or None if not found."""
+        if not self._engine:
+            msg = "Database engine not initialized. Call setup() first."
+            raise RuntimeError(msg)
+        query = text("SELECT name FROM assets WHERE symbol = :symbol LIMIT 1")
+        with self._engine.connect() as conn:
+            result = conn.execute(query, {"symbol": symbol}).fetchone()
+            if result:
+                return result[0]
+            return None
+
+    def update_trigger_report_id(self, trigger_id: int, report_id: int) -> None:
+        """Update the report_id for a trigger."""
+        if not self._engine:
+            msg = "Database engine not initialized. Call setup() first."
+            raise RuntimeError(msg)
+        try:
+            query = text("""
+                UPDATE triggers
+                SET report_id = :report_id
+                WHERE trigger_id = :trigger_id
+            """)
+            with self._engine.connect() as conn:
+                conn.execute(query, {"trigger_id": trigger_id, "report_id": report_id})
+                conn.commit()
+        except Exception as e:
+            self.context.logger.exception(f"Failed to update trigger {trigger_id} with report_id={report_id}: {e!s}")
             raise
 
 

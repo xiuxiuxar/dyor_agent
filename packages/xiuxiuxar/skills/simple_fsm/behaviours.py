@@ -29,7 +29,7 @@ from abc import ABC
 from enum import Enum
 from typing import TYPE_CHECKING, Any, cast
 from pathlib import Path
-from datetime import UTC, tzinfo, datetime
+from datetime import UTC, tzinfo, datetime, timedelta
 from collections.abc import Generator
 from concurrent.futures import ThreadPoolExecutor
 
@@ -39,6 +39,7 @@ import requests
 import sqlalchemy
 from pydantic import ValidationError
 from sqlalchemy import text
+from requests.exceptions import HTTPError
 from aea.skills.behaviours import State, FSMBehaviour
 
 from packages.xiuxiuxar.skills.simple_fsm.prompt import build_report_prompt
@@ -53,6 +54,7 @@ from packages.xiuxiuxar.skills.simple_fsm.data_models import (
     StructuredPayload,
 )
 from packages.xiuxiuxar.skills.simple_fsm.data_sources import DATA_SOURCES
+from packages.xiuxiuxar.skills.simple_fsm.unlocks_client import UnlocksClientError
 from packages.xiuxiuxar.skills.simple_fsm.trendmoon_client import TrendmoonAPIError
 from packages.xiuxiuxar.skills.simple_fsm.lookonchain_client import LookOnChainAPIError
 from packages.xiuxiuxar.skills.simple_fsm.treeofalpha_client import TreeOfAlphaAPIError
@@ -222,6 +224,12 @@ class ProcessDataRound(BaseState):
 
         return result
 
+    def serialize_unlocks_data(self, data):
+        """Serialize unlocks data (ScrapedDataItem) to dict for storage."""
+        if hasattr(data, "to_dict"):
+            return data.to_dict()
+        return data
+
     def _store_all_raw_data(self, trigger_id, asset_id):
         try:
             for source, config in DATA_SOURCES.items():
@@ -348,34 +356,85 @@ class ProcessDataRound(BaseState):
         errors[key] = f"{error_type}: {exc!s}"
         self.context.logger.warning(f"{error_type} for {key}: {exc}")
 
+    def _build_unlock_events(self, unlocks_raw, context):
+        unlocks_data = None
+        unlocks_recent = []
+        unlocks_upcoming = []
+        if unlocks_raw:
+            if hasattr(unlocks_raw, "to_dict"):
+                unlocks_data = unlocks_raw.to_dict()
+            elif isinstance(unlocks_raw, dict):
+                unlocks_data = unlocks_raw
+            else:
+                unlocks_data = str(unlocks_raw)
+
+            # Get events from the correct path
+            events = (
+                (unlocks_data.get("metadata", {}).get("raw_emissions", {}).get("meta", {}).get("events", []))
+                if isinstance(unlocks_data, dict)
+                else []
+            )
+
+            now = datetime.now(UTC)
+            for event in events:
+                # Filter for cliff unlocks AND specific categories
+                if event.get("unlockType") != "cliff" or event.get("category") not in {"insiders", "privateSale"}:
+                    continue
+
+                try:
+                    # Convert Unix timestamp to datetime
+                    event_date = datetime.fromtimestamp(event["timestamp"], UTC)
+
+                    # Debug logging
+                    context.logger.info(
+                        f"Processing significant unlock event: date={event_date}, "
+                        f"type={event.get('unlockType')}, "
+                        f"category={event.get('category')}, "
+                        f"tokens={event.get('noOfTokens')}, "
+                        f"description={event.get('description')}"
+                    )
+
+                    if now - timedelta(days=14) <= event_date <= now:
+                        unlocks_recent.append(event)
+                    elif now < event_date <= now + timedelta(days=30):
+                        unlocks_upcoming.append(event)
+                        context.logger.info(
+                            f"Found upcoming significant unlock in {event_date - now} days: "
+                            f"{event.get('description')}"
+                        )
+
+                except (KeyError, ValueError, TypeError) as e:
+                    context.logger.warning(f"Failed to parse unlock event timestamp: {e}")
+                    continue
+        return unlocks_data, unlocks_recent, unlocks_upcoming
+
     def build_structured_payload(self, context) -> StructuredPayload:
         """Build and validate the StructuredPayload using Pydantic models."""
         trendmoon_raw = context.raw_data.get("trendmoon", {})
         tree_raw = context.raw_data.get("treeofalpha", [])
         look_raw = context.raw_data.get("lookonchain")
         research_raw = context.raw_data.get("researchagent")
+        unlocks_raw = context.raw_data.get("unlocks")
 
         social_data, coin_details, project_summary = self._extract_trendmoon_social_and_coin_details(trendmoon_raw)
         trend_market_data = self._extract_trend_market_data(social_data)
-        key_metrics = self._build_key_metrics(trend_market_data)
-        social_summary = self._build_social_summary(social_data)
-        asset_info = self._build_asset_info(coin_details, social_data, context)
-        news_items = self._build_news_items(tree_raw)
-        official_updates = self._build_official_updates(look_raw)
-        onchain_highlights = self._build_onchain_highlights(research_raw, context)
+        unlocks_data, unlocks_recent, unlocks_upcoming = self._build_unlock_events(unlocks_raw, context)
 
         return StructuredPayload(
-            asset_info=asset_info,
+            asset_info=self._build_asset_info(coin_details, social_data, context),
             trigger_info=TriggerInfo(
                 type="manual_test",
                 timestamp=datetime.now(tz=UTC).isoformat(),
             ),
-            key_metrics=key_metrics,
-            social_summary=social_summary,
-            recent_news=news_items,
-            onchain_highlights=onchain_highlights,
-            official_updates=official_updates,
+            key_metrics=self._build_key_metrics(trend_market_data),
+            social_summary=self._build_social_summary(social_data),
+            recent_news=self._build_news_items(tree_raw),
+            onchain_highlights=self._build_onchain_highlights(research_raw, context),
+            official_updates=self._build_official_updates(look_raw),
             project_summary=project_summary,
+            unlocks_data=unlocks_data,
+            unlocks_recent=unlocks_recent,
+            unlocks_upcoming=unlocks_upcoming,
         )
 
     def _extract_trendmoon_social_and_coin_details(self, trendmoon_raw):
@@ -661,6 +720,11 @@ class ProcessDataRound(BaseState):
     def _store_structured_payload(self, payload, trigger_id, asset_id):
         """Store the structured payload in the database."""
         try:
+            self.context.logger.info(
+                f"Storing structured payload with unlocks:\n"
+                f"Recent: {len(payload.unlocks_recent)} events\n"
+                f"Upcoming: {len(payload.unlocks_upcoming)} events"
+            )
             payload_dict = payload.model_dump(mode="json")
             self.context.db_model.store_raw_data(
                 source="structured",
@@ -769,6 +833,12 @@ class SetupDYORRound(BaseState):
         except ValueError as e:
             errors["trendmoon_init"] = str(e)
 
+        # Add unlocks client initialization
+        try:
+            self.context.api_clients["unlocks"] = self.context.unlocks_client
+        except ValueError as e:
+            errors["unlocks_init"] = str(e)
+
         return errors
 
     def act(self) -> None:
@@ -846,7 +916,7 @@ class DeliverReportRound(BaseState):
             conn.execute(
                 text("""
                     UPDATE triggers
-                    SET status = 'processed'
+                    SET status = 'processed', completed_at = NOW()
                     WHERE trigger_id = :trigger_id
                 """),
                 {"trigger_id": self.context.trigger_context["trigger_id"]},
@@ -1037,26 +1107,105 @@ class IngestDataRound(BaseState):
             for source, config in DATA_SOURCES.items()
         }
 
-    def _create_fetch_futures(self, executor, asset_symbol, asset_name):
-        futures = {}
-        for source, config in DATA_SOURCES.items():
-            client = self.context.api_clients.get(source)
-            if not client:
-                continue
-            if config.get("data_type_handler") == "multi":
-                for endpoint, fetcher in config["fetchers"].items():
-                    futures[f"{source}_{endpoint}"] = executor.submit(
-                        fetcher, client, asset_symbol, asset_name=asset_name
-                    )
-            else:
-                fetcher = config["fetcher"]
-                # researchagent: fetch for both symbol and name if different
-                if source == "researchagent" and asset_name and asset_name.lower() != asset_symbol.lower():
-                    futures[f"{source}_symbol"] = executor.submit(fetcher, client, asset_symbol, asset_name=None)
-                    futures[f"{source}_name"] = executor.submit(fetcher, client, asset_symbol, asset_name=asset_name)
+    def _get_existing_unlocks_data(self, asset_id: int) -> dict | None:
+        """Check if we have recent unlock data in the database."""
+        try:
+            with self.context.db_model.engine.connect() as conn:
+                result = conn.execute(
+                    text("""
+                        SELECT data
+                        FROM raw_data
+                        WHERE source = 'unlocks'
+                        AND asset_id = :asset_id
+                        AND created_at > NOW() - INTERVAL '30 days'
+                        ORDER BY created_at DESC
+                        LIMIT 1
+                    """),
+                    {"asset_id": asset_id},
+                )
+                row = result.fetchone()
+                if row and row[0]:
+                    self.context.logger.info(f"Found existing unlock data for asset_id={asset_id}")
+                    return row[0]
+                return None
+        except sqlalchemy.exc.SQLAlchemyError as e:
+            self.context.logger.warning(f"Error checking for existing unlock data: {e}")
+            return None
+
+    def _fetch_phase1_data(self, asset_symbol, asset_name):
+        """Fetch data from all sources except unlocks."""
+        phase1_sources = [s for s in DATA_SOURCES if s != "unlocks"]
+        with ThreadPoolExecutor(max_workers=self._max_workers) as executor:
+            futures = {}
+            for source in phase1_sources:
+                config = DATA_SOURCES[source]
+                client = self.context.api_clients.get(source)
+                if not client:
+                    continue
+                if config.get("data_type_handler") == "multi":
+                    for endpoint, fetcher in config["fetchers"].items():
+                        futures[f"{source}_{endpoint}"] = executor.submit(
+                            fetcher, client, asset_symbol, asset_name=asset_name
+                        )
                 else:
+                    fetcher = config["fetcher"]
                     futures[source] = executor.submit(fetcher, client, asset_symbol, asset_name=asset_name)
-        return futures
+            for name, future in futures.items():
+                try:
+                    result = future.result()
+                    self._process_future_result(name, result)
+                except (TrendmoonAPIError, TreeOfAlphaAPIError, LookOnChainAPIError, ResearchAgentAPIError) as e:
+                    http_response = getattr(e, "response", None)
+                    error_dump = {
+                        "error": str(e),
+                        "http_response": getattr(http_response, "text", None) if http_response else None,
+                        "status_code": getattr(http_response, "status_code", None) if http_response else None,
+                    }
+                    self._process_future_result(name, None, error=error_dump)
+                    self.context.logger.warning(f"Error fetching {name}: {e} | HTTP: {error_dump}")
+
+    def _update_asset_name_if_needed(self, asset_symbol, asset_name):
+        """Update asset name in DB and trigger_context if needed, return the resolved asset_name."""
+        trendmoon_raw = self.context.raw_data.get("trendmoon", {})
+        real_name = None
+        if isinstance(trendmoon_raw, dict):
+            coin_details = trendmoon_raw.get("coin_details", {})
+            project_summary = trendmoon_raw.get("project_summary", {})
+            real_name = coin_details.get("name") or project_summary.get("name")
+        if real_name and real_name.lower() != asset_symbol.lower():
+            try:
+                query = text("UPDATE assets SET name = :name, updated_at = NOW() WHERE symbol = :symbol")
+                with self.context.db_model.engine.connect() as conn:
+                    conn.execute(query, {"name": real_name, "symbol": asset_symbol})
+                    conn.commit()
+                self.context.logger.info(f"Updated asset name in DB for symbol {asset_symbol} to '{real_name}'")
+                asset_name = real_name
+                self.context.trigger_context["asset_name"] = asset_name
+            except (sqlalchemy.exc.SQLAlchemyError, TypeError, ValueError) as e:
+                self.context.logger.warning(f"Failed to update asset name in DB: {e}")
+        else:
+            resolved_name = self.context.db_model.get_asset_name_by_symbol(asset_symbol)
+            if resolved_name:
+                asset_name = resolved_name
+                self.context.trigger_context["asset_name"] = asset_name
+        return asset_name
+
+    def _fetch_unlocks_data(self, asset_symbol, asset_name):
+        """Fetch unlocks data using the correct project name."""
+        unlocks_client = self.context.api_clients.get("unlocks")
+        if unlocks_client:
+            try:
+                unlocks_fetcher = DATA_SOURCES["unlocks"]["fetcher"]
+                unlocks_result = unlocks_fetcher(unlocks_client, asset_symbol, asset_name=asset_name)
+                self._process_future_result("unlocks", unlocks_result)
+            except (UnlocksClientError, HTTPError) as e:
+                error_dump = {"error": str(e)}
+                self._process_future_result("unlocks", None, error=error_dump)
+                self.context.logger.warning(f"Unlocks unavailable: {e}")
+            except (sqlalchemy.exc.SQLAlchemyError, TypeError, ValueError) as e:
+                error_dump = {"error": str(e)}
+                self._process_future_result("unlocks", None, error=error_dump)
+                self.context.logger.warning(f"Error fetching unlocks: {e}")
 
     def _process_future_result(self, name, result, error=None):
         if error:
@@ -1085,21 +1234,9 @@ class IngestDataRound(BaseState):
             asset_name = self.context.trigger_context.get("asset_name", None)
             self.context.logger.info(f"Fetching data for symbol: {asset_symbol}")
 
-            with ThreadPoolExecutor(max_workers=self._max_workers) as executor:
-                futures = self._create_fetch_futures(executor, asset_symbol, asset_name)
-                for name, future in futures.items():
-                    try:
-                        result = future.result()
-                        self._process_future_result(name, result)
-                    except (TrendmoonAPIError, TreeOfAlphaAPIError, LookOnChainAPIError, ResearchAgentAPIError) as e:
-                        http_response = getattr(e, "response", None)
-                        error_dump = {
-                            "error": str(e),
-                            "http_response": getattr(http_response, "text", None) if http_response else None,
-                            "status_code": getattr(http_response, "status_code", None) if http_response else None,
-                        }
-                        self._process_future_result(name, None, error=error_dump)
-                        self.context.logger.warning(f"Error fetching {name}: {e} | HTTP: {error_dump}")
+            self._fetch_phase1_data(asset_symbol, asset_name)
+            asset_name = self._update_asset_name_if_needed(asset_symbol, asset_name)
+            self._fetch_unlocks_data(asset_symbol, asset_name)
 
             self._event = DyorabciappEvents.DONE
         except Exception as e:
