@@ -941,9 +941,8 @@ class SetupDYORRound(BaseState):
             "client_attr": "trendmoon_client",
             "config_fields": ["base_url", "insights_url", "max_retries", "backoff_factor", "timeout"],
             "special_fields": {
-                "api_key": lambda client: (
-                    getattr(client, "session", None) and client.session.headers.get("Api-key")
-                ) or None,
+                "api_key": lambda client: (getattr(client, "session", None) and client.session.headers.get("Api-key"))
+                or None,
             },
         },
         "lookonchain": {
@@ -958,9 +957,8 @@ class SetupDYORRound(BaseState):
             "client_attr": "researchagent_client",
             "config_fields": ["base_url", "api_key"],
             "special_fields": {
-                "api_key": lambda client: (
-                    getattr(client, "session", None) and client.session.headers.get("Api-key")
-                ) or None,
+                "api_key": lambda client: (getattr(client, "session", None) and client.session.headers.get("Api-key"))
+                or None,
             },
         },
         "unlocks": {
