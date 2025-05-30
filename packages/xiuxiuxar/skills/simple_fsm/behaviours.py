@@ -41,6 +41,7 @@ from pydantic import ValidationError
 from sqlalchemy import text
 from aea.skills.behaviours import State, FSMBehaviour
 
+from packages.xiuxiuxar.skills.simple_fsm.models import LLMServiceError
 from packages.xiuxiuxar.skills.simple_fsm.prompt import build_report_prompt
 from packages.xiuxiuxar.skills.simple_fsm.data_models import (
     NewsItem,
@@ -49,7 +50,6 @@ from packages.xiuxiuxar.skills.simple_fsm.data_models import (
     TriggerInfo,
     SocialSummary,
     OfficialUpdate,
-    LLMServiceError,
     OnchainHighlight,
     StructuredPayload,
 )
