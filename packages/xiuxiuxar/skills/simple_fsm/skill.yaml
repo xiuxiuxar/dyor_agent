@@ -9,7 +9,7 @@ fingerprint:
   README.md: bafybeifmctcmcdtae5b3qin4fdveytwcduleekax3mgqbmfwudwcay2dny
   __init__.py: bafybeigocf4h7sv7lkbfbnpelwm6xzwv3hg7pwac2mbamholdxykzq6wiq
   base_client.py: bafybeiewhdwg2juqwcqgqibky7yzyuba2mbi52ybmg5qs7nbpimuepznxa
-  behaviours.py: bafybeifkr4jdcdu2oakjdak7ledntpvgeswn6atiz4d5jbctugkszhxy5e
+  behaviours.py: bafybeibvfrbyx4xl3kvqnwbpxrblbti7434ryy2nycpnbyvjgyuaf77ukm
   data_models.py: bafybeiez7hfhup3gtao3qgd7bgunpkxusl5py72wzmhlx4ljidvtet5fsi
   data_sources.py: bafybeidt3wccnf6wgy43onvtte5hlgvzlcokrjvbxedtll5zylnub4466u
   dialogues.py: bafybeidr23gipmyw5t6o6jf52y4j733adbt4pnasjxrzfohsgpwt7ex6ea
@@ -17,7 +17,7 @@ fingerprint:
   lookonchain_client.py: bafybeiglj5yppteyua277csgjicsahp4so6nbrrtj662cpgntgriajtlo4
   models.py: bafybeihnoquzcwqu3jblhvn7euvs7e77ufqhjbpds7n3myaewn7pppdhwm
   prompt.py: bafybeiabqzblbtlkngkpz5gfjo66ryngiatzfmjgx4bq3i4fpqodkitiqa
-  prompt_template.jinja: bafybeiesispxojbhhdh6aziu4ce3nr6dbqhfvwtkf3xzflccdsscft2rim
+  prompt_template.jinja: bafybeickxzr4veie5rhs5yytgnnr553s5goeb5xhlz3qops6qifajolwey
   researchagent_client.py: bafybeiblaexoh4fcpwtidif3dyaiu4bkjy2jm5nj2jg4igev5nwmfjvy64
   strategy.py: bafybeighe2emfcjlvw6jninea3td3czbvvohuwo2xmmp45tdosy2z3gmm4
   tests/__init__.py: bafybeigb2ji4vkcap3hokcedggjwsrah7te2nxjhkorwf3ibwgyaa2glma
