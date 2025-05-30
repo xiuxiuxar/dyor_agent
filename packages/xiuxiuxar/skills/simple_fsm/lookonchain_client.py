@@ -19,35 +19,23 @@
 """LookOnChain Client."""
 
 import os
-import logging
+from typing import Any
 from datetime import UTC, datetime
+from urllib.parse import urlparse
+
+from aea.skills.base import Model
 
 from packages.xiuxiuxar.skills.simple_fsm.models import ScrapedDataItem
-from packages.xiuxiuxar.skills.simple_fsm.base_client import BaseClient, BaseAPIError, BaseClientConfig
+from packages.xiuxiuxar.skills.simple_fsm.base_client import BaseClient, BaseAPIError
 
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
-
-# Configuration
-LOOKONCHAIN_BASE_URL = os.environ["LOOKONCHAIN_BASE_URL"]
-LOOKONCHAIN_SEARCH_ENDPOINT = os.environ["LOOKONCHAIN_SEARCH_ENDPOINT"]
-
-
-class LookOnChainConfig(BaseClientConfig):
-    """Configuration for LookOnChain Client."""
-
-    base_url = LOOKONCHAIN_BASE_URL
-    search_endpoint = LOOKONCHAIN_SEARCH_ENDPOINT
-    timeout = 20
-    retry_config = {"max_retries": 3, "backoff_factor": 0.5, "status_forcelist": (500, 502, 503, 504)}
-    default_headers = {
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-            "(KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-        )
-    }
+STATUS_FORCELIST = (429, 500, 502, 503, 504)
+DEFAULT_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.3"
+    )
+}
 
 
 class LookOnChainAPIError(BaseAPIError):
@@ -72,46 +60,43 @@ class ParsingError(LookOnChainAPIError):
         super().__init__(f"Failed to parse data from {source}: {message}", "parsing", status_code)
 
 
-class LookOnChainClient(BaseClient):
+class LookOnChainClient(Model, BaseClient):
     """Client for interacting with the LookOnChain."""
 
     def __init__(
         self,
-        base_url: str = LookOnChainConfig.base_url,
-        search_endpoint: str = LookOnChainConfig.search_endpoint,
-        max_retries: int = LookOnChainConfig.retry_config["max_retries"],
-        backoff_factor: float = LookOnChainConfig.retry_config["backoff_factor"],
-        timeout: int = LookOnChainConfig.timeout,
-        status_forcelist: tuple[int, ...] = LookOnChainConfig.retry_config["status_forcelist"],
+        **kwargs: Any,
     ):
-        """Initialize the LookOnChain Client.
+        name = kwargs.pop("name", "lookonchain_client")
+        skill_context = kwargs.pop("skill_context", None)
+        base_url = kwargs.pop("base_url", None)
+        search_endpoint = kwargs.pop("search_endpoint", None)
+        timeout = kwargs.pop("timeout", 15)
+        max_retries = kwargs.pop("max_retries", 3)
+        backoff_factor = kwargs.pop("backoff_factor", 0.5)
 
-        Args:
-        ----
-            base_url: Base URL for the API
-            search_endpoint: Endpoint for search operations
-            max_retries: Maximum number of retry attempts
-            backoff_factor: Factor for exponential backoff
-            timeout: Request timeout in seconds
-            status_forcelist: HTTP status codes to retry on
-
-        """
-        if not search_endpoint or not search_endpoint.startswith("https://"):
-            msg = "Invalid LookOnChain search endpoint URL"
-            raise ValueError(msg)
-
-        self.search_endpoint = search_endpoint
-        self.source_name = "lookonchain"
-
-        super().__init__(
+        Model.__init__(self, name=name, skill_context=skill_context, **kwargs)
+        BaseClient.__init__(
+            self,
             base_url=base_url,
             timeout=timeout,
             max_retries=max_retries,
             backoff_factor=backoff_factor,
-            status_forcelist=status_forcelist,
-            headers=LookOnChainConfig.default_headers,
-            error_class=LookOnChainAPIError,
+            status_forcelist=STATUS_FORCELIST,
+            headers=DEFAULT_HEADERS,
         )
+
+        if search_endpoint:
+            parsed = urlparse(search_endpoint)
+            if parsed.scheme not in {"http", "https"}:
+                msg = f"Invalid {self.__class__.__name__} base URL {search_endpoint}"
+                raise ValueError(msg)
+            self.search_endpoint = search_endpoint.rstrip("/")
+        else:
+            self.search_endpoint = None
+
+        self.source_name = "lookonchain"
+        self.error_class = LookOnChainAPIError
 
     def search(self, query: str, page: int = 1, count: int = 20) -> list[ScrapedDataItem]:
         """Search for content using the LookOnChain API.
@@ -173,15 +158,15 @@ class LookOnChainClient(BaseClient):
 
         """
         if not isinstance(data, dict) or data.get("success") != "Y":
-            logger.error(f"API returned error or invalid format: {data}")
+            self.context.logger.error(f"API returned error or invalid format: {data}")
             return []
 
         content = data.get("content", [])
         if not isinstance(content, list):
-            logger.error(f"Invalid content format: {content}")
+            self.context.logger.error(f"Invalid content format: {content}")
             return []
 
-        logger.debug(f"Found {len(content)} items in response")
+        self.context.logger.debug(f"Found {len(content)} items in response")
         return [item for item in (self._create_scraped_item(item_data) for item_data in content) if item is not None]
 
     def _create_scraped_item(self, item_data: dict) -> ScrapedDataItem | None:
@@ -213,7 +198,7 @@ class LookOnChainClient(BaseClient):
                 },
             )
         except (KeyError, Exception) as e:
-            logger.debug(f"Failed to process item: {e}")
+            self.context.logger.debug(f"Failed to process item: {e}")
             return None
 
     def validate_config(self) -> None:

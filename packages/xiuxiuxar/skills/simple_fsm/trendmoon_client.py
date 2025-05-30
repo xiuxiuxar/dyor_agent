@@ -18,24 +18,19 @@
 
 """Trendmoon Base Client."""
 
-import os
-import logging
 from typing import Any
 from inspect import signature
 from functools import wraps
+from urllib.parse import urlparse
 from collections.abc import Callable
 
+from aea.skills.base import Model
 from dateutil.parser import ParserError, parse
 
-from packages.xiuxiuxar.skills.simple_fsm.base_client import BaseClient, BaseAPIError, BaseClientConfig
+from packages.xiuxiuxar.skills.simple_fsm.base_client import BaseClient, BaseAPIError
 
 
-TRENDMOON_API_KEY = os.getenv("TRENDMOON_STAGING_API_KEY")
-TRENDMOON_BASE_URL = os.getenv("TRENDMOON_BASE_URL")
-TRENDMOON_INSIGHTS_URL = os.getenv("TRENDMOON_INSIGHTS_URL")
-
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
+STATUS_FORCELIST = (429, 500, 502, 503, 504)
 
 
 def validate_iso_dates(*date_param_names: str) -> Callable:
@@ -114,47 +109,44 @@ class TrendmoonAPIError(BaseAPIError):
     """Trendmoon API specific error."""
 
 
-class TrendmoonConfig(BaseClientConfig):
-    """Configuration for Trendmoon Client."""
-
-    api_key = TRENDMOON_API_KEY
-    base_url = TRENDMOON_BASE_URL
-    insights_url = TRENDMOON_INSIGHTS_URL
-    timeout = 15
-    retry_config = {"max_retries": 3, "backoff_factor": 0.5, "status_forcelist": (429, 500, 502, 503, 504)}
-
-
-class TrendmoonClient(BaseClient):
+class TrendmoonClient(Model, BaseClient):
     """Client for interacting with Trendmoon."""
 
-    def __init__(
-        self,
-        api_key: str = TrendmoonConfig.api_key,
-        base_url: str = TrendmoonConfig.base_url,
-        insights_url: str = TrendmoonConfig.insights_url,
-        max_retries: int = TrendmoonConfig.retry_config["max_retries"],
-        backoff_factor: float = TrendmoonConfig.retry_config["backoff_factor"],
-        timeout: int = TrendmoonConfig.timeout,
-        status_forcelist: tuple[int, ...] = TrendmoonConfig.retry_config["status_forcelist"],
-    ):
+    def __init__(self, **kwargs: Any):
+        name = kwargs.pop("name", "trendmoon_client")
+        skill_context = kwargs.pop("skill_context", None)
+        api_key = kwargs.pop("api_key", None)
+        base_url = kwargs.pop("base_url", None)
+        insights_url = kwargs.pop("insights_url", None)
+        max_retries = kwargs.pop("max_retries", 3)
+        backoff_factor = kwargs.pop("backoff_factor", 0.5)
+        timeout = kwargs.pop("timeout", 15)
+
         if not api_key:
-            msg = "Trendmoon API key is required"
-            raise ValueError(msg)
-        if not insights_url or not insights_url.startswith("https://"):
-            msg = "Invalid Trendmoon Insights API base URL"
+            msg = "API key is required"
             raise ValueError(msg)
 
-        self.insights_url = insights_url.rstrip("/")
-        super().__init__(
+        Model.__init__(self, name=name, skill_context=skill_context, **kwargs)
+        BaseClient.__init__(
+            self,
             base_url=base_url,
             timeout=timeout,
             max_retries=max_retries,
             backoff_factor=backoff_factor,
-            status_forcelist=status_forcelist,
+            status_forcelist=STATUS_FORCELIST,
             headers={"Content-Type": "application/json"},
             api_key=api_key,
             error_class=TrendmoonAPIError,
         )
+
+        if insights_url:
+            parsed = urlparse(insights_url)
+            if parsed.scheme not in {"http", "https"}:
+                msg = f"Invalid {self.__class__.__name__} insights URL {insights_url}"
+                raise ValueError(msg)
+            self.insights_url = insights_url.rstrip("/")
+        else:
+            self.insights_url = None
 
     def _make_insights_request(
         self,
@@ -175,23 +167,38 @@ class TrendmoonClient(BaseClient):
     # -- API Endpoint Methods
 
     # -- Processed Insights
-    def get_project_summary(self, project_name: str) -> dict[str, Any] | None:
+    def get_project_summary(
+        self,
+        contract_address: str | None = None,
+        coin_id: str | None = None,
+        project_name: str | None = None,
+        symbol: str | None = None,
+    ) -> dict[str, Any] | None:
         """Retrieves a summary for a specific project."""
-        endpoint = "/social/project-summary"
-        params = {"project_name": project_name}
-        logger.info(f"Fetching project summary for: {project_name}")
+        endpoint = "/social/project_summary"
+        params = {
+            "contract_address": contract_address,
+            "coin_id": coin_id,
+            "project_name": project_name,
+            "symbol": symbol,
+        }
+        if not any(params.values()):
+            msg = "Either contract_address, coin_id, project_name, or symbol must be provided"
+            raise ValueError(msg)
+        provided_params = {k: v for k, v in params.items() if v is not None and v != ""}
+        self.context.logger.info(f"Fetching project summary for: {provided_params}")
         return self._make_request("GET", endpoint, params=params)
 
     def get_top_categories_today(self) -> dict[str, Any] | None:
         """Retrieves the top categories for today."""
         endpoint = "/get_top_categories_today"
-        logger.info("Fetching top categories for today")
+        self.context.logger.info("Fetching top categories for today")
         return self._make_insights_request("GET", endpoint)
 
     def get_top_alerts_today(self) -> dict[str, Any] | None:
         """Retrieves the top alerts for today."""
         endpoint = "/get_top_alerts_today"
-        logger.info("Fetching top alerts for today")
+        self.context.logger.info("Fetching top alerts for today")
         return self._make_insights_request("GET", endpoint)
 
     def get_category_dominance(self, category_name: str, duration: int) -> list[dict[str, Any]] | None:
@@ -227,13 +234,13 @@ class TrendmoonClient(BaseClient):
 
         endpoint = "/categories/dominance"
         params = {"category_name": category_name, "duration": duration}
-        logger.info(f"Fetching category dominance for: {category_name} over duration: {duration}")
+        self.context.logger.info(f"Fetching category dominance for: {category_name} over duration: {duration}")
         return self._make_request("GET", endpoint, params=params)
 
     def get_top_category_alerts(self) -> dict[str, Any] | None:
         """Retrieves the top category alerts filtered by top category for the day."""
         endpoint = "/get_top_category_alerts"
-        logger.info("Fetching top category alerts")
+        self.context.logger.info("Fetching top category alerts")
         return self._make_insights_request("GET", endpoint)
 
     # -- Social
@@ -262,7 +269,7 @@ class TrendmoonClient(BaseClient):
             "time_interval": time_interval,
         }
         provided_params = {k: v for k, v in params.items() if v is not None}
-        logger.info(f"Fetching social trends with params: {provided_params}")
+        self.context.logger.info(f"Fetching social trends with params: {provided_params}")
         return self._make_request("GET", endpoint, params=params)
 
     def get_keyword_trend(
@@ -310,7 +317,7 @@ class TrendmoonClient(BaseClient):
         endpoint = "/social/keyword"
         params = {"keyword": keyword, "duration": duration, "time_interval": time_interval, "match_mode": match_mode}
         provided_params = {k: v for k, v in params.items() if v is not None and v != ""}
-        logger.info(f"Fetching keyword trends for '{keyword}' with params: {provided_params}")
+        self.context.logger.info(f"Fetching keyword trends for '{keyword}' with params: {provided_params}")
         return self._make_request("GET", endpoint, params=params)
 
     # -- Messages
@@ -371,7 +378,7 @@ class TrendmoonClient(BaseClient):
         }
 
         params = {k: v for k, v in params.items() if v is not None}
-        logger.info(f"Searching messages with params: {params}")
+        self.context.logger.info(f"Searching messages with params: {params}")
         return self._make_request("GET", endpoint, params=params)
 
     @validate_iso_dates("start_date", "end_date")
@@ -396,7 +403,7 @@ class TrendmoonClient(BaseClient):
         """
         endpoint = "/messages/user"
         params = {"username": username, "start_date": start_date, "end_date": end_date}
-        logger.info(f"Fetching messages for user: {username} from {start_date} to {end_date}")
+        self.context.logger.info(f"Fetching messages for user: {username} from {start_date} to {end_date}")
         return self._make_request("GET", endpoint, params=params)
 
     @validate_iso_dates("start_date", "end_date")
@@ -454,7 +461,7 @@ class TrendmoonClient(BaseClient):
         }
         params = {k: v for k, v in params.items() if v is not None}
         identifier = group_username or f"chat_id:{chat_id}"
-        logger.info(f"Fetching messages for chat {identifier} from {start_date} to {end_date}")
+        self.context.logger.info(f"Fetching messages for chat {identifier} from {start_date} to {end_date}")
         return self._make_request("GET", endpoint, params=params)
 
     @validate_iso_dates("start_date", "end_date")
@@ -498,7 +505,7 @@ class TrendmoonClient(BaseClient):
             "size": size,
         }
         params = {k: v for k, v in params.items() if v is not None}
-        logger.info(f"Fetching messages from {start_date} to {end_date}")
+        self.context.logger.info(f"Fetching messages from {start_date} to {end_date}")
         return self._make_request("GET", endpoint, params=params)
 
     # -- Chat
@@ -519,7 +526,7 @@ class TrendmoonClient(BaseClient):
 
         """
         endpoint = f"/chats/{group_username}"
-        logger.info(f"Fetching chat information for group username: {group_username}")
+        self.context.logger.info(f"Fetching chat information for group username: {group_username}")
         return self._make_request("GET", endpoint)
 
     @validate_iso_dates("start_date", "end_date")
@@ -554,7 +561,7 @@ class TrendmoonClient(BaseClient):
             "size": size,
         }
         params = {k: v for k, v in params.items() if v is not None}
-        logger.info(f"Fetching chat activity for group {group_username} from {start_date} to {end_date}")
+        self.context.logger.info(f"Fetching chat activity for group {group_username} from {start_date} to {end_date}")
         return self._make_request("GET", endpoint, params=params)
 
     # -- Coins
@@ -576,13 +583,13 @@ class TrendmoonClient(BaseClient):
             "contract_address": contract_address,
         }
         provided_params = {k: v for k, v in params.items() if v is not None and v != ""}
-        logger.info(f"Searching for coin with params: {provided_params}")
+        self.context.logger.info(f"Searching for coin with params: {provided_params}")
         return self._make_request("GET", endpoint, params=params)
 
     def get_platforms(self) -> dict[str, Any] | None:
         """Retrieves all available platforms that have coins in the index."""
         endpoint = "/coins/platforms"
-        logger.info("Fetching all platforms")
+        self.context.logger.info("Fetching all platforms")
         return self._make_request("GET", endpoint)
 
     def get_coin_details(
@@ -605,7 +612,7 @@ class TrendmoonClient(BaseClient):
             raise ValueError(msg)
 
         provided_params = {k: v for k, v in params.items() if v is not None and v != ""}
-        logger.info(f"Fetching coin details for: {provided_params}")
+        self.context.logger.info(f"Fetching coin details for: {provided_params}")
         return self._make_request("GET", endpoint, params=params)
 
 

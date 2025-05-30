@@ -8,37 +8,42 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: bafybeifmctcmcdtae5b3qin4fdveytwcduleekax3mgqbmfwudwcay2dny
   __init__.py: bafybeigocf4h7sv7lkbfbnpelwm6xzwv3hg7pwac2mbamholdxykzq6wiq
-  base_client.py: bafybeifqgftoag3rsln4m3l4tnfnisfski7rpg6x2tjne37a2erkx6x3wm
-  behaviours.py: bafybeigfrtdzn5qingan4w7zdq2vcvultrl53mmgrzjtlyzgvlrj4hqeoy
-  data_models.py: bafybeidra5kkdsm5dtyqnhlvmhittdz3m7vvqyfjo7lkjgg4r3vr2w5axy
-  data_sources.py: bafybeiavfxo5auuybjvzrltliuoby6242qaz2kfxw7izrx4vzezlme2zya
-  dialogues.py: bafybeiggsfafkurldxnvjhqw3l424acxmpgr4x6qs36ociozuobikpqejy
-  handlers.py: bafybeib3y2h576tkiu3j7fyy5dsuc25sbcstexd5wekdz4f443q7jw7zwy
-  lookonchain_client.py: bafybeiahw7szs36wvlco4747bvb7dqzya6xzodai5i4p5ckvwj4mnptbiy
-  models.py: bafybeigig2manvs3fa6qhtc2ey7fyc2etz7tw6jo2c64arlpcnodplkz2y
-  researchagent_client.py: bafybeiafum3ptxprnwywv65w2m4swgppi6fcpftlizyhdiinyfjlubbah4
+  base_client.py: bafybeigube5gil3hnlvynalpe5hqb5fabum66oc3uol5qkwipjzytr5ana
+  behaviours.py: bafybeifmbyi54zhoybk2xfz4ksuctbl3q7544b7ohwsa4d3rzyotc2h3ce
+  data_models.py: bafybeihu2tcoaz7u7ytdksa5lfzmr6nneqxlim5oi34oivxecvwxp6f4zi
+  data_sources.py: bafybeibfmhsmhzyzj4hu5xzb5nwj4oufno6j325eakrypjsp7nfns5aema
+  dialogues.py: bafybeidr23gipmyw5t6o6jf52y4j733adbt4pnasjxrzfohsgpwt7ex6ea
+  handlers.py: bafybeibvw24jf77gyscqlcde2pxbe5ajlny3dzcq6ses6rmrwbfcjhxozu
+  lookonchain_client.py: bafybeifcef6g3pmuppwzpzlzvmvhvftpkwgg4ax3okxmzyjlmifjkulwwe
+  models.py: bafybeiezpom5g23b4ialqwqcwubgw5jm72h5l63btntcmjjlv32g3aa4ci
+  prompt.py: bafybeiabqzblbtlkngkpz5gfjo66ryngiatzfmjgx4bq3i4fpqodkitiqa
+  prompt_template.jinja: bafybeifs5cpi2g45w6wlgstu64lob6zqux6btzwjnfupxusc745mszuexu
+  researchagent_client.py: bafybeiblaexoh4fcpwtidif3dyaiu4bkjy2jm5nj2jg4igev5nwmfjvy64
   strategy.py: bafybeighe2emfcjlvw6jninea3td3czbvvohuwo2xmmp45tdosy2z3gmm4
   tests/__init__.py: bafybeigb2ji4vkcap3hokcedggjwsrah7te2nxjhkorwf3ibwgyaa2glma
   tests/conftest.py: bafybeicvznjlmanmoghlq6y3atuuh62ke6wdfxkgwfmh5zrvjvmclatrl4
-  tests/test_lookonchain_client.py: bafybeibn23oz6so3aujgfeyehw4ziajoafc3s4dmmo77y26cpnsr6pyquq
-  tests/test_researchagent_client.py: bafybeietij2hk6nkuuloz6miwyqnn6p4hj47mzjf3io64sssrgkc75ehey
-  tests/test_treeofalpha_client.py: bafybeia7lg2m7zwmwvgxf3vwe4ewscygvz2ho6xnvdgvbjuko5wz2pgskm
-  tests/test_trendmoon_client.py: bafybeigr7ilxhdijl75pj3ug6z5nl4m7qs3zbkw3gw23zr6vlaqiquxpa4
-  treeofalpha_client.py: bafybeie62wxarxxgz6fivcdsk5x37qc2yuayoxih4achol3so5ca5jsbgy
-  trendmoon_client.py: bafybeiakvva4duwpzx4idbixsuz6qpexlqlg2xl7hlc7ldtdkxmcdocs74
+  tests/test_lookonchain_client.py: bafybeigp57wqdeiwx3oop43m3cbnq4n4ridn4sm6k5wmyg33njl6keh5tu
+  tests/test_researchagent_client.py: bafybeif26rk3b7ls6afxtmnld24nhllbpkczvpfjuh5nxabuzqdbe2mfsm
+  tests/test_treeofalpha_client.py: bafybeigsm3xdvfxrua3aptij4guk2nnrry5npucllkpiqh3yz2bbbk6pey
+  tests/test_trendmoon_client.py: bafybeiasl7mvuf4cpgyotcxkio5rkbp3a6743wq2no7t63x25zgv3kebmm
+  treeofalpha_client.py: bafybeidan2hkrro6krfq4wortagh5q3yioznh5q7drhuapoz4cjteso5su
+  trendmoon_client.py: bafybeie5xslsmmt7av4tmbkje7fmqfosoy5avvxw3tjgerfohaaro47jxe
+  unlocks_client.py: bafybeiakwxz3ggedixdhgos7yezy2zznf7yaigc4otbeufaxqq4gihlryi
 fingerprint_ignore_patterns: []
 connections: []
 contracts: []
 protocols:
 - eightballer/default:0.1.0:bafybeicsdb3bue2xoopc6lue7njtyt22nehrnkevmkuk2i6ac65w722vwy
 - eightballer/http:0.1.0:bafybeid75xhq7hfdt7sgj7yrn44yj57xrgxscaw34ir46tndfzvodioxme
+- eightballer/websockets:0.1.0:bafybeihdxrqup26ss4jsszcinurilys5bsvzuijwb75vdk7wsh6aeztz34
 skills: []
+customs: []
 behaviours:
   main:
     args:
       max_workers: 4
-      test_asset_symbol: olas
-      test_asset_name: Autonolas
+      api_name: xiuxiuxar/dyor_api
+      ntfy_topic: alerts
     class_name: DyorabciappFsmBehaviour
 handlers:
   metrics_handler:
@@ -46,13 +51,16 @@ handlers:
       enable_cors: false
       expected_api_key: key
     class_name: HttpHandler
+  websocket_handler:
+    args: {}
+    class_name: WebsocketHandler
 models:
-  default_dialogues:
+  api_client_strategy:
     args: {}
-    class_name: DefaultDialogues
-  http_dialogues:
+    class_name: APIClientStrategy
+  api_ws_dialogues:
     args: {}
-    class_name: HttpDialogues
+    class_name: ApiWebSocketDialogues
   db_model:
     class_name: DatabaseModel
     args:
@@ -61,9 +69,69 @@ models:
       POSTGRES_HOST: localhost
       POSTGRES_PORT: 5432
       POSTGRES_DB: db_name
+  default_dialogues:
+    args: {}
+    class_name: DefaultDialogues
+  http_dialogues:
+    args: {}
+    class_name: HttpDialogues
+  lookonchain_client:
+    class_name: LookOnChainClient
+    args:
+      base_url: http://localhost:8000
+      search_endpoint: search
+      timeout: 15
+      max_retries: 3
+      backoff_factor: 0.5
+  llm_service:
+    class_name: LLMService
+    args:
+      LLM_PRIMARY_MODEL: Meta-Llama-3-3-70B-Instruct
+      LLM_FALLBACK_MODEL: DeepSeek-R1-Distill-Qwen-32B
+      LLM_API_KEY: key
+      LLM_BASE_URL: https://api.openai.com/v1
+      LLM_MAX_RETRIES: 4
+      LLM_BACKOFF_FACTOR: 1.5
+      LLM_TIMEOUT: 60
+  researchagent_client:
+    class_name: ResearchAgentClient
+    args:
+      base_url: http://localhost:8000
+      api_key: key
+  treeofalpha_client:
+    class_name: TreeOfAlphaClient
+    args:
+      base_url: http://localhost:8000
+      news_endpoint: news
+      cache_ttl: 3600
+      max_retries: 3
+      backoff_factor: 0.5
+      timeout: 15
+  trendmoon_client:
+    class_name: TrendmoonClient
+    args:
+      base_url: http://localhost:8000
+      insights_url: http://localhost:8000/insights
+      api_key: key
+      max_retries: 3
+      backoff_factor: 0.5
+      timeout: 60
+  unlocks_client:
+    class_name: UnlocksClient
+    args:
+      base_url: http://localhost:8000
+      timeout: 15
+      max_retries: 3
+      backoff_factor: 0.5
   strategy:
     class_name: DYORStrategy
     args: {}
-dependencies: {}
+dependencies:
+  sqlalchemy: {}
+  markdown: {}
+  openai: {}
+  requests: {}
+  pydantic: {}
+  psycopg2-binary: {}
+  jinja2: {}
 is_abstract: false
-customs: []
