@@ -1,7 +1,7 @@
 """Data sources for the simple FSM."""
 
 from packages.xiuxiuxar.skills.simple_fsm.unlocks_client import UnlocksClient
-from packages.xiuxiuxar.skills.simple_fsm.trendmoon_client import TrendmoonClient
+from packages.xiuxiuxar.skills.simple_fsm.trendmoon_client import TrendmoonClient, TrendmoonAPIError
 from packages.xiuxiuxar.skills.simple_fsm.lookonchain_client import LookOnChainClient
 from packages.xiuxiuxar.skills.simple_fsm.treeofalpha_client import TreeOfAlphaClient
 from packages.xiuxiuxar.skills.simple_fsm.researchagent_client import ResearchAgentClient
@@ -50,7 +50,7 @@ def trendmoon_project_summary(context, symbol, **_):
             timeout=cfg.get("timeout", 15),
             skill_context=context,
         ).get_project_summary(symbol=symbol)
-    except Exception as e:
+    except TrendmoonAPIError as e:
         context.logger.warning(f"Error fetching project summary: {e}")
         return {}
 

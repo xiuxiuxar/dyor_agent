@@ -202,7 +202,8 @@ class ProcessDataRound(BaseState):
             coingecko_id = self.context.trigger_context.get("coingecko_id")
             # Log input to unlocks_project_filter
             self.context.logger.info(
-                f"Filtering unlocks: asset_name={asset_name}, asset_symbol={asset_symbol}, coingecko_id={coingecko_id}, all_projects_count={len(all_projects) if isinstance(all_projects, list) else 'N/A'}"
+                f"Filtering unlocks: asset_name={asset_name}, asset_symbol={asset_symbol}, coingecko_id={coingecko_id} "
+                f"all_projects_count={len(all_projects) if isinstance(all_projects, list) else 'N/A'}"
             )
             project, filtered_events = unlocks_project_filter(
                 all_projects,
@@ -212,7 +213,8 @@ class ProcessDataRound(BaseState):
             )
             # Log output of unlocks_project_filter
             self.context.logger.info(
-                f"unlocks_project_filter result: project={project}, filtered_events_count={len(filtered_events) if isinstance(filtered_events, list) else 'N/A'}"
+                f"unlocks_project_filter result: project={project}, "
+                f"filtered_events_count={len(filtered_events) if isinstance(filtered_events, list) else 'N/A'}"
             )
             # Always wrap in a dict for unlocks_data
             unlocks_filtered = {
@@ -285,7 +287,7 @@ class ProcessDataRound(BaseState):
                         "project": project,
                         "filtered_events": filtered_events,
                     }
-                    self.context.logger.info(
+                    self.context.logger.debug(
                         "Storing filtered unlocks raw data for asset=%s: project=%s, filtered_events_count=%s",
                         asset_symbol,
                         project,
@@ -423,96 +425,86 @@ class ProcessDataRound(BaseState):
         self.context.logger.warning(f"{error_type} for {key}: {exc}")
 
     def _build_unlock_events(self, unlocks_raw, context):
-        unlocks_data = None
-        unlocks_recent = []
-        unlocks_upcoming = []
-        if unlocks_raw:
-            if hasattr(unlocks_raw, "to_dict"):
-                unlocks_data = unlocks_raw.to_dict()
-            elif isinstance(unlocks_raw, dict):
-                unlocks_data = unlocks_raw
-            else:
-                unlocks_data = str(unlocks_raw)
-
-            # Handle case where unlocks_raw is the all_projects list
-            events = []
-            if isinstance(unlocks_raw, list):
-                # This is the all_projects list, need to filter for our specific project
-                asset_name = context.trigger_context.get("asset_name")
-                asset_symbol = context.trigger_context.get("asset_symbol")
-                coingecko_id = context.trigger_context.get("coingecko_id")
-
-                # Use the same filtering logic as unlocks_project_filter
-                project = None
-                if coingecko_id:
-                    project = next((p for p in unlocks_raw if p.get("gecko_id") == coingecko_id), None)
-                if not project and asset_name:
-                    project = next((p for p in unlocks_raw if p.get("name", "").lower() == asset_name.lower()), None)
-                if not project and asset_symbol:
-                    project = next(
-                        (p for p in unlocks_raw if p.get("token", "").split(":")[-1].lower() == asset_symbol.lower()),
-                        None,
-                    )
-
-                if project:
-                    events = project.get("events", [])
-                    unlocks_data = project  # Update unlocks_data to be the project dict
-                    context.logger.info(f"Found project {project.get('name', '')} with {len(events)} events")
-                else:
-                    context.logger.warning(
-                        f"Could not find project for asset_name={asset_name}, asset_symbol={asset_symbol}, coingecko_id={coingecko_id}"
-                    )
-
-            elif isinstance(unlocks_data, dict):
-                # Try different possible locations for events
-                events = (
-                    unlocks_data.get("events")
-                    or unlocks_data.get("filtered_events", [])
-                    or unlocks_data.get("metadata", {}).get("raw_emissions", {}).get("meta", {}).get("events", [])
-                )
-
-            now = datetime.now(UTC)
-            context.logger.info(
-                f"Processing {len(events)} events for recent/upcoming unlock analysis. Current time: {now}"
-            )
-
-            for event in events:
-                # Filter for cliff unlocks AND specific categories
-                if event.get("unlockType") != "cliff" or event.get("category") not in {"insiders", "privateSale"}:
-                    continue
-
-                try:
-                    event_date = datetime.fromtimestamp(event["timestamp"], UTC)
-                    context.logger.info(
-                        f"Processing significant unlock event: date={event_date}, "
-                        f"type={event.get('unlockType')}, "
-                        f"category={event.get('category')}, "
-                        f"tokens={event.get('noOfTokens')}, "
-                        f"description={event.get('description')}"
-                    )
-
-                    if now - timedelta(days=14) <= event_date <= now:
-                        unlocks_recent.append(event)
-                        context.logger.info(f"Added to recent unlocks: {event_date}")
-                    elif now < event_date <= now + timedelta(days=30):
-                        unlocks_upcoming.append(event)
-                        context.logger.info(
-                            f"Found upcoming significant unlock in {(event_date - now).days} days: "
-                            f"{event.get('description')}"
-                        )
-
-                except (KeyError, ValueError, TypeError) as e:
-                    context.logger.warning(f"Failed to parse unlock event timestamp: {e}")
-                    continue
-
-            context.logger.info(
-                f"Final results: {len(unlocks_recent)} recent, {len(unlocks_upcoming)} upcoming unlocks"
-            )
-
+        unlocks_data = self._normalize_unlocks_data(unlocks_raw)
+        events = self._extract_project_events(unlocks_raw, unlocks_data, context)
+        unlocks_recent, unlocks_upcoming = self._categorize_unlock_events(events, context)
         if isinstance(unlocks_data, list):
             unlocks_data = {"projects": unlocks_data}
-
         return unlocks_data, unlocks_recent, unlocks_upcoming
+
+    def _normalize_unlocks_data(self, unlocks_raw):
+        if hasattr(unlocks_raw, "to_dict"):
+            return unlocks_raw.to_dict()
+        if isinstance(unlocks_raw, dict):
+            return unlocks_raw
+        return str(unlocks_raw)
+
+    def _extract_project_events(self, unlocks_raw, unlocks_data, context):
+        # Handle case where unlocks_raw is the all_projects list
+        if isinstance(unlocks_raw, list):
+            asset_name = context.trigger_context.get("asset_name")
+            asset_symbol = context.trigger_context.get("asset_symbol")
+            coingecko_id = context.trigger_context.get("coingecko_id")
+            project = None
+            if coingecko_id:
+                project = next((p for p in unlocks_raw if p.get("gecko_id") == coingecko_id), None)
+            if not project and asset_name:
+                project = next((p for p in unlocks_raw if p.get("name", "").lower() == asset_name.lower()), None)
+            if not project and asset_symbol:
+                project = next(
+                    (p for p in unlocks_raw if p.get("token", "").split(":")[-1].lower() == asset_symbol.lower()),
+                    None,
+                )
+            if project:
+                context.logger.info(
+                    f"Found project {project.get('name', '')} with {len(project.get('events', []))} events"
+                )
+                return project.get("events", [])
+            context.logger.warning(
+                f"Could not find project for asset_name={asset_name}, asset_symbol={asset_symbol}, "
+                f"coingecko_id={coingecko_id}"
+            )
+            return []
+        if isinstance(unlocks_data, dict):
+            return (
+                unlocks_data.get("events")
+                or unlocks_data.get("filtered_events", [])
+                or unlocks_data.get("metadata", {}).get("raw_emissions", {}).get("meta", {}).get("events", [])
+            )
+        return []
+
+    def _categorize_unlock_events(self, events, context):
+        unlocks_recent = []
+        unlocks_upcoming = []
+        now = datetime.now(UTC)
+        context.logger.info(f"Processing {len(events)} events for recent/upcoming unlock analysis. Current time: {now}")
+        for event in events:
+            # Filter for cliff unlocks AND specific categories
+            if event.get("unlockType") != "cliff" or event.get("category") not in {"insiders", "privateSale"}:
+                continue
+            try:
+                event_date = datetime.fromtimestamp(event["timestamp"], UTC)
+                context.logger.debug(
+                    f"Processing significant unlock event: date={event_date}, "
+                    f"type={event.get('unlockType')}, "
+                    f"category={event.get('category')}, "
+                    f"tokens={event.get('noOfTokens')}, "
+                    f"description={event.get('description')}"
+                )
+                if now - timedelta(days=14) <= event_date <= now:
+                    unlocks_recent.append(event)
+                    context.logger.info(f"Added to recent unlocks: {event_date}")
+                elif now < event_date <= now + timedelta(days=30):
+                    unlocks_upcoming.append(event)
+                    context.logger.info(
+                        f"Found upcoming significant unlock in {(event_date - now).days} days: "
+                        f"{event.get('description')}"
+                    )
+            except (KeyError, ValueError, TypeError) as e:
+                context.logger.warning(f"Failed to parse unlock event timestamp: {e}")
+                continue
+        context.logger.info(f"Final results: {len(unlocks_recent)} recent, {len(unlocks_upcoming)} upcoming unlocks")
+        return unlocks_recent, unlocks_upcoming
 
     def build_structured_payload(self, context) -> StructuredPayload:
         """Build and validate the StructuredPayload using Pydantic models."""
@@ -533,6 +525,13 @@ class ProcessDataRound(BaseState):
             unlocks_data = {"data": unlocks_data}
         # --- END FIX ---
 
+        # --- NEW: Always pass a dict for unlocks_data ---
+        if not (unlocks_recent or unlocks_upcoming):
+            unlocks_data = {"summary": "No unlock data available."}
+        elif "summary" not in unlocks_data:
+            unlocks_data["summary"] = ""
+        # --- END NEW ---
+
         return StructuredPayload(
             asset_info=self._build_asset_info(coin_details, social_data, context),
             trigger_info=TriggerInfo(
@@ -545,7 +544,7 @@ class ProcessDataRound(BaseState):
             onchain_highlights=self._build_onchain_highlights(research_raw, context),
             official_updates=self._build_official_updates(look_raw),
             project_summary=project_summary,
-            unlocks_data=None,  # Don't store full unlock schema, only recent/upcoming
+            unlocks_data=unlocks_data,  # <-- FIXED: always a dict
             unlocks_recent=unlocks_recent,
             unlocks_upcoming=unlocks_upcoming,
         )
@@ -577,7 +576,9 @@ class ProcessDataRound(BaseState):
         if len(price_points) == 2:
             latest_price = float(price_points[0]["price"])
             previous_price = float(price_points[1]["price"])
-            price_change_24h = ((latest_price - previous_price) / previous_price) * 100 if previous_price else 0.0
+            price_change_24h = (
+                round(((latest_price - previous_price) / previous_price) * 100, 1) if previous_price else 0.0
+            )
         else:
             price_change_24h = 0.0
 
@@ -586,33 +587,67 @@ class ProcessDataRound(BaseState):
         if len(volume_points) == 2:
             latest_volume = float(volume_points[0]["total_volume"])
             previous_volume = float(volume_points[1]["total_volume"])
-            volume_change_24h = ((latest_volume - previous_volume) / previous_volume) * 100 if previous_volume else 0.0
+            volume_change_24h = (
+                round(((latest_volume - previous_volume) / previous_volume) * 100, 1) if previous_volume else 0.0
+            )
         else:
             volume_change_24h = 0.0
 
-        # Mindshare 1h (latest non-null social_dominance)
-        mindshare_1h = 0.0
+        # Mindshare 24h (latest non-null lc_social_dominance)
+        mindshare_24h = 0.0
         mindshare_points = [
             e
             for e in sorted(trend_market_data, key=lambda x: datetime.fromisoformat(x["date"]), reverse=True)
-            if "social_dominance" in e
-            and isinstance(e["social_dominance"], int | float)
-            and e["social_dominance"] is not None
+            if "lc_social_dominance" in e
+            and isinstance(e["lc_social_dominance"], int | float)
+            and e["lc_social_dominance"] is not None
         ]
         if mindshare_points:
-            mindshare_1h = float(mindshare_points[0]["social_dominance"])
+            mindshare_24h = round(float(mindshare_points[0]["lc_social_dominance"]), 1)
 
         return KeyMetrics(
-            mindshare_1h=mindshare_1h,
+            mindshare_24h=mindshare_24h,
             volume_change_24h=volume_change_24h,
             price_change_24h=price_change_24h,
         )
 
     def _build_social_summary(self, social_data):
+        trend_market_data = social_data.get("trend_market_data", [])
+        latest_sentiment = 0.0
+        if trend_market_data:
+            # Sort by date descending, pick the first with lc_sentiment
+            sorted_data = sorted(trend_market_data, key=lambda x: x.get("date", ""), reverse=True)
+            for entry in sorted_data:
+                if "lc_sentiment" in entry and entry["lc_sentiment"] is not None:
+                    latest_sentiment = entry["lc_sentiment"]
+                    break
+
+        def get_mention_points(entries):
+            # Sort by date descending
+            sorted_entries = sorted(entries, key=lambda x: datetime.fromisoformat(x["date"]), reverse=True)
+            if not sorted_entries:
+                return []
+            # If most recent day has 0 mentions, skip it
+            if "social_mentions" in sorted_entries[0] and sorted_entries[0]["social_mentions"] == 0:
+                sorted_entries = sorted_entries[1:]
+            # Take the next two most recent days (even if zero)
+            return sorted_entries[:2]
+
+        mention_points = get_mention_points(trend_market_data)
+        if len(mention_points) == 2:
+            latest_mentions = float(mention_points[0]["social_mentions"])
+            previous_mentions = float(mention_points[1]["social_mentions"])
+            if previous_mentions:
+                mention_change_24h = round(((latest_mentions - previous_mentions) / previous_mentions) * 100, 1)
+            else:
+                mention_change_24h = 0.0
+        else:
+            mention_change_24h = 0.0
+
         return SocialSummary(
-            sentiment_score=social_data.get("lc_sentiment", 0.0),
+            sentiment_score=latest_sentiment,
             top_keywords=social_data.get("symbols", []),
-            recent_mention_count=social_data.get("lc_social_volume_24h", 0),
+            mention_change_24h=mention_change_24h,
         )
 
     def _build_asset_info(self, coin_details, social_data, context):
@@ -931,8 +966,7 @@ class SetupDYORRound(BaseState):
             self.context.api_client_configs["trendmoon"] = {
                 "base_url": getattr(client, "base_url", None),
                 "insights_url": getattr(client, "insights_url", None),
-                "api_key": getattr(client, "session", None)
-                and getattr(client.session.headers, "get", lambda x, y=None: None)("Api-key"),
+                "api_key": getattr(client, "session", None) and client.session.headers.get("Api-key"),
                 "max_retries": getattr(client, "max_retries", 3),
                 "backoff_factor": getattr(client, "backoff_factor", 0.5),
                 "timeout": getattr(client, "timeout", 15),
@@ -969,8 +1003,7 @@ class SetupDYORRound(BaseState):
             self.context.api_clients["researchagent"] = client
             self.context.api_client_configs["researchagent"] = {
                 "base_url": getattr(client, "base_url", None),
-                "api_key": getattr(client, "session", None)
-                and getattr(client.session.headers, "get", lambda x, y=None: None)("Api-key"),
+                "api_key": getattr(client, "session", None) and client.session.headers.get("Api-key"),
             }
         except ValueError as e:
             errors["researchagent_init"] = str(e)
@@ -1335,7 +1368,7 @@ class IngestDataRound(BaseState):
                 self.context.trigger_context["asset_name"] = asset_name
         return asset_name
 
-    def _fetch_unlocks_data(self, asset_symbol, asset_name):
+    def _fetch_unlocks_data(self):
         """Fetch or reuse full unlocks data and store in raw_data['unlocks']."""
         try:
             full_unlocks_item = self._get_existing_full_unlocks_data()
@@ -1360,7 +1393,7 @@ class IngestDataRound(BaseState):
                 self.context.raw_data["unlocks"] = full_unlocks_item.get("metadata", {}).get("all_projects", [])
             else:
                 self.context.raw_data["unlocks"] = []
-        except Exception as e:
+        except (sqlalchemy.exc.SQLAlchemyError, TypeError, ValueError) as e:
             self.context.logger.warning(f"Error fetching or storing unlocks data: {e}")
             self.context.raw_data["unlocks"] = []
 
@@ -1395,9 +1428,10 @@ class IngestDataRound(BaseState):
             asset_name = self._update_asset_name_if_needed(asset_symbol, asset_name)
             if asset_name is None:
                 self.context.logger.warning(
-                    f"asset_name is still None for symbol {asset_symbol} before unlocks fetch. Using symbol as fallback."
+                    f"asset_name is still None for symbol {asset_symbol} "
+                    "before unlocks fetch. Using symbol as fallback."
                 )
-            self._fetch_unlocks_data(asset_symbol, asset_name)
+            self._fetch_unlocks_data()
 
             self._event = DyorabciappEvents.DONE
         except Exception as e:
