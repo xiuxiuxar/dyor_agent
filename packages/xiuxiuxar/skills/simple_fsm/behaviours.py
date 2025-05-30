@@ -919,12 +919,55 @@ class SetupDYORRound(BaseState):
         return cast("APIClientStrategy", self.context.api_client_strategy)
 
     @property
-    def custom_api_component(self) -> bool:
+    def custom_api_component_info(self) -> tuple[str, str, Path, dict[str, Any]]:
         """Check load of custom API component."""
-        author, component_name = self.api_name.split("/")
-        directory = Path("vendor") / author / "customs" / component_name
-        config = yaml.safe_load((directory / "component.yaml").read_text())
-        return author, component_name, directory, config
+        try:
+            author, component_name = self.api_name.split("/")
+            directory = Path("vendor") / author / "customs" / component_name
+            config_path = directory / "component.yaml"
+
+            if not config_path.exists():
+                msg = f"Component config file not found: {config_path}"
+                raise FileNotFoundError(msg)
+
+            config = yaml.safe_load(config_path.read_text())
+            return author, component_name, directory, config
+        except (ValueError, FileNotFoundError, yaml.YAMLError) as e:
+            self.context.logger.exception(f"Error getting custom API component info: {e}")
+            raise
+
+    API_CLIENT_CONFIGS = {
+        "trendmoon": {
+            "client_attr": "trendmoon_client",
+            "config_fields": ["base_url", "insights_url", "max_retries", "backoff_factor", "timeout"],
+            "special_fields": {
+                "api_key": lambda client: (
+                    getattr(client, "session", None) and client.session.headers.get("Api-key")
+                ) or None,
+            },
+        },
+        "lookonchain": {
+            "client_attr": "lookonchain_client",
+            "config_fields": ["base_url", "search_endpoint", "max_retries", "backoff_factor", "timeout"],
+        },
+        "treeofalpha": {
+            "client_attr": "treeofalpha_client",
+            "config_fields": ["base_url", "news_endpoint", "cache_ttl", "max_retries", "backoff_factor", "timeout"],
+        },
+        "researchagent": {
+            "client_attr": "researchagent_client",
+            "config_fields": ["base_url", "api_key"],
+            "special_fields": {
+                "api_key": lambda client: (
+                    getattr(client, "session", None) and client.session.headers.get("Api-key")
+                ) or None,
+            },
+        },
+        "unlocks": {
+            "client_attr": "unlocks_client",
+            "config_fields": ["base_url", "max_retries", "backoff_factor", "timeout"],
+        },
+    }
 
     def load_handlers(self, author, component_name, directory, config) -> Generator[Any, Any, None]:
         """Load in the handlers."""
@@ -936,12 +979,22 @@ class SetupDYORRound(BaseState):
             sys.path.insert(0, parent_dir)
             self.context.logger.info(f"Added {parent_dir} to Python path")
 
-        configs = config["handlers"]
+        handlers_config = config.get("handlers", [])
+        if not handlers_config:
+            self.context.logger.info("No handlers found in config")
+            return
+
         module = dynamic_import(component_name, "handlers")
 
-        for handler_config in configs:
-            class_name = handler_config["class_name"]
-            handler_kwargs = handler_config.get("kwargs", {})
+        for handler_config in handlers_config:
+            self._load_single_handler(module, handler_config)
+
+    def _load_single_handler(self, module: Any, handler_config: dict[str, Any]) -> None:
+        """Load a single handler."""
+        class_name = handler_config["class_name"]
+        handler_kwargs = handler_config.get("kwargs", {})
+
+        try:
             handler_class = getattr(module, class_name)
             handler = handler_class(name=class_name, skill_context=self.context, **handler_kwargs)
 
@@ -955,104 +1008,82 @@ class SetupDYORRound(BaseState):
                     f"Handler {class_name} has no supported protocol. "
                     f"Available protocols: {list(PROTOCOL_HANDLER_MAP.keys())}"
                 )
+        except (AttributeError, TypeError) as e:
+            self.context.logger.exception(f"Error loading handler {class_name}: {e}")
+            raise
 
-    def _initialize_api_clients(self):
+    def _initialize_single_client(self, client_name: str, config: dict[str, Any]) -> dict[str, Any] | None:
+        """Initialize a single API client and return its configuration."""
+        try:
+            client = getattr(self.context, config["client_attr"])
+            self.context.api_clients[client_name] = client
+
+            client_config = {}
+
+            for field in config.get("config_fields", []):
+                client_config[field] = getattr(client, field, None)
+
+            for field_name, extractor in config.get("special_fields", {}).items():
+                client_config[field_name] = extractor(client)
+
+            self.context.api_client_configs[client_name] = client_config
+            return None
+
+        except (AttributeError, ValueError) as e:
+            return {f"{client_name}_init": str(e)}
+
+    def _initialize_api_clients(self) -> dict[str, str]:
         """Initialize API clients and collect errors. Also build per-client config for per-thread instantiation."""
         self.context.api_clients = {}
         self.context.api_client_configs = {}
-        errors = {}
-        try:
-            client = self.context.trendmoon_client
-            self.context.api_clients["trendmoon"] = client
-            self.context.api_client_configs["trendmoon"] = {
-                "base_url": getattr(client, "base_url", None),
-                "insights_url": getattr(client, "insights_url", None),
-                "api_key": getattr(client, "session", None) and client.session.headers.get("Api-key"),
-                "max_retries": getattr(client, "max_retries", 3),
-                "backoff_factor": getattr(client, "backoff_factor", 0.5),
-                "timeout": getattr(client, "timeout", 15),
-            }
-        except ValueError as e:
-            errors["trendmoon_init"] = str(e)
-        try:
-            client = self.context.lookonchain_client
-            self.context.api_clients["lookonchain"] = client
-            self.context.api_client_configs["lookonchain"] = {
-                "base_url": getattr(client, "base_url", None),
-                "search_endpoint": getattr(client, "search_endpoint", None),
-                "max_retries": getattr(client, "max_retries", 3),
-                "backoff_factor": getattr(client, "backoff_factor", 0.5),
-                "timeout": getattr(client, "timeout", 15),
-            }
-        except ValueError as e:
-            errors["lookonchain_init"] = str(e)
-        try:
-            client = self.context.treeofalpha_client
-            self.context.api_clients["treeofalpha"] = client
-            self.context.api_client_configs["treeofalpha"] = {
-                "base_url": getattr(client, "base_url", None),
-                "news_endpoint": getattr(client, "news_endpoint", None),
-                "cache_ttl": getattr(client, "cache_ttl", None),
-                "max_retries": getattr(client, "max_retries", 3),
-                "backoff_factor": getattr(client, "backoff_factor", 0.5),
-                "timeout": getattr(client, "timeout", 15),
-            }
-        except ValueError as e:
-            errors["treeofalpha_init"] = str(e)
-        try:
-            client = self.context.researchagent_client
-            self.context.api_clients["researchagent"] = client
-            self.context.api_client_configs["researchagent"] = {
-                "base_url": getattr(client, "base_url", None),
-                "api_key": getattr(client, "session", None) and client.session.headers.get("Api-key"),
-            }
-        except ValueError as e:
-            errors["researchagent_init"] = str(e)
-        try:
-            client = self.context.unlocks_client
-            self.context.api_clients["unlocks"] = client
-            self.context.api_client_configs["unlocks"] = {
-                "base_url": getattr(client, "base_url", None),
-                "max_retries": getattr(client, "max_retries", 3),
-                "backoff_factor": getattr(client, "backoff_factor", 0.5),
-                "timeout": getattr(client, "timeout", 15),
-            }
-        except ValueError as e:
-            errors["unlocks_init"] = str(e)
-        return errors
+        all_errors = {}
+
+        for client_name, config in self.API_CLIENT_CONFIGS.items():
+            error = self._initialize_single_client(client_name, config)
+            if error:
+                all_errors.update(error)
+
+        return all_errors
+
+    def _create_error_context(self, error_type: str, error_message: str) -> dict[str, Any]:
+        """Create the error context."""
+        trigger_context = getattr(self.context, "trigger_context", {})
+        return {
+            "error_type": error_type,
+            "error_message": error_message,
+            "originating_round": str(self._state),
+            "trigger_id": trigger_context.get("trigger_id"),
+            "asset_id": trigger_context.get("asset_id"),
+        }
+
+    def _setup_database(self) -> None:
+        """Setup the database connection."""
+        self.context.db_model.setup()
+        is_valid, error_msg = self.context.strategy.validate_database_schema()
+        if not is_valid:
+            raise ValueError(error_msg)
 
     def act(self) -> None:
         """Setup the database connection and load the handlers."""
         self.context.logger.info(f"In state: {self._state}")
 
         try:
-            self.context.db_model.setup()
-            is_valid, error_msg = self.context.strategy.validate_database_schema()
-            if not is_valid:
-                raise ValueError(error_msg)
+            # Setup database
+            self._setup_database()
 
-            author, component_name, directory, config = self.custom_api_component
+            # Load component configuration and handlers
+            author, component_name, directory, config = self.custom_api_component_info
 
-            if config.get("handlers", False):
-                try:
-                    self.load_handlers(author, component_name, directory, config)
-                    self.context.logger.info("Handlers loaded successfully")
-                except Exception as e:
-                    self.context.logger.exception(f"Error loading handlers: {e}")
-            else:
-                self.context.logger.info("No handlers found in config")
+            if config.get("handlers"):
+                self.load_handlers(author, component_name, directory, config)
+                self.context.logger.info("Handlers loaded successfully")
 
+            # Initialize API clients
             errors = self._initialize_api_clients()
 
             if errors:
                 self.context.logger.warning(f"Failed to initialize API clients: {errors}")
-                self.context.error_context = {
-                    "error_type": "configuration_error",
-                    "error_message": str(errors),
-                    "originating_round": str(self._state),
-                    "trigger_id": getattr(self.context, "trigger_context", {}).get("trigger_id"),
-                    "asset_id": getattr(self.context, "trigger_context", {}).get("asset_id"),
-                }
+                self.context.error_context = self._create_error_context("configuration_error", str(errors))
                 self._event = DyorabciappEvents.ERROR
             else:
                 self.context.logger.info("Successfully initialized API clients")
@@ -1060,27 +1091,16 @@ class SetupDYORRound(BaseState):
 
         except ValueError as e:
             self.context.logger.exception(f"Configuration error during DB setup: {e}")
-            self.context.error_context = {
-                "error_type": "configuration_error",
-                "error_message": str(e),
-                "originating_round": str(self._state),
-                "trigger_id": getattr(self.context, "trigger_context", {}).get("trigger_id"),
-                "asset_id": getattr(self.context, "trigger_context", {}).get("asset_id"),
-            }
+            self.context.error_context = self._create_error_context("configuration_error", str(e))
             self._event = DyorabciappEvents.ERROR
 
         except (sqlalchemy.exc.SQLAlchemyError, requests.exceptions.RequestException) as e:
             self.context.logger.exception(f"Unexpected error during DB setup: {e}")
-            self.context.error_context = {
-                "error_type": "database_error",
-                "error_message": str(e),
-                "originating_round": str(self._state),
-                "trigger_id": getattr(self.context, "trigger_context", {}).get("trigger_id"),
-                "asset_id": getattr(self.context, "trigger_context", {}).get("asset_id"),
-            }
+            self.context.error_context = self._create_error_context("database_error", str(e))
             self._event = DyorabciappEvents.ERROR
 
-        self._is_done = True
+        finally:
+            self._is_done = True
 
 
 class DeliverReportRound(BaseState):
