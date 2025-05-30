@@ -1,8 +1,20 @@
 """Data models for the simple FSM."""
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 from pydantic import Field, BaseModel
+
+
+class ProjectSummary(BaseModel):
+    """Project summary information."""
+
+    coin_id: str | None = None
+    name: str | None = None
+    symbol: str | None = None
+    start_date: str | None = None
+    end_date: str | None = None
+    summary: str | None = None
+    created_at: datetime | None = None
 
 
 class AssetInfo(BaseModel):
@@ -75,6 +87,36 @@ class OfficialUpdate(BaseModel):
     snippet: str
 
 
+class UnlockEvent(BaseModel):
+    """Unlock event."""
+
+    category: str
+    timestamp: int
+    noOfTokens: list[float]  # noqa: N815
+    unlockType: str  # noqa: N815
+    description: str
+
+    @property
+    def formatted_date(self) -> str:
+        """Return formatted date string from timestamp."""
+        return datetime.fromtimestamp(self.timestamp, UTC).strftime("%Y-%m-%d")
+
+    @property
+    def formatted_amount(self) -> str:
+        """Return formatted token amount."""
+        if not self.noOfTokens:
+            return "0"
+        amount = self.noOfTokens[0] if isinstance(self.noOfTokens, list) else self.noOfTokens
+        return f"{amount:,.2f}"
+
+    def format_description(self) -> str:
+        """Return formatted description with actual values."""
+        try:
+            return self.description.format(timestamp=self.formatted_date, tokens=self.noOfTokens)
+        except (KeyError, ValueError, TypeError):
+            return self.description
+
+
 class StructuredPayload(BaseModel):
     """Structured payload."""
 
@@ -85,3 +127,7 @@ class StructuredPayload(BaseModel):
     recent_news: list[NewsItem]
     onchain_highlights: list[OnchainHighlight]
     official_updates: list[OfficialUpdate]
+    project_summary: ProjectSummary | None = None
+    unlocks_data: dict | None = None  # Raw unlocks data for reporting/LLM
+    unlocks_recent: list[UnlockEvent] = []  # Recent unlocks data for reporting/LLM
+    unlocks_upcoming: list[UnlockEvent] = []  # Upcoming unlocks data for reporting/LLM

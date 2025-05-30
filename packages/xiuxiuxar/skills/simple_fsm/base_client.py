@@ -71,7 +71,7 @@ class BaseClient:
     ):
         parsed = urlparse(base_url) if base_url else None
         if not base_url or parsed.scheme not in {"http", "https"}:
-            msg = f"Invalid {self.__class__.__name__} base URL"
+            msg = f"Invalid {self.__class__.__name__} base URL {base_url}"
             raise ValueError(msg)
 
         self.base_url = base_url.rstrip("/")
@@ -85,6 +85,12 @@ class BaseClient:
         if api_key:
             headers["Api-key"] = api_key
         self.session.headers.update(headers)
+
+        def log_req(r: requests.Response):
+            self.context.logger.debug(f"[HOOK] Sent headers: {r.request.headers}")
+            return r
+
+        self.session.hooks["response"].append(log_req)
 
         adapter = CurlCffiAdapter(impersonate_browser_type="chrome")
 
@@ -102,7 +108,8 @@ class BaseClient:
         json_data: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
         base_url_override: str | None = None,
-    ) -> dict[str, Any] | None:
+        expect_json: bool = True,
+    ) -> dict[str, Any] | str | None:
         """Make a request to the API."""
         url = endpoint if base_url_override == "" else f"{base_url_override or self.base_url}/{endpoint.lstrip('/')}"
         log_params = params or (json_data or {})
@@ -121,11 +128,14 @@ class BaseClient:
                     timeout=self.timeout,
                 )
 
+                logger.info(f"Response headers: {response.headers}")
+                logger.info(f"Response body (first 200 chars): {response.text[:200]}")
+
                 if self._should_retry(response, url, attempt):
                     continue
 
                 self._update_health(True)
-                return self._parse_response(response, endpoint, url)
+                return self._parse_response(response, endpoint, url, expect_json=expect_json)
 
             except requests.exceptions.Timeout as e:
                 self._handle_timeout(e, method, url, endpoint)
@@ -153,7 +163,10 @@ class BaseClient:
         response.raise_for_status()
         return False
 
-    def _parse_response(self, response, endpoint, url):
+    def _parse_response(self, response, endpoint, url, expect_json: bool = True):
+        if not expect_json:
+            logger.info(f"Returning raw text response for {url}")
+            return {"text": response.text, "headers": dict(response.headers)}
         try:
             return response.json()
         except requests.exceptions.JSONDecodeError:

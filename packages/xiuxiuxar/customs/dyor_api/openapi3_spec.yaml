@@ -1,0 +1,514 @@
+openapi: 3.0.0
+info:
+  title: DYOR Agent API
+  description: |
+    API for the "Do Your Own Research" Agent that generates analyst/research reports 
+    based on market sentiment, social signals, and other triggers.
+  version: 1.0.0
+
+paths:
+  /api/reports:
+    get:
+      summary: List reports
+      description: Returns a list of DYOR reports, filtered by various criteria
+      operationId: listReports
+      tags:
+        - reports
+      parameters:
+        - name: asset_id
+          in: query
+          description: Filter reports by asset identifier
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Maximum number of reports to return
+          required: false
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+        - name: offset
+          in: query
+          description: Number of reports to skip for pagination
+          required: false
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - name: start_date
+          in: query
+          description: Return reports generated on or after this date (ISO 8601 format)
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: end_date
+          in: query
+          description: Return reports generated on or before this date (ISO 8601 format)
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: trigger_type
+          in: query
+          description: Filter reports by trigger type
+          required: false
+          schema:
+            type: string
+            enum: [volume_spike, social_spike, bollinger_band, user_triggered, moving_average_crossover]
+      responses:
+        '200':
+          description: List of DYOR reports
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reports:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ReportSummary'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+      security:
+        - ApiKeyAuth: []
+
+  /api/reports/{report_id}:
+    get:
+      summary: Get report details
+      description: Returns detailed information about a specific DYOR report
+      operationId: getReport
+      tags:
+        - reports
+      parameters:
+        - name: report_id
+          in: path
+          description: Unique identifier of the report
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Report details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportDetail'
+      security:
+        - ApiKeyAuth: []
+
+  /api/reports/asset/{asset_id}:
+    get:
+      summary: Get latest report for an asset
+      description: Returns the most recent DYOR report for a specific asset
+      operationId: getLatestReportForAsset
+      tags:
+        - reports
+      parameters:
+        - name: asset_id
+          in: path
+          description: Unique identifier of the asset
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Latest report for the asset
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportDetail'
+      security:
+        - ApiKeyAuth: []
+
+  /api/trigger:
+    post:
+      summary: Manually trigger report generation
+      description: Manually triggers the DYOR agent to generate a new report for a specific asset
+      operationId: triggerReport
+      tags:
+        - triggers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - asset_id
+              properties:
+                asset_id:
+                  type: string
+                  description: The asset to generate a report for
+                force_fresh:
+                  type: boolean
+                  description: Whether to force a fresh report even if one was recently generated
+                  default: false
+      responses:
+        '202':
+          description: Report generation triggered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  trigger_id:
+                    type: string
+                    description: Identifier for the triggered report generation
+                  status:
+                    type: string
+                    enum: [accepted, queued, processing]
+                  estimated_completion:
+                    type: string
+                    format: date-time
+                    description: Estimated time when the report will be ready
+      security:
+        - ApiKeyAuth: []
+
+  /api/trigger/{trigger_id}:
+    get:
+      summary: Get trigger status
+      description: Returns the status of a previously triggered report generation
+      operationId: getTriggerStatus
+      tags:
+        - triggers
+      parameters:
+        - name: trigger_id
+          in: path
+          description: Unique identifier of the trigger
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Trigger status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  trigger_id:
+                    type: string
+                  asset_id:
+                    type: string
+                  status:
+                    type: string
+                    enum: [pending, processing, completed, failed]
+                  created_at:
+                    type: string
+                    format: date-time
+                  completed_at:
+                    type: string
+                    format: date-time
+                  report_id:
+                    type: string
+                    description: ID of the generated report (if completed successfully)
+                  error:
+                    type: string
+                    description: Error message (if failed)
+      security:
+        - ApiKeyAuth: []
+
+  /api/assets:
+    get:
+      summary: List monitored assets
+      description: Returns a list of assets being monitored by the DYOR Agent
+      operationId: listAssets
+      tags:
+        - assets
+      parameters:
+        - name: category
+          in: query
+          description: Filter assets by category
+          required: false
+          schema:
+            type: string
+            enum: [AI, DeFi, Memecoin, Gaming, Infrastructure, Other]
+        - name: limit
+          in: query
+          description: Maximum number of assets to return
+          required: false
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 500
+        - name: offset
+          in: query
+          description: Number of assets to skip for pagination
+          required: false
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - name: has_report
+          in: query
+          description: Filter assets that have at least one report
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: List of assets
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  assets:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Asset'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+      security:
+        - ApiKeyAuth: []
+
+  /api/assets/{asset_id}:
+    get:
+      summary: Get asset details
+      description: Returns detailed information about a specific asset
+      operationId: getAsset
+      tags:
+        - assets
+      parameters:
+        - name: asset_id
+          in: path
+          description: Unique identifier of the asset
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Asset details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetDetail'
+      security:
+        - ApiKeyAuth: []
+
+components:
+  schemas:
+    ReportSummary:
+      type: object
+      properties:
+        report_id:
+          type: string
+          description: Unique identifier for the report
+        asset_id:
+          type: string
+          description: Identifier of the associated asset
+        asset_name:
+          type: string
+          description: Human-readable name of the asset
+        asset_symbol:
+          type: string
+          description: Symbol of the asset (e.g., BTC, ETH)
+        created_at:
+          type: string
+          format: date-time
+          description: When the report was generated
+        trigger_type:
+          type: string
+          enum: [volume_spike, social_spike, bollinger_band, user_triggered, moving_average_crossover]
+          description: What triggered the report generation
+        summary:
+          type: string
+          description: Brief summary of the report (preview)
+
+    ReportDetail:
+      allOf:
+        - $ref: '#/components/schemas/ReportSummary'
+        - type: object
+          properties:
+            content:
+              type: object
+              properties:
+                overview:
+                  type: string
+                  description: General overview of the asset
+                key_metrics:
+                  type: object
+                  description: Key metrics that triggered the report
+                  properties:
+                    mindshare:
+                      type: number
+                      description: Social media mindshare percentage
+                    volume_change_24h:
+                      type: number
+                      description: 24-hour volume change percentage
+                    price_change_24h:
+                      type: number
+                      description: 24-hour price change percentage
+                social_sentiment:
+                  type: object
+                  properties:
+                    positive:
+                      type: number
+                      description: Positive sentiment percentage
+                    neutral:
+                      type: number
+                      description: Neutral sentiment percentage
+                    negative:
+                      type: number
+                      description: Negative sentiment percentage
+                recent_developments:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      event:
+                        type: string
+                      timestamp:
+                        type: string
+                        format: date-time
+                      source:
+                        type: string
+                analysis:
+                  type: string
+                  description: Detailed analysis of the asset's current state
+                conclusion:
+                  type: string
+                  description: Concluding thoughts and potential future outlook
+            sources:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  type:
+                    type: string
+                    enum: [telegram, twitter, website, coingecko, other]
+                  url:
+                    type: string
+                    format: uri
+
+    Asset:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the asset
+        symbol:
+          type: string
+          description: Trading symbol of the asset
+        name:
+          type: string
+          description: Human-readable name of the asset
+        category:
+          type: string
+          enum: [AI, DeFi, Memecoin, Gaming, Infrastructure, Other]
+        has_reports:
+          type: boolean
+          description: Whether this asset has any DYOR reports
+        latest_report_timestamp:
+          type: string
+          format: date-time
+          description: When the latest report for this asset was generated
+        
+    AssetDetail:
+      allOf:
+        - $ref: '#/components/schemas/Asset'
+        - type: object
+          properties:
+            description:
+              type: string
+              description: Brief description of the asset
+            website:
+              type: string
+              format: uri
+              description: Official website URL
+            twitter:
+              type: string
+              description: Official Twitter handle
+            telegram:
+              type: string
+              description: Official Telegram channel
+            github:
+              type: string
+              description: GitHub repository
+            total_reports:
+              type: integer
+              description: Total number of reports generated for this asset
+            active_triggers:
+              type: array
+              items:
+                type: string
+                enum: [volume_spike, social_spike, bollinger_band, moving_average_crossover]
+              description: Currently active triggers for this asset
+                
+    Pagination:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: Total number of items available
+        limit:
+          type: integer
+          description: Number of items per page
+        offset:
+          type: integer
+          description: Current offset (starting point)
+        next:
+          type: string
+          format: uri
+          description: URI for the next page of results
+        previous:
+          type: string
+          format: uri
+          description: URI for the previous page of results
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    TooManyRequests:
+      description: Too many requests
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+          description: Number of seconds to wait before retrying
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
