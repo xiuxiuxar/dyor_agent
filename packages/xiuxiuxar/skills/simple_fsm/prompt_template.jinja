@@ -34,9 +34,10 @@ You are a crypto markets analyst with deep expertise in decentralized finance, m
 
 - 24h Price Change: {{ key_metrics.price_change_24h }}%
 - 24h Volume Change: {{ key_metrics.volume_change_24h }}%
-- Mindshare (1h): {{ key_metrics.mindshare_1h }}
+- 24h Mindshare Change: {{ key_metrics.mindshare_24h }}
+- 24h Mentions Change : {{ social_summary.mention_change_24h }}
 - Sentiment Score: {{ social_summary.sentiment_score }}
-- Recent Mentions: {{ social_summary.recent_mention_count }}
+
 
 {% if recent_news or official_updates or onchain_highlights %}
 ### Events:

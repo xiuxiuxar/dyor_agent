@@ -160,9 +160,7 @@ class UnlocksClient(Model, BaseClient):
         project = self.get_project_from_all_unlocks(all_unlocks_data, coingecko_id, asset_name, symbol)
         if not project:
             msg = f"Could not find project for gecko_id={coingecko_id}, asset_name={asset_name}, symbol={symbol}"
-            raise UnlocksClientError(
-                msg
-            )
+            raise UnlocksClientError(msg)
 
         events = project.get("events", [])
 

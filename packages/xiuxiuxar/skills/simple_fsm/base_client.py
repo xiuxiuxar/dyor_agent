@@ -86,7 +86,7 @@ class BaseClient:
             headers["Api-key"] = api_key
         self.session.headers.update(headers)
 
-        def log_req(r: requests.Response):
+        def log_req(r: requests.Response, *args, **kwargs):  # noqa: ARG001
             self.context.logger.debug(f"[HOOK] Sent headers: {r.request.headers}")
             return r
 
