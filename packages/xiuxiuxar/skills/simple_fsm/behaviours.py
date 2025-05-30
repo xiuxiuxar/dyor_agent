@@ -545,7 +545,7 @@ class ProcessDataRound(BaseState):
             onchain_highlights=self._build_onchain_highlights(research_raw, context),
             official_updates=self._build_official_updates(look_raw),
             project_summary=project_summary,
-            unlocks_data=unlocks_data,  # <-- FIXED: always a dict
+            unlocks_data=None,
             unlocks_recent=unlocks_recent,
             unlocks_upcoming=unlocks_upcoming,
         )
