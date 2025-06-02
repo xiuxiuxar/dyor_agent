@@ -34,9 +34,10 @@ You are a crypto markets analyst with deep expertise in decentralized finance, m
 
 - 24h Price Change: {{ key_metrics.price_change_24h }}%
 - 24h Volume Change: {{ key_metrics.volume_change_24h }}%
-- Mindshare (1h): {{ key_metrics.mindshare_1h }}
+- 24h Mindshare Change: {{ key_metrics.mindshare_24h }}
+- 24h Mentions Change : {{ social_summary.mention_change_24h }}
 - Sentiment Score: {{ social_summary.sentiment_score }}
-- Recent Mentions: {{ social_summary.recent_mention_count }}
+
 
 {% if recent_news or official_updates or onchain_highlights %}
 ### Events:
@@ -86,9 +87,9 @@ unlocks_upcoming: {{ unlocks_upcoming | default([]) }}
 ---
 
 ### Unlocks:
-{% if unlocks_data and unlocks_data.summary == 'No unlock data available.' %}
+{% if unlocks_data.summary == 'No unlock data available.' %}
     No unlock data available.
-{% elif unlocks_data %}
+{% else %}
     {% if unlocks_recent or unlocks_upcoming %}
         - **First, list each recent unlock (last 14 days) and each upcoming unlock (next 30 days) in bullet form.**
             - For each: date, number of tokens, category, and brief description.
@@ -121,8 +122,6 @@ unlocks_upcoming: {{ unlocks_upcoming | default([]) }}
     {% else %}
         No unlocks in the last 14 days or next 30 days.
     {% endif %}
-{% else %}
-    No unlock data available.
 {% endif %}
 
 ---

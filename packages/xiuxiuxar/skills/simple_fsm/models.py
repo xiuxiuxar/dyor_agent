@@ -19,14 +19,40 @@
 """This package contains a scaffold of a model."""
 
 import time
+import functools
 from typing import Any
 from datetime import UTC, datetime
 
 from openai import OpenAI, OpenAIError, APIStatusError, RateLimitError, APITimeoutError, APIConnectionError
+from psycopg2 import OperationalError
 from sqlalchemy import text, create_engine
 from aea.skills.base import Model
 from psycopg2.extras import Json
 from sqlalchemy.engine import Engine
+
+
+def retry_on_operational_error(max_retries=5, initial_delay=1, backoff=2):
+    """Retry on operational errors."""
+
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(self, *args, **kwargs):
+            delay = initial_delay
+            for attempt in range(max_retries):
+                try:
+                    return func(self, *args, **kwargs)
+                except OperationalError as e:
+                    if attempt == max_retries - 1:
+                        self.context.logger.exception(f"DB operation failed after {max_retries} attempts: {e}")
+                        raise
+                    self.context.logger.warning(f"Transient DB error: {e}. Retrying in {delay} seconds...")
+                    time.sleep(delay)
+                    delay *= backoff
+            return None
+
+        return wrapper
+
+    return decorator
 
 
 class APIClientStrategy(Model):
@@ -83,7 +109,14 @@ class DatabaseModel(Model):
             db_url = f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
             self.context.logger.debug(f"Database URL: {db_url}")
 
-            self._engine = create_engine(db_url, pool_size=5, max_overflow=10, pool_timeout=30, pool_recycle=1800)
+            self._engine = create_engine(
+                db_url,
+                pool_size=5,
+                max_overflow=10,
+                pool_timeout=30,
+                pool_recycle=1800,
+                pool_pre_ping=True,
+            )
             self.context.logger.info("Database engine created successfully.")
 
         except Exception as e:
@@ -99,6 +132,7 @@ class DatabaseModel(Model):
             self._engine.dispose()
             self.context.logger.info("Database engine disposed successfully.")
 
+    @retry_on_operational_error()
     def store_raw_data(
         self,
         source: str,
@@ -174,6 +208,7 @@ class DatabaseModel(Model):
             )
             raise
 
+    @retry_on_operational_error()
     def create_trigger(
         self,
         asset_id: int,
@@ -232,6 +267,7 @@ class DatabaseModel(Model):
             self.context.logger.exception(f"Failed to create trigger: {e!s}")
             raise
 
+    @retry_on_operational_error()
     def get_structured_payload(self, trigger_id: int, asset_id: int) -> dict | None:
         """Fetch the structured payload (report_data_json) for a given trigger and asset."""
         if not self._engine:
@@ -257,6 +293,7 @@ class DatabaseModel(Model):
             )
             raise
 
+    @retry_on_operational_error()
     def store_report(
         self,
         trigger_id: int,
@@ -334,6 +371,7 @@ class DatabaseModel(Model):
             )
             raise
 
+    @retry_on_operational_error()
     def report_exists(self, trigger_id: int) -> bool:
         """Check if a report already exists for this trigger ID."""
         if not self._engine:
@@ -353,6 +391,7 @@ class DatabaseModel(Model):
             self.context.logger.exception(f"Failed to check if report exists for trigger_id={trigger_id}: {e!s}")
             raise
 
+    @retry_on_operational_error()
     def update_asset_metadata(self, asset_id: int, coingecko_id: str | None, category: str | None) -> None:
         """Update coingecko_id and category for an asset."""
         if not self._engine:
@@ -381,6 +420,7 @@ class DatabaseModel(Model):
             self.context.logger.exception(f"Failed to update asset metadata for asset_id={asset_id}: {e!s}")
             raise
 
+    @retry_on_operational_error()
     def get_asset_name_by_symbol(self, symbol: str) -> str | None:
         """Return the asset name for a given symbol, or None if not found."""
         if not self._engine:
@@ -393,6 +433,7 @@ class DatabaseModel(Model):
                 return result[0]
             return None
 
+    @retry_on_operational_error()
     def update_trigger_report_id(self, trigger_id: int, report_id: int) -> None:
         """Update the report_id for a trigger."""
         if not self._engine:

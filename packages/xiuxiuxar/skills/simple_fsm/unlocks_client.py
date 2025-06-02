@@ -19,11 +19,9 @@
 """Unlocks Client using BeautifulSoup."""
 
 import json
-import logging
 from typing import Any
 from datetime import UTC, datetime, timedelta
 
-import requests
 from bs4 import BeautifulSoup
 from aea.skills.base import Model
 
@@ -34,8 +32,8 @@ from packages.xiuxiuxar.skills.simple_fsm.base_client import BaseClient, BaseAPI
 STATUS_FORCELIST = (429, 500, 502, 503, 504)
 DEFAULT_HEADERS = {
     "User-Agent": (
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.3"
     )
 }
 
@@ -67,95 +65,128 @@ class UnlocksClient(Model, BaseClient):
             error_class=UnlocksClientError,
         )
         self.source_name = "unlocks"
-        self.logger = logging.getLogger(__name__)
 
-    def fetch_unlocks(self, project: str) -> ScrapedDataItem:
-        """Fetch unlock data for a given project from unlocks page.
-
-        Args:
-        ----
-            project: The project name (e.g., 'celestia')
-
-        Returns:
-        -------
-            ScrapedDataItem containing unlocks data
-
-        Raises:
-        ------
-            UnlocksClientError: On network or parsing errors
-
-        """
-        project = project.lower().strip()
-
-        url = f"{self.base_url.rstrip('/')}/{project}"
-
-        self.logger.info(f"Fetching unlocks data for project '{project}' from {url}")
+    def fetch_all_unlocks(self) -> ScrapedDataItem:
+        """Fetch and store all unlocks data for all projects as a ScrapedDataItem."""
+        url = f"{self.base_url.rstrip('/')}/"
+        self.context.logger.info(f"Fetching all unlocks data from {url}")
         try:
-            resp = requests.get(url, headers=DEFAULT_HEADERS, timeout=self.timeout)
-            try:
-                resp.raise_for_status()
-            except requests.exceptions.HTTPError:
-                if resp.status_code == 500:
-                    self.logger.warning(
-                        f"No unlock data available for {project} (500 error from {url}). Skipping unlocks fetch."
-                    )
-                    # Return a ScrapedDataItem with empty/unavailable data
-                    timestamp = datetime.now(UTC).isoformat()
-                    return ScrapedDataItem(
-                        source=self.source_name,
-                        title=f"{project.capitalize()} Unlocks",
-                        url=url,
-                        summary="No unlock data available.",
-                        timestamp=timestamp,
-                        metadata={},
-                    )
-                raise
+            resp = self._make_request(
+                method="GET",
+                endpoint=url,
+                headers=DEFAULT_HEADERS,
+                base_url_override="",  # Use the full URL
+                expect_json=False,
+            )
+            if not resp:
+                self.context.logger.warning(f"No unlock data received from {url}")
+                timestamp = datetime.now(UTC).isoformat()
+                return ScrapedDataItem(
+                    source=self.source_name,
+                    title="Unlocks",
+                    url=url,
+                    summary="No unlock data available.",
+                    timestamp=timestamp,
+                    metadata={},
+                )
         except Exception as e:
-            self.logger.exception(f"Failed to fetch unlocks page: {e}")
+            self.context.logger.exception(f"Failed to fetch unlocks page: {e}")
             msg = f"Failed to fetch unlocks page: {e}"
             raise UnlocksClientError(msg) from e
 
         try:
-            soup = BeautifulSoup(resp.text, "html.parser")
+            self.context.logger.info(f"Parsing HTML with BeautifulSoup. Type of resp: {type(resp)}")
+            soup = BeautifulSoup(resp["text"], "html.parser")
             script_tag = soup.find("script", {"id": "__NEXT_DATA__"})
             if not script_tag or not script_tag.string:
+                self.context.logger.error("Could not find __NEXT_DATA__ script tag in HTML.")
                 msg = "Could not find __NEXT_DATA__ script tag in HTML."
                 raise UnlocksClientError(msg)
+            self.context.logger.info(f"Found __NEXT_DATA__ script tag. Length: {len(script_tag.string)}")
             data = json.loads(script_tag.string)
-            emissions = data.get("props", {}).get("pageProps", {}).get("emissions", None)
-            if not emissions:
-                msg = "Could not find 'emissions' data in the expected path within the JSON."
+            all_projects = data.get("props", {}).get("pageProps", {}).get("data", [])
+            self.context.logger.info(f"Extracted {len(all_projects)} projects from unlocks JSON.")
+            if not all_projects:
+                self.context.logger.error("Could not find 'data' array in unlocks JSON.")
+                msg = "Could not find 'data' array in unlocks JSON."
                 raise UnlocksClientError(msg)
         except Exception as e:
-            self.logger.exception(f"Failed to parse unlocks data: {e}")
+            self.context.logger.exception(f"Failed to parse unlocks data: {e}")
             msg = f"Failed to parse unlocks data: {e}"
             raise UnlocksClientError(msg) from e
 
+        timestamp = datetime.now(UTC).isoformat()
+        item = ScrapedDataItem(
+            source=self.source_name,
+            title="All Unlocks Projects",
+            url=url,
+            summary=f"Unlocks data for {len(all_projects)} projects.",
+            timestamp=timestamp,
+            metadata={"all_projects": all_projects},
+        )
+        self.context.logger.info(f"Successfully fetched all unlocks data ({len(all_projects)} projects)")
+        return item
+
+    def get_project_from_all_unlocks(
+        self,
+        all_projects_data,
+        coingecko_id: str | None = None,
+        asset_name: str | None = None,
+        symbol: str | None = None,
+    ) -> dict | None:
+        """Extract a single project's unlocks data from all_projects_data."""
+        project = None
+        if coingecko_id:
+            project = next((p for p in all_projects_data if p.get("gecko_id") == coingecko_id), None)
+        if not project and asset_name:
+            project = next((p for p in all_projects_data if p.get("name", "").lower() == asset_name.lower()), None)
+        if not project and symbol:
+            project = next(
+                (p for p in all_projects_data if p.get("token", "").split(":")[-1].lower() == symbol.lower()), None
+            )
+        return project
+
+    def fetch_unlocks(
+        self,
+        symbol: str,
+        asset_name: str | None = None,
+        coingecko_id: str | None = None,
+        all_unlocks_data: list | None = None,
+    ) -> ScrapedDataItem:
+        """Fetch unlock data for a single project, using cached all-projects data if provided."""
+        if all_unlocks_data is None:
+            all_unlocks_item = self.fetch_all_unlocks()
+            all_unlocks_data = all_unlocks_item.metadata.get("all_projects", [])
+        project = self.get_project_from_all_unlocks(all_unlocks_data, coingecko_id, asset_name, symbol)
+        if not project:
+            msg = f"Could not find project for gecko_id={coingecko_id}, asset_name={asset_name}, symbol={symbol}"
+            raise UnlocksClientError(msg)
+
+        events = project.get("events", [])
+
         summary = (
-            f"Token: {emissions.get('meta', {}).get('token', '')}\n"
-            f"Circ Supply: {emissions.get('meta', {}).get('circSupply', None)}\n"
-            f"Max Supply: {emissions.get('meta', {}).get('maxSupply', None)}\n"
-            f"Unlock Events: {len(emissions.get('meta', {}).get('events', []))}"
+            f"Token: {project.get('name', '')}\n"
+            f"Circ Supply: {project.get('circSupply', None)}\n"
+            f"Max Supply: {project.get('maxSupply', None)}\n"
+            f"Unlock Events: {len(events)}"
         )
         timestamp = datetime.now(UTC).isoformat()
         item = ScrapedDataItem(
             source=self.source_name,
-            title=f"{project.capitalize()} Unlocks",
-            url=url,
+            title=f"{project.get('name', '').capitalize()} Unlocks",
+            url=self.base_url.rstrip("/") + "/",
             summary=summary,
             timestamp=timestamp,
             metadata={
-                "token": emissions.get("meta", {}).get("token", ""),
-                "circ_supply": emissions.get("meta", {}).get("circSupply", None),
-                "max_supply": emissions.get("meta", {}).get("maxSupply", None),
-                "chart_data": emissions.get("chartData", {}),
-                "pie_chart": emissions.get("pieChartData", {}),
-                "events": emissions.get("meta", {}).get("events", []),
-                "sources": emissions.get("meta", {}).get("sources", []),
-                "raw_emissions": emissions,
+                "token": project.get("name", ""),
+                "circ_supply": project.get("circSupply", None),
+                "max_supply": project.get("maxSupply", None),
+                "events": events,
+                "sources": project.get("sources", []),
+                "raw_project": project,
             },
         )
-        self.logger.info(f"Successfully fetched unlocks data for {project}")
+        self.context.logger.info(f"Successfully fetched unlocks data for {project.get('name', '')}")
         return item
 
     def is_data_fresh(self, data: dict) -> bool:
@@ -174,5 +205,5 @@ class UnlocksClient(Model, BaseClient):
             return (now - latest_date) < timedelta(days=30)
 
         except (KeyError, ValueError, TypeError) as e:
-            self.logger.warning(f"Error checking data freshness: {e}")
+            self.context.logger.warning(f"Error checking data freshness: {e}")
             return False

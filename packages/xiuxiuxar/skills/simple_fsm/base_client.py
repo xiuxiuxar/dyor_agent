@@ -19,13 +19,13 @@
 """Base Client implementation."""
 
 import json
+import time
 import logging
 from typing import Any
 from urllib.parse import urlparse
 
 import requests
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
+from curl_adapter import CurlCffiAdapter
 
 
 logger = logging.getLogger(__name__)
@@ -77,28 +77,25 @@ class BaseClient:
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
         self.error_class = error_class
+        self.max_retries = max_retries
+        self.backoff_factor = backoff_factor
+        self.status_forcelist = status_forcelist
 
         self.session = requests.Session()
         if api_key:
             headers["Api-key"] = api_key
         self.session.headers.update(headers)
 
-        retry_strategy = Retry(
-            total=max_retries,
-            backoff_factor=backoff_factor,
-            status_forcelist=status_forcelist,
-            allowed_methods=["HEAD", "GET", "OPTIONS"],
-            connect=max_retries,
-            read=max_retries,
-        )
+        def log_req(r: requests.Response, *args, **kwargs):  # noqa: ARG001
+            self.context.logger.debug(f"[HOOK] Sent headers: {r.request.headers}")
+            return r
 
-        adapter = HTTPAdapter(
-            max_retries=retry_strategy,
-            pool_connections=10,
-            pool_maxsize=10,
-            pool_block=False,
-        )
+        self.session.hooks["response"].append(log_req)
+
+        adapter = CurlCffiAdapter(impersonate_browser_type="chrome")
+
         self.session.mount("https://", adapter)
+        self.session.mount("http://", adapter)
 
         self._last_health_status: bool = True
         logger.info(f"{self.__class__.__name__} initialized")
@@ -111,66 +108,108 @@ class BaseClient:
         json_data: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
         base_url_override: str | None = None,
-    ) -> dict[str, Any] | None:
+        expect_json: bool = True,
+    ) -> dict[str, Any] | str | None:
         """Make a request to the API."""
         url = endpoint if base_url_override == "" else f"{base_url_override or self.base_url}/{endpoint.lstrip('/')}"
         log_params = params or (json_data or {})
         logger.debug(f"Sending {method} request to {url} with params: {log_params}")
 
-        try:
-            if headers:
-                self.session.headers.update(headers)
-
-            response = self.session.request(
-                method=method,
-                url=url,
-                params=params,
-                json=json_data,
-                timeout=self.timeout,
-            )
-            response.raise_for_status()
-            self._update_health(True)
-
+        for attempt in range(self.max_retries):
             try:
-                return response.json()
-            except requests.exceptions.JSONDecodeError:
-                try:
-                    # Second attempt: clean single quotes and try again
-                    cleaned_text = response.text.replace("\\'", "'")
-                    return json.loads(cleaned_text)
-                except json.JSONDecodeError:
-                    logger.exception(
-                        f"Failed to parse JSON from {url} Status: {response.status_code}."
-                        f"Response text: {response.text[:200]}..."
-                    )
-                    self._update_health(False, f"JSON Decode Error from {endpoint}")
-                    msg = f"Invalid JSON response from {endpoint}"
-                    raise self.error_class(msg, response.status_code) from None
+                if headers:
+                    self.session.headers.update(headers)
 
-        except requests.exceptions.Timeout as e:
-            logger.exception(f"Request timed out for {method} {url}: {e}")
-            self._update_health(False, f"Timeout accessing {endpoint}")
-            msg = f"Request timed out after {self.timeout}s"
-            raise self.error_class(msg) from e
+                response = self.session.request(
+                    method=method,
+                    url=url,
+                    params=params,
+                    json=json_data,
+                    timeout=self.timeout,
+                )
 
-        except requests.exceptions.HTTPError as e:
-            status_code = e.response.status_code
-            logger.exception(f"HTTP {status_code} error for {url}: {e.response.text[:200]}...")
-            self._update_health(False, f"HTTP Error {status_code} from {endpoint}")
-            msg = f"API request failed with status {status_code}"
-            raise self.error_class(msg, status_code) from e
+                logger.info(f"Response headers: {response.headers}")
+                logger.info(f"Response body (first 200 chars): {response.text[:200]}")
 
-        except requests.exceptions.RequestException as e:
-            logger.exception(f"Request failed for {url}: {e}")
-            self._update_health(False, f"Request Exception: {type(e).__name__}")
-            msg = "Failed to communicate with API"
-            raise self.error_class(msg) from e
+                if self._should_retry(response, url, attempt):
+                    continue
 
-        except Exception as e:
-            logger.exception(f"Unexpected error during API request to {endpoint}: {e}")
-            self._update_health(False, f"Unexpected error: {type(e).__name__}")
-            msg = f"An unexpected error occurred: {e}"
-            raise self.error_class(msg) from e
+                self._update_health(True)
+                return self._parse_response(response, endpoint, url, expect_json=expect_json)
+
+            except requests.exceptions.Timeout as e:
+                self._handle_timeout(e, method, url, endpoint)
+            except requests.exceptions.HTTPError as e:
+                self._handle_http_error(e, url, endpoint)
+            except requests.exceptions.RequestException as e:
+                self._handle_request_exception(e, url)
+            except Exception as e:
+                if self._handle_unexpected_exception(e, attempt, endpoint):
+                    continue
+                raise
+        return None
+
+    def _should_retry(self, response, url, attempt):
+        if response.status_code in self.status_forcelist:
+            logger.warning(
+                f"Received retryable status {response.status_code} for {url} "
+                f"(attempt {attempt + 1}/{self.max_retries})"
+            )
+            if attempt == self.max_retries - 1:
+                response.raise_for_status()
+            sleep_time = self.backoff_factor * (2**attempt)
+            time.sleep(sleep_time)
+            return True
+        response.raise_for_status()
+        return False
+
+    def _parse_response(self, response, endpoint, url, expect_json: bool = True):
+        if not expect_json:
+            logger.info(f"Returning raw text response for {url}")
+            return {"text": response.text, "headers": dict(response.headers)}
+        try:
+            return response.json()
+        except requests.exceptions.JSONDecodeError:
+            try:
+                cleaned_text = response.text.replace("\\'", "'")
+                return json.loads(cleaned_text)
+            except json.JSONDecodeError:
+                logger.exception(
+                    f"Failed to parse JSON from {url} Status: {response.status_code}."
+                    f"Response text: {response.text[:200]}..."
+                )
+                self._update_health(False, f"JSON Decode Error from {endpoint}")
+                msg = f"Invalid JSON response from {endpoint}"
+                raise self.error_class(msg, response.status_code) from None
+
+    def _handle_timeout(self, e, method, url, endpoint):
+        logger.error(f"Request timed out for {method} {url}: {e}")
+        self._update_health(False, f"Timeout accessing {endpoint}")
+        msg = f"Request timed out after {self.timeout}s"
+        raise self.error_class(msg) from e
+
+    def _handle_http_error(self, e, url, endpoint):
+        status_code = e.response.status_code
+        logger.error(f"HTTP {status_code} error for {url}: {e.response.text[:200]}...")
+        self._update_health(False, f"HTTP Error {status_code} from {endpoint}")
+        msg = f"API request failed with status {status_code}"
+        raise self.error_class(msg, status_code) from e
+
+    def _handle_request_exception(self, e, url):
+        logger.error(f"Request failed for {url}: {e}")
+        self._update_health(False, f"Request Exception: {type(e).__name__}")
+        msg = "Failed to communicate with API"
+        raise self.error_class(msg) from e
+
+    def _handle_unexpected_exception(self, e, attempt, endpoint):
+        logger.error(f"Unexpected error during API request to {endpoint}: {e}")
+        self._update_health(False, f"Unexpected error: {type(e).__name__}")
+        if attempt == self.max_retries - 1:
+            return False
+        sleep_time = self.backoff_factor * (2**attempt)
+        logger.warning(f"Retrying ({attempt + 1}/{self.max_retries}) after error: {e}. Sleeping {sleep_time:.2f}s")
+        time.sleep(sleep_time)
+        return True
 
     def _update_health(self, is_healthy: bool, message: str = "") -> None:
         """Updates and logs the API health status."""
