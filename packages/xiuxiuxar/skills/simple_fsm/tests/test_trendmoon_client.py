@@ -110,6 +110,7 @@ def mock_response():
         mock_resp = MagicMock(spec=requests.Response)
         mock_resp.status_code = status_code
         mock_resp.text = text_data
+        mock_resp.headers = {"Content-Type": "application/json"}
 
         if json_data is not None:
             mock_resp.json.return_value = json_data
