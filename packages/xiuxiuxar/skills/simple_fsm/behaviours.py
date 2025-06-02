@@ -41,6 +41,7 @@ from pydantic import ValidationError
 from sqlalchemy import text
 from aea.skills.behaviours import State, FSMBehaviour
 
+from packages.xiuxiuxar.skills.simple_fsm.models import LLMServiceError
 from packages.xiuxiuxar.skills.simple_fsm.prompt import build_report_prompt
 from packages.xiuxiuxar.skills.simple_fsm.data_models import (
     NewsItem,
@@ -544,7 +545,7 @@ class ProcessDataRound(BaseState):
             onchain_highlights=self._build_onchain_highlights(research_raw, context),
             official_updates=self._build_official_updates(look_raw),
             project_summary=project_summary,
-            unlocks_data=unlocks_data,  # <-- FIXED: always a dict
+            unlocks_data=None,
             unlocks_recent=unlocks_recent,
             unlocks_upcoming=unlocks_upcoming,
         )
@@ -1491,8 +1492,9 @@ class GenerateReportRound(BaseState):
         return missing
 
     def act(self) -> None:
-        """Generate a report for the given trigger/asset."""
+        """Generate a report for the given trigger/asset, retrying LLM if output is invalid."""
         self.context.logger.info(f"Entering state: {self._state}")
+        max_retries = 3
         try:
             # Check if report already exists
             trigger_id = self.context.trigger_context.get("trigger_id")
@@ -1511,7 +1513,6 @@ class GenerateReportRound(BaseState):
 
             self.context.logger.info(f"Prompt: {prompt}")
 
-            # 3. Call LLM and unpack metadata
             model_config = {
                 "temperature": 0.7,
                 "max_tokens": 1024,
@@ -1519,43 +1520,62 @@ class GenerateReportRound(BaseState):
                 "frequency_penalty": 0.0,
                 "presence_penalty": 0.0,
             }
-            llm_result = self.context.llm_service.generate_summary(prompt, model_config)
-            llm_output = llm_result["content"]
-            llm_model_used = llm_result["llm_model_used"]
-            generation_time_ms = llm_result["generation_time_ms"]
-            token_usage_dict = llm_result["token_usage"]
 
-            self.context.logger.info(f"LLM output: {llm_output}")
+            last_error = None
+            for attempt in range(1, max_retries + 1):
+                try:
+                    llm_result = self.context.llm_service.generate_summary(prompt, model_config)
+                    llm_output = llm_result["content"]
+                    llm_model_used = llm_result["llm_model_used"]
+                    generation_time_ms = llm_result["generation_time_ms"]
+                    token_usage_dict = llm_result["token_usage"]
 
-            # 4. Validate LLM output
-            if not self._validate_markdown(llm_output):
-                msg = "LLM output is not valid Markdown."
-                raise ValueError(msg)
+                    self.context.logger.info(f"LLM output (attempt {attempt}): {llm_output}")
 
-            missing_sections = self._check_required_sections(llm_output)
-            if missing_sections:
-                msg = f"LLM output missing required sections: {', '.join(missing_sections)}"
-                raise ValueError(msg)
+                    if not self._validate_markdown(llm_output):
+                        msg = f"LLM output is not valid Markdown (attempt {attempt})."
+                        raise ValueError(msg)
 
-            # 5. Store the report
-            report_id = self.context.db_model.store_report(
-                trigger_id=self.context.trigger_context.get("trigger_id"),
-                asset_id=self.context.trigger_context.get("asset_id"),
-                report_content_markdown=llm_output,
-                report_data_json=payload,
-                llm_model_used=llm_model_used,
-                generation_time_ms=generation_time_ms,
-                token_usage=token_usage_dict,
-            )
+                    missing_sections = self._check_required_sections(llm_output)
+                    if missing_sections:
+                        msg = f"LLM output missing required sections: {', '.join(missing_sections)} (attempt {attempt})"
+                        raise ValueError(msg)
 
-            if not hasattr(self.context, "report_context"):
-                self.context.report_context = {}
-            self.context.report_context["report_id"] = report_id
+                    # Store the report if valid
+                    report_id = self.context.db_model.store_report(
+                        trigger_id=self.context.trigger_context.get("trigger_id"),
+                        asset_id=self.context.trigger_context.get("asset_id"),
+                        report_content_markdown=llm_output,
+                        report_data_json=payload,
+                        llm_model_used=llm_model_used,
+                        generation_time_ms=generation_time_ms,
+                        token_usage=token_usage_dict,
+                    )
 
-            self.context.strategy.record_report_generated()
+                    if not hasattr(self.context, "report_context"):
+                        self.context.report_context = {}
+                    self.context.report_context["report_id"] = report_id
 
-            self._event = DyorabciappEvents.DONE
+                    self.context.strategy.record_report_generated()
 
+                    self._event = DyorabciappEvents.DONE
+                    self._is_done = True
+                    return
+                except (LLMServiceError, ValueError) as e:
+                    last_error = e
+                    self.context.logger.warning(f"LLM report generation failed (attempt {attempt}/{max_retries}): {e}")
+                    if attempt == max_retries:
+                        break
+            # If we reach here, all attempts failed
+            self.context.logger.error(f"Report generation failed after {max_retries} attempts: {last_error}")
+            self.context.error_context = {
+                "error_type": "report_generation_error",
+                "error_message": f"Report generation failed after {max_retries} attempts: {last_error}",
+                "trigger_id": self.context.trigger_context.get("trigger_id"),
+                "asset_id": self.context.trigger_context.get("asset_id"),
+                "originating_round": str(self._state),
+            }
+            self._event = DyorabciappEvents.RETRY
         except Exception as e:
             self.context.logger.exception(f"Error in GenerateReportRound: {e}")
             self.context.error_context = {
@@ -1563,9 +1583,9 @@ class GenerateReportRound(BaseState):
                 "error_message": str(e),
                 "trigger_id": self.context.trigger_context.get("trigger_id"),
                 "asset_id": self.context.trigger_context.get("asset_id"),
+                "originating_round": str(self._state),
             }
             self._event = DyorabciappEvents.ERROR
-
         self._is_done = True
 
 
