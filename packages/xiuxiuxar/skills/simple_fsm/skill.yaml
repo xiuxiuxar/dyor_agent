@@ -134,6 +134,6 @@ dependencies:
   pydantic: {}
   psycopg2-binary: {}
   jinja2: {}
-  curl_adapter: {}
+  curl-adapter: {}
   beautifulsoup4: {}
 is_abstract: false
