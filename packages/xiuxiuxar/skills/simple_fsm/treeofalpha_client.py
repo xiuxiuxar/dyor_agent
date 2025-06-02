@@ -34,7 +34,8 @@ DEFAULT_HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
         "(KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.3"
-    )
+    ),
+    "Content-Type": "application/json",
 }
 
 
@@ -50,10 +51,10 @@ class TreeOfAlphaClient(Model, BaseClient):
         skill_context = kwargs.pop("skill_context", None)
         base_url = kwargs.pop("base_url", None)
         news_endpoint = kwargs.pop("news_endpoint", None)
-        cache_ttl = kwargs.pop("cache_ttl", None)
-        max_retries = kwargs.pop("max_retries", None)
-        backoff_factor = kwargs.pop("backoff_factor", None)
-        timeout = kwargs.pop("timeout", None)
+        cache_ttl = kwargs.pop("cache_ttl", 3600)  # Default 1 hour
+        max_retries = kwargs.pop("max_retries", 3)  # Default 3 retries
+        backoff_factor = kwargs.pop("backoff_factor", 0.5)  # Default 0.5 seconds
+        timeout = kwargs.pop("timeout", 15)  # Default 15 seconds
 
         Model.__init__(self, name=name, skill_context=skill_context, **kwargs)
         BaseClient.__init__(

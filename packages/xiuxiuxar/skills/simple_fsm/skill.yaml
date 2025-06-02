@@ -26,7 +26,7 @@ fingerprint:
   tests/test_researchagent_client.py: bafybeif26rk3b7ls6afxtmnld24nhllbpkczvpfjuh5nxabuzqdbe2mfsm
   tests/test_treeofalpha_client.py: bafybeic3thvxbgkmgt5pg3ciekz5ytue4sq63ade7ldckyw2txk3mkr6f4
   tests/test_trendmoon_client.py: bafybeifb5hqcis63zhyqsouicu5t24t775hbccoqjhxagkwc3lpjyr2jrm
-  treeofalpha_client.py: bafybeiekrljttc7wwpuvoast7aw6mmlwo7xgk2w2dob55bjckimtkolsh4
+  treeofalpha_client.py: bafybeif5c7l3k4ns5tv2tcryhksg5xpz6ak2wpyethbsuc7durfblm4aou
   trendmoon_client.py: bafybeie5xslsmmt7av4tmbkje7fmqfosoy5avvxw3tjgerfohaaro47jxe
   unlocks_client.py: bafybeiglxe4ub4cxwstkwlhihu7vjotzfxyde35vdtgyriozlo4ybp2w3a
 fingerprint_ignore_patterns: []
