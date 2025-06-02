@@ -1,9 +1,9 @@
 {
     "dev": {
         "custom/xiuxiuxar/dyor_api/0.1.0": "bafybeicbk27qzvfxxpfeqgdqk6r6kgpsbgckf6dqpk4qzdlqdtqovdxki4",
-        "skill/xiuxiuxar/simple_fsm/0.1.0": "bafybeiewuc2i2mf3iwptlgmdesdrhgef3njbb7n7szzaiikqcbm363irrm",
-        "agent/xiuxiuxar/dyor_agent/0.1.0": "bafybeidbpxh35kt5c6jqewq54i7azmpnmyum3cxdzwkjsnnkzccmgx664m",
-        "service/xiuxiuxar/dyor_agent/0.1.0": "bafybeidmnbutbnamrlkynksnl46aseazwaipnxt5zb3dfuca2d4c5dywoy"
+        "skill/xiuxiuxar/simple_fsm/0.1.0": "bafybeicenfuttkko6g4nivdtizgtjxqq6xh7ktguafgmdb7c7wk4e3et2y",
+        "agent/xiuxiuxar/dyor_agent/0.1.0": "bafybeids7szye7entveou3lpl6vnbkyn3zqqqve7zsgnpcxidgk3t2swny",
+        "service/xiuxiuxar/dyor_agent/0.1.0": "bafybeih2g2zopcl3qck4krhg6bz624cygs4usjuivouss3guo5pb2bjiea"
     },
     "third_party": {
         "protocol/eightballer/default/0.1.0": "bafybeicsdb3bue2xoopc6lue7njtyt22nehrnkevmkuk2i6ac65w722vwy",
