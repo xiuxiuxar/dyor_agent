@@ -39,9 +39,9 @@ import requests
 import sqlalchemy
 from pydantic import ValidationError
 from sqlalchemy import text
-from requests.exceptions import HTTPError
 from aea.skills.behaviours import State, FSMBehaviour
 
+from packages.xiuxiuxar.skills.simple_fsm.models import LLMServiceError
 from packages.xiuxiuxar.skills.simple_fsm.prompt import build_report_prompt
 from packages.xiuxiuxar.skills.simple_fsm.data_models import (
     NewsItem,
@@ -53,8 +53,7 @@ from packages.xiuxiuxar.skills.simple_fsm.data_models import (
     OnchainHighlight,
     StructuredPayload,
 )
-from packages.xiuxiuxar.skills.simple_fsm.data_sources import DATA_SOURCES
-from packages.xiuxiuxar.skills.simple_fsm.unlocks_client import UnlocksClientError
+from packages.xiuxiuxar.skills.simple_fsm.data_sources import DATA_SOURCES, unlocks_fetcher, unlocks_project_filter
 from packages.xiuxiuxar.skills.simple_fsm.trendmoon_client import TrendmoonAPIError
 from packages.xiuxiuxar.skills.simple_fsm.lookonchain_client import LookOnChainAPIError
 from packages.xiuxiuxar.skills.simple_fsm.treeofalpha_client import TreeOfAlphaAPIError
@@ -196,6 +195,46 @@ class ProcessDataRound(BaseState):
             return {source: "No processor configured for this source"}
         is_multi = config["data_type_handler"] == "multi"
         processor_func = getattr(self, config["processor"])
+        # Special handling for unlocks: filter for project and event type
+        if source == "unlocks":
+            all_projects = raw_data
+            asset_name = self.context.trigger_context.get("asset_name")
+            asset_symbol = self.context.trigger_context.get("asset_symbol")
+            coingecko_id = self.context.trigger_context.get("coingecko_id")
+            # Log input to unlocks_project_filter
+            self.context.logger.info(
+                f"Filtering unlocks: asset_name={asset_name}, asset_symbol={asset_symbol}, coingecko_id={coingecko_id} "
+                f"all_projects_count={len(all_projects) if isinstance(all_projects, list) else 'N/A'}"
+            )
+            project, filtered_events = unlocks_project_filter(
+                all_projects,
+                coingecko_id=coingecko_id,
+                asset_name=asset_name,
+                symbol=asset_symbol,
+            )
+            # Log output of unlocks_project_filter
+            self.context.logger.info(
+                f"unlocks_project_filter result: project={project}, "
+                f"filtered_events_count={len(filtered_events) if isinstance(filtered_events, list) else 'N/A'}"
+            )
+            # Always wrap in a dict for unlocks_data
+            unlocks_filtered = {
+                "project": project,
+                "filtered_events": filtered_events,
+            }
+            # Defensive: if unlocks_filtered is not a dict, fix it
+            if not isinstance(unlocks_filtered, dict):
+                unlocks_filtered = {"filtered_events": filtered_events}
+            serialized_data = processor_func(unlocks_filtered)
+            self.store_processed_data(
+                source=source,
+                data_type="default",
+                data=serialized_data,
+                trigger_id=trigger_id,
+                asset_id=asset_id,
+            )
+            return {}
+        # Default: original logic
         return self.process_data_type(
             source=source,
             data=raw_data,
@@ -234,6 +273,36 @@ class ProcessDataRound(BaseState):
         try:
             for source, config in DATA_SOURCES.items():
                 raw = self.context.raw_data.get(source)
+                # Special handling for unlocks: only store filtered data as raw
+                if source == "unlocks":
+                    asset_name = self.context.trigger_context.get("asset_name")
+                    asset_symbol = self.context.trigger_context.get("asset_symbol")
+                    coingecko_id = self.context.trigger_context.get("coingecko_id")
+                    project, filtered_events = unlocks_project_filter(
+                        raw,
+                        coingecko_id=coingecko_id,
+                        asset_name=asset_name,
+                        symbol=asset_symbol,
+                    )
+                    unlocks_filtered = {
+                        "project": project,
+                        "filtered_events": filtered_events,
+                    }
+                    self.context.logger.debug(
+                        "Storing filtered unlocks raw data for asset=%s: project=%s, filtered_events_count=%s",
+                        asset_symbol,
+                        project,
+                        len(filtered_events) if isinstance(filtered_events, list) else "N/A",
+                    )
+                    self.context.db_model.store_raw_data(
+                        source=source,
+                        data_type="raw",
+                        data=unlocks_filtered,
+                        trigger_id=trigger_id,
+                        timestamp=datetime.now(tz=UTC),
+                        asset_id=asset_id,
+                    )
+                    continue  # skip default logic for unlocks
                 serialized_raw = self._serialize_for_storage(raw)
                 self.context.logger.info(
                     "Storing raw data for source=%s, type=%s: "
@@ -357,56 +426,86 @@ class ProcessDataRound(BaseState):
         self.context.logger.warning(f"{error_type} for {key}: {exc}")
 
     def _build_unlock_events(self, unlocks_raw, context):
-        unlocks_data = None
+        unlocks_data = self._normalize_unlocks_data(unlocks_raw)
+        events = self._extract_project_events(unlocks_raw, unlocks_data, context)
+        unlocks_recent, unlocks_upcoming = self._categorize_unlock_events(events, context)
+        if isinstance(unlocks_data, list):
+            unlocks_data = {"projects": unlocks_data}
+        return unlocks_data, unlocks_recent, unlocks_upcoming
+
+    def _normalize_unlocks_data(self, unlocks_raw):
+        if hasattr(unlocks_raw, "to_dict"):
+            return unlocks_raw.to_dict()
+        if isinstance(unlocks_raw, dict):
+            return unlocks_raw
+        return str(unlocks_raw)
+
+    def _extract_project_events(self, unlocks_raw, unlocks_data, context):
+        # Handle case where unlocks_raw is the all_projects list
+        if isinstance(unlocks_raw, list):
+            asset_name = context.trigger_context.get("asset_name")
+            asset_symbol = context.trigger_context.get("asset_symbol")
+            coingecko_id = context.trigger_context.get("coingecko_id")
+            project = None
+            if coingecko_id:
+                project = next((p for p in unlocks_raw if p.get("gecko_id") == coingecko_id), None)
+            if not project and asset_name:
+                project = next((p for p in unlocks_raw if p.get("name", "").lower() == asset_name.lower()), None)
+            if not project and asset_symbol:
+                project = next(
+                    (p for p in unlocks_raw if p.get("token", "").split(":")[-1].lower() == asset_symbol.lower()),
+                    None,
+                )
+            if project:
+                context.logger.info(
+                    f"Found project {project.get('name', '')} with {len(project.get('events', []))} events"
+                )
+                return project.get("events", [])
+            context.logger.warning(
+                f"Could not find project for asset_name={asset_name}, asset_symbol={asset_symbol}, "
+                f"coingecko_id={coingecko_id}"
+            )
+            return []
+        if isinstance(unlocks_data, dict):
+            return (
+                unlocks_data.get("events")
+                or unlocks_data.get("filtered_events", [])
+                or unlocks_data.get("metadata", {}).get("raw_emissions", {}).get("meta", {}).get("events", [])
+            )
+        return []
+
+    def _categorize_unlock_events(self, events, context):
         unlocks_recent = []
         unlocks_upcoming = []
-        if unlocks_raw:
-            if hasattr(unlocks_raw, "to_dict"):
-                unlocks_data = unlocks_raw.to_dict()
-            elif isinstance(unlocks_raw, dict):
-                unlocks_data = unlocks_raw
-            else:
-                unlocks_data = str(unlocks_raw)
-
-            # Get events from the correct path
-            events = (
-                (unlocks_data.get("metadata", {}).get("raw_emissions", {}).get("meta", {}).get("events", []))
-                if isinstance(unlocks_data, dict)
-                else []
-            )
-
-            now = datetime.now(UTC)
-            for event in events:
-                # Filter for cliff unlocks AND specific categories
-                if event.get("unlockType") != "cliff" or event.get("category") not in {"insiders", "privateSale"}:
-                    continue
-
-                try:
-                    # Convert Unix timestamp to datetime
-                    event_date = datetime.fromtimestamp(event["timestamp"], UTC)
-
-                    # Debug logging
+        now = datetime.now(UTC)
+        context.logger.info(f"Processing {len(events)} events for recent/upcoming unlock analysis. Current time: {now}")
+        for event in events:
+            # Filter for cliff unlocks AND specific categories
+            if event.get("unlockType") != "cliff" or event.get("category") not in {"insiders", "privateSale"}:
+                continue
+            try:
+                event_date = datetime.fromtimestamp(event["timestamp"], UTC)
+                context.logger.debug(
+                    f"Processing significant unlock event: date={event_date}, "
+                    f"type={event.get('unlockType')}, "
+                    f"category={event.get('category')}, "
+                    f"tokens={event.get('noOfTokens')}, "
+                    f"description={event.get('description')}"
+                )
+                if now - timedelta(days=14) <= event_date <= now:
+                    unlocks_recent.append(event)
+                    context.logger.info(f"Added to recent unlocks: {event_date}")
+                elif now < event_date <= now + timedelta(days=30):
+                    unlocks_upcoming.append(event)
                     context.logger.info(
-                        f"Processing significant unlock event: date={event_date}, "
-                        f"type={event.get('unlockType')}, "
-                        f"category={event.get('category')}, "
-                        f"tokens={event.get('noOfTokens')}, "
-                        f"description={event.get('description')}"
+                        f"Found upcoming significant unlock in {(event_date - now).days} days: "
+                        f"{event.get('description')}"
                     )
-
-                    if now - timedelta(days=14) <= event_date <= now:
-                        unlocks_recent.append(event)
-                    elif now < event_date <= now + timedelta(days=30):
-                        unlocks_upcoming.append(event)
-                        context.logger.info(
-                            f"Found upcoming significant unlock in {event_date - now} days: "
-                            f"{event.get('description')}"
-                        )
-
-                except (KeyError, ValueError, TypeError) as e:
-                    context.logger.warning(f"Failed to parse unlock event timestamp: {e}")
-                    continue
-        return unlocks_data, unlocks_recent, unlocks_upcoming
+            except (KeyError, ValueError, TypeError) as e:
+                context.logger.warning(f"Failed to parse unlock event timestamp: {e}")
+                continue
+        context.logger.info(f"Final results: {len(unlocks_recent)} recent, {len(unlocks_upcoming)} upcoming unlocks")
+        return unlocks_recent, unlocks_upcoming
 
     def build_structured_payload(self, context) -> StructuredPayload:
         """Build and validate the StructuredPayload using Pydantic models."""
@@ -420,6 +519,20 @@ class ProcessDataRound(BaseState):
         trend_market_data = self._extract_trend_market_data(social_data)
         unlocks_data, unlocks_recent, unlocks_upcoming = self._build_unlock_events(unlocks_raw, context)
 
+        # --- FIX: Ensure unlocks_data is always a dict ---
+        if isinstance(unlocks_data, list):
+            unlocks_data = {"projects": unlocks_data}
+        elif not isinstance(unlocks_data, dict):
+            unlocks_data = {"data": unlocks_data}
+        # --- END FIX ---
+
+        # --- NEW: Always pass a dict for unlocks_data ---
+        if not (unlocks_recent or unlocks_upcoming):
+            unlocks_data = {"summary": "No unlock data available."}
+        elif "summary" not in unlocks_data:
+            unlocks_data["summary"] = ""
+        # --- END NEW ---
+
         return StructuredPayload(
             asset_info=self._build_asset_info(coin_details, social_data, context),
             trigger_info=TriggerInfo(
@@ -432,7 +545,7 @@ class ProcessDataRound(BaseState):
             onchain_highlights=self._build_onchain_highlights(research_raw, context),
             official_updates=self._build_official_updates(look_raw),
             project_summary=project_summary,
-            unlocks_data=unlocks_data,
+            unlocks_data=None,
             unlocks_recent=unlocks_recent,
             unlocks_upcoming=unlocks_upcoming,
         )
@@ -464,7 +577,9 @@ class ProcessDataRound(BaseState):
         if len(price_points) == 2:
             latest_price = float(price_points[0]["price"])
             previous_price = float(price_points[1]["price"])
-            price_change_24h = ((latest_price - previous_price) / previous_price) * 100 if previous_price else 0.0
+            price_change_24h = (
+                round(((latest_price - previous_price) / previous_price) * 100, 1) if previous_price else 0.0
+            )
         else:
             price_change_24h = 0.0
 
@@ -473,33 +588,67 @@ class ProcessDataRound(BaseState):
         if len(volume_points) == 2:
             latest_volume = float(volume_points[0]["total_volume"])
             previous_volume = float(volume_points[1]["total_volume"])
-            volume_change_24h = ((latest_volume - previous_volume) / previous_volume) * 100 if previous_volume else 0.0
+            volume_change_24h = (
+                round(((latest_volume - previous_volume) / previous_volume) * 100, 1) if previous_volume else 0.0
+            )
         else:
             volume_change_24h = 0.0
 
-        # Mindshare 1h (latest non-null social_dominance)
-        mindshare_1h = 0.0
+        # Mindshare 24h (latest non-null lc_social_dominance)
+        mindshare_24h = 0.0
         mindshare_points = [
             e
             for e in sorted(trend_market_data, key=lambda x: datetime.fromisoformat(x["date"]), reverse=True)
-            if "social_dominance" in e
-            and isinstance(e["social_dominance"], int | float)
-            and e["social_dominance"] is not None
+            if "lc_social_dominance" in e
+            and isinstance(e["lc_social_dominance"], int | float)
+            and e["lc_social_dominance"] is not None
         ]
         if mindshare_points:
-            mindshare_1h = float(mindshare_points[0]["social_dominance"])
+            mindshare_24h = round(float(mindshare_points[0]["lc_social_dominance"]), 1)
 
         return KeyMetrics(
-            mindshare_1h=mindshare_1h,
+            mindshare_24h=mindshare_24h,
             volume_change_24h=volume_change_24h,
             price_change_24h=price_change_24h,
         )
 
     def _build_social_summary(self, social_data):
+        trend_market_data = social_data.get("trend_market_data", [])
+        latest_sentiment = 0.0
+        if trend_market_data:
+            # Sort by date descending, pick the first with lc_sentiment
+            sorted_data = sorted(trend_market_data, key=lambda x: x.get("date", ""), reverse=True)
+            for entry in sorted_data:
+                if "lc_sentiment" in entry and entry["lc_sentiment"] is not None:
+                    latest_sentiment = entry["lc_sentiment"]
+                    break
+
+        def get_mention_points(entries):
+            # Sort by date descending
+            sorted_entries = sorted(entries, key=lambda x: datetime.fromisoformat(x["date"]), reverse=True)
+            if not sorted_entries:
+                return []
+            # If most recent day has 0 mentions, skip it
+            if "social_mentions" in sorted_entries[0] and sorted_entries[0]["social_mentions"] == 0:
+                sorted_entries = sorted_entries[1:]
+            # Take the next two most recent days (even if zero)
+            return sorted_entries[:2]
+
+        mention_points = get_mention_points(trend_market_data)
+        if len(mention_points) == 2:
+            latest_mentions = float(mention_points[0]["social_mentions"])
+            previous_mentions = float(mention_points[1]["social_mentions"])
+            if previous_mentions:
+                mention_change_24h = round(((latest_mentions - previous_mentions) / previous_mentions) * 100, 1)
+            else:
+                mention_change_24h = 0.0
+        else:
+            mention_change_24h = 0.0
+
         return SocialSummary(
-            sentiment_score=social_data.get("lc_sentiment", 0.0),
+            sentiment_score=latest_sentiment,
             top_keywords=social_data.get("symbols", []),
-            recent_mention_count=social_data.get("lc_social_volume_24h", 0),
+            mention_change_24h=mention_change_24h,
         )
 
     def _build_asset_info(self, coin_details, social_data, context):
@@ -688,9 +837,8 @@ class ProcessDataRound(BaseState):
                 loc = ".".join(str(path_item) for path_item in err.get("loc", []))
                 msg = err.get("msg", "Unknown error")
                 typ = err.get("type", "Unknown type")
-                val = err.get("input", "Unknown value")
-                validation_errors.append({"location": loc, "message": msg, "error_type": typ, "invalid_value": val})
-                self.context.logger.exception(f"Validation error at {loc}: {msg} (type: {typ}, value: {val})")
+                validation_errors.append({"location": loc, "message": msg, "error_type": typ})
+                self.context.logger.exception(f"Validation error at {loc}: {msg} (type: {typ})")
 
             self.context.error_context = {
                 "error_type": "validation_error",
@@ -809,36 +957,68 @@ class SetupDYORRound(BaseState):
                 )
 
     def _initialize_api_clients(self):
-        """Initialize API clients and collect errors."""
+        """Initialize API clients and collect errors. Also build per-client config for per-thread instantiation."""
         self.context.api_clients = {}
+        self.context.api_client_configs = {}
         errors = {}
-
         try:
-            self.context.api_clients["lookonchain"] = self.context.lookonchain_client
-        except ValueError as e:
-            errors["lookonchain_init"] = str(e)
-
-        try:
-            self.context.api_clients["treeofalpha"] = self.context.treeofalpha_client
-        except ValueError as e:
-            errors["treeofalpha_init"] = str(e)
-
-        try:
-            self.context.api_clients["researchagent"] = self.context.researchagent_client
-        except ValueError as e:
-            errors["researchagent_init"] = str(e)
-
-        try:
-            self.context.api_clients["trendmoon"] = self.context.trendmoon_client
+            client = self.context.trendmoon_client
+            self.context.api_clients["trendmoon"] = client
+            self.context.api_client_configs["trendmoon"] = {
+                "base_url": getattr(client, "base_url", None),
+                "insights_url": getattr(client, "insights_url", None),
+                "api_key": getattr(client, "session", None) and client.session.headers.get("Api-key"),
+                "max_retries": getattr(client, "max_retries", 3),
+                "backoff_factor": getattr(client, "backoff_factor", 0.5),
+                "timeout": getattr(client, "timeout", 15),
+            }
         except ValueError as e:
             errors["trendmoon_init"] = str(e)
-
-        # Add unlocks client initialization
         try:
-            self.context.api_clients["unlocks"] = self.context.unlocks_client
+            client = self.context.lookonchain_client
+            self.context.api_clients["lookonchain"] = client
+            self.context.api_client_configs["lookonchain"] = {
+                "base_url": getattr(client, "base_url", None),
+                "search_endpoint": getattr(client, "search_endpoint", None),
+                "max_retries": getattr(client, "max_retries", 3),
+                "backoff_factor": getattr(client, "backoff_factor", 0.5),
+                "timeout": getattr(client, "timeout", 15),
+            }
+        except ValueError as e:
+            errors["lookonchain_init"] = str(e)
+        try:
+            client = self.context.treeofalpha_client
+            self.context.api_clients["treeofalpha"] = client
+            self.context.api_client_configs["treeofalpha"] = {
+                "base_url": getattr(client, "base_url", None),
+                "news_endpoint": getattr(client, "news_endpoint", None),
+                "cache_ttl": getattr(client, "cache_ttl", None),
+                "max_retries": getattr(client, "max_retries", 3),
+                "backoff_factor": getattr(client, "backoff_factor", 0.5),
+                "timeout": getattr(client, "timeout", 15),
+            }
+        except ValueError as e:
+            errors["treeofalpha_init"] = str(e)
+        try:
+            client = self.context.researchagent_client
+            self.context.api_clients["researchagent"] = client
+            self.context.api_client_configs["researchagent"] = {
+                "base_url": getattr(client, "base_url", None),
+                "api_key": getattr(client, "session", None) and client.session.headers.get("Api-key"),
+            }
+        except ValueError as e:
+            errors["researchagent_init"] = str(e)
+        try:
+            client = self.context.unlocks_client
+            self.context.api_clients["unlocks"] = client
+            self.context.api_client_configs["unlocks"] = {
+                "base_url": getattr(client, "base_url", None),
+                "max_retries": getattr(client, "max_retries", 3),
+                "backoff_factor": getattr(client, "backoff_factor", 0.5),
+                "timeout": getattr(client, "timeout", 15),
+            }
         except ValueError as e:
             errors["unlocks_init"] = str(e)
-
         return errors
 
     def act(self) -> None:
@@ -985,7 +1165,7 @@ class TriggerRound(BaseState):
         super().__init__(**kwargs)
         self._state = DyorabciappStates.TRIGGERROUND
 
-    def _validate_asset(self, conn) -> tuple[bool, str, dict]:
+    def _validate_asset(self, conn) -> tuple[bool, str]:
         """Validate asset exists and is active."""
         try:
             result = conn.execute(
@@ -999,11 +1179,11 @@ class TriggerRound(BaseState):
             asset = result.fetchone()
 
             if not asset:
-                return False, "Asset not found", {}
+                return False, "Asset not found"
 
-            return True, "", {"asset_id": asset[0], "symbol": asset[1], "name": asset[2]}
+            return True, ""
         except sqlalchemy.exc.SQLAlchemyError as e:
-            return False, f"Database error: {e!s}", {}
+            return False, f"Database error: {e!s}"
 
     def _check_recent_report(self, conn, asset_id: int) -> tuple[bool, str]:
         """Check if a recent report exists (within last 24h unless force_refresh)."""
@@ -1038,20 +1218,20 @@ class TriggerRound(BaseState):
         try:
             with self.context.db_model.engine.connect() as conn:
                 # Validate asset and check recent report
-                is_valid, error_msg, asset_info = self._validate_asset(conn)
+                is_valid, error_msg = self._validate_asset(conn)
                 if not is_valid:
                     raise ValueError(error_msg)
 
                 # Update trigger context with validated asset info
                 self.context.trigger_context.update(
                     {
-                        "asset_id": asset_info["asset_id"],
-                        "asset_symbol": asset_info["symbol"],
-                        "asset_name": asset_info["name"],
+                        "asset_id": self.context.trigger_context["asset_id"],
+                        "asset_symbol": self.context.trigger_context["asset_symbol"],
+                        "asset_name": self.context.trigger_context["asset_name"],
                     }
                 )
 
-                can_proceed, error_msg = self._check_recent_report(conn, asset_info["asset_id"])
+                can_proceed, error_msg = self._check_recent_report(conn, self.context.trigger_context["asset_id"])
                 if not can_proceed:
                     raise ValueError(error_msg)
 
@@ -1107,29 +1287,31 @@ class IngestDataRound(BaseState):
             for source, config in DATA_SOURCES.items()
         }
 
-    def _get_existing_unlocks_data(self, asset_id: int) -> dict | None:
-        """Check if we have recent unlock data in the database."""
+    def _get_existing_full_unlocks_data(self) -> dict | None:
+        """Check if we have recent full unlocks data in the database."""
         try:
             with self.context.db_model.engine.connect() as conn:
                 result = conn.execute(
                     text("""
-                        SELECT data
-                        FROM raw_data
+                        SELECT raw_data
+                        FROM scraped_data
                         WHERE source = 'unlocks'
-                        AND asset_id = :asset_id
-                        AND created_at > NOW() - INTERVAL '30 days'
-                        ORDER BY created_at DESC
+                        AND data_type = 'all_projects'
+                        AND ingested_at > NOW() - INTERVAL '30 days'
+                        ORDER BY ingested_at DESC
                         LIMIT 1
                     """),
-                    {"asset_id": asset_id},
                 )
                 row = result.fetchone()
                 if row and row[0]:
-                    self.context.logger.info(f"Found existing unlock data for asset_id={asset_id}")
-                    return row[0]
+                    self.context.logger.info("Found existing full unlocks data in DB.")
+                    data = row[0]
+                    if isinstance(data, str):
+                        data = json.loads(data)
+                    return data
                 return None
         except sqlalchemy.exc.SQLAlchemyError as e:
-            self.context.logger.warning(f"Error checking for existing unlock data: {e}")
+            self.context.logger.warning(f"Error checking for existing full unlocks data: {e}")
             return None
 
     def _fetch_phase1_data(self, asset_symbol, asset_name):
@@ -1139,17 +1321,14 @@ class IngestDataRound(BaseState):
             futures = {}
             for source in phase1_sources:
                 config = DATA_SOURCES[source]
-                client = self.context.api_clients.get(source)
-                if not client:
-                    continue
                 if config.get("data_type_handler") == "multi":
                     for endpoint, fetcher in config["fetchers"].items():
                         futures[f"{source}_{endpoint}"] = executor.submit(
-                            fetcher, client, asset_symbol, asset_name=asset_name
+                            fetcher, self.context, asset_symbol, asset_name=asset_name
                         )
                 else:
                     fetcher = config["fetcher"]
-                    futures[source] = executor.submit(fetcher, client, asset_symbol, asset_name=asset_name)
+                    futures[source] = executor.submit(fetcher, self.context, asset_symbol, asset_name=asset_name)
             for name, future in futures.items():
                 try:
                     result = future.result()
@@ -1190,22 +1369,34 @@ class IngestDataRound(BaseState):
                 self.context.trigger_context["asset_name"] = asset_name
         return asset_name
 
-    def _fetch_unlocks_data(self, asset_symbol, asset_name):
-        """Fetch unlocks data using the correct project name."""
-        unlocks_client = self.context.api_clients.get("unlocks")
-        if unlocks_client:
-            try:
-                unlocks_fetcher = DATA_SOURCES["unlocks"]["fetcher"]
-                unlocks_result = unlocks_fetcher(unlocks_client, asset_symbol, asset_name=asset_name)
-                self._process_future_result("unlocks", unlocks_result)
-            except (UnlocksClientError, HTTPError) as e:
-                error_dump = {"error": str(e)}
-                self._process_future_result("unlocks", None, error=error_dump)
-                self.context.logger.warning(f"Unlocks unavailable: {e}")
-            except (sqlalchemy.exc.SQLAlchemyError, TypeError, ValueError) as e:
-                error_dump = {"error": str(e)}
-                self._process_future_result("unlocks", None, error=error_dump)
-                self.context.logger.warning(f"Error fetching unlocks: {e}")
+    def _fetch_unlocks_data(self):
+        """Fetch or reuse full unlocks data and store in raw_data['unlocks']."""
+        try:
+            full_unlocks_item = self._get_existing_full_unlocks_data()
+            if not full_unlocks_item:
+                full_unlocks_item = unlocks_fetcher(self.context)
+                # Store the full unlocks dataset in DB
+                self.context.db_model.store_raw_data(
+                    source="unlocks",
+                    data_type="all_projects",
+                    data=full_unlocks_item.to_dict() if hasattr(full_unlocks_item, "to_dict") else full_unlocks_item,
+                    trigger_id=self.context.trigger_context.get("trigger_id"),
+                    timestamp=datetime.now(tz=UTC),
+                    asset_id=self.context.trigger_context.get("asset_id"),
+                )
+                self.context.logger.info("Fetched and stored fresh full unlocks data.")
+            else:
+                self.context.logger.info("Using cached full unlocks data from DB.")
+            # Always store the all_projects list in raw_data['unlocks']
+            if hasattr(full_unlocks_item, "metadata"):
+                self.context.raw_data["unlocks"] = full_unlocks_item.metadata.get("all_projects", [])
+            elif isinstance(full_unlocks_item, dict):
+                self.context.raw_data["unlocks"] = full_unlocks_item.get("metadata", {}).get("all_projects", [])
+            else:
+                self.context.raw_data["unlocks"] = []
+        except (sqlalchemy.exc.SQLAlchemyError, TypeError, ValueError) as e:
+            self.context.logger.warning(f"Error fetching or storing unlocks data: {e}")
+            self.context.raw_data["unlocks"] = []
 
     def _process_future_result(self, name, result, error=None):
         if error:
@@ -1236,7 +1427,12 @@ class IngestDataRound(BaseState):
 
             self._fetch_phase1_data(asset_symbol, asset_name)
             asset_name = self._update_asset_name_if_needed(asset_symbol, asset_name)
-            self._fetch_unlocks_data(asset_symbol, asset_name)
+            if asset_name is None:
+                self.context.logger.warning(
+                    f"asset_name is still None for symbol {asset_symbol} "
+                    "before unlocks fetch. Using symbol as fallback."
+                )
+            self._fetch_unlocks_data()
 
             self._event = DyorabciappEvents.DONE
         except Exception as e:
@@ -1296,8 +1492,9 @@ class GenerateReportRound(BaseState):
         return missing
 
     def act(self) -> None:
-        """Generate a report for the given trigger/asset."""
+        """Generate a report for the given trigger/asset, retrying LLM if output is invalid."""
         self.context.logger.info(f"Entering state: {self._state}")
+        max_retries = 3
         try:
             # Check if report already exists
             trigger_id = self.context.trigger_context.get("trigger_id")
@@ -1316,7 +1513,6 @@ class GenerateReportRound(BaseState):
 
             self.context.logger.info(f"Prompt: {prompt}")
 
-            # 3. Call LLM and unpack metadata
             model_config = {
                 "temperature": 0.7,
                 "max_tokens": 1024,
@@ -1324,43 +1520,62 @@ class GenerateReportRound(BaseState):
                 "frequency_penalty": 0.0,
                 "presence_penalty": 0.0,
             }
-            llm_result = self.context.llm_service.generate_summary(prompt, model_config)
-            llm_output = llm_result["content"]
-            llm_model_used = llm_result["llm_model_used"]
-            generation_time_ms = llm_result["generation_time_ms"]
-            token_usage_dict = llm_result["token_usage"]
 
-            self.context.logger.info(f"LLM output: {llm_output}")
+            last_error = None
+            for attempt in range(1, max_retries + 1):
+                try:
+                    llm_result = self.context.llm_service.generate_summary(prompt, model_config)
+                    llm_output = llm_result["content"]
+                    llm_model_used = llm_result["llm_model_used"]
+                    generation_time_ms = llm_result["generation_time_ms"]
+                    token_usage_dict = llm_result["token_usage"]
 
-            # 4. Validate LLM output
-            if not self._validate_markdown(llm_output):
-                msg = "LLM output is not valid Markdown."
-                raise ValueError(msg)
+                    self.context.logger.info(f"LLM output (attempt {attempt}): {llm_output}")
 
-            missing_sections = self._check_required_sections(llm_output)
-            if missing_sections:
-                msg = f"LLM output missing required sections: {', '.join(missing_sections)}"
-                raise ValueError(msg)
+                    if not self._validate_markdown(llm_output):
+                        msg = f"LLM output is not valid Markdown (attempt {attempt})."
+                        raise ValueError(msg)
 
-            # 5. Store the report
-            report_id = self.context.db_model.store_report(
-                trigger_id=self.context.trigger_context.get("trigger_id"),
-                asset_id=self.context.trigger_context.get("asset_id"),
-                report_content_markdown=llm_output,
-                report_data_json=payload,
-                llm_model_used=llm_model_used,
-                generation_time_ms=generation_time_ms,
-                token_usage=token_usage_dict,
-            )
+                    missing_sections = self._check_required_sections(llm_output)
+                    if missing_sections:
+                        msg = f"LLM output missing required sections: {', '.join(missing_sections)} (attempt {attempt})"
+                        raise ValueError(msg)
 
-            if not hasattr(self.context, "report_context"):
-                self.context.report_context = {}
-            self.context.report_context["report_id"] = report_id
+                    # Store the report if valid
+                    report_id = self.context.db_model.store_report(
+                        trigger_id=self.context.trigger_context.get("trigger_id"),
+                        asset_id=self.context.trigger_context.get("asset_id"),
+                        report_content_markdown=llm_output,
+                        report_data_json=payload,
+                        llm_model_used=llm_model_used,
+                        generation_time_ms=generation_time_ms,
+                        token_usage=token_usage_dict,
+                    )
 
-            self.context.strategy.record_report_generated()
+                    if not hasattr(self.context, "report_context"):
+                        self.context.report_context = {}
+                    self.context.report_context["report_id"] = report_id
 
-            self._event = DyorabciappEvents.DONE
+                    self.context.strategy.record_report_generated()
 
+                    self._event = DyorabciappEvents.DONE
+                    self._is_done = True
+                    return
+                except (LLMServiceError, ValueError) as e:
+                    last_error = e
+                    self.context.logger.warning(f"LLM report generation failed (attempt {attempt}/{max_retries}): {e}")
+                    if attempt == max_retries:
+                        break
+            # If we reach here, all attempts failed
+            self.context.logger.error(f"Report generation failed after {max_retries} attempts: {last_error}")
+            self.context.error_context = {
+                "error_type": "report_generation_error",
+                "error_message": f"Report generation failed after {max_retries} attempts: {last_error}",
+                "trigger_id": self.context.trigger_context.get("trigger_id"),
+                "asset_id": self.context.trigger_context.get("asset_id"),
+                "originating_round": str(self._state),
+            }
+            self._event = DyorabciappEvents.RETRY
         except Exception as e:
             self.context.logger.exception(f"Error in GenerateReportRound: {e}")
             self.context.error_context = {
@@ -1368,9 +1583,9 @@ class GenerateReportRound(BaseState):
                 "error_message": str(e),
                 "trigger_id": self.context.trigger_context.get("trigger_id"),
                 "asset_id": self.context.trigger_context.get("asset_id"),
+                "originating_round": str(self._state),
             }
             self._event = DyorabciappEvents.ERROR
-
         self._is_done = True
 
 

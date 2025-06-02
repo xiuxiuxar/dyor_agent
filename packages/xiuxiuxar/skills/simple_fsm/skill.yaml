@@ -8,27 +8,27 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: bafybeifmctcmcdtae5b3qin4fdveytwcduleekax3mgqbmfwudwcay2dny
   __init__.py: bafybeigocf4h7sv7lkbfbnpelwm6xzwv3hg7pwac2mbamholdxykzq6wiq
-  base_client.py: bafybeigube5gil3hnlvynalpe5hqb5fabum66oc3uol5qkwipjzytr5ana
-  behaviours.py: bafybeifmbyi54zhoybk2xfz4ksuctbl3q7544b7ohwsa4d3rzyotc2h3ce
-  data_models.py: bafybeihu2tcoaz7u7ytdksa5lfzmr6nneqxlim5oi34oivxecvwxp6f4zi
-  data_sources.py: bafybeibfmhsmhzyzj4hu5xzb5nwj4oufno6j325eakrypjsp7nfns5aema
+  base_client.py: bafybeiewhdwg2juqwcqgqibky7yzyuba2mbi52ybmg5qs7nbpimuepznxa
+  behaviours.py: bafybeibvfrbyx4xl3kvqnwbpxrblbti7434ryy2nycpnbyvjgyuaf77ukm
+  data_models.py: bafybeiez7hfhup3gtao3qgd7bgunpkxusl5py72wzmhlx4ljidvtet5fsi
+  data_sources.py: bafybeidt3wccnf6wgy43onvtte5hlgvzlcokrjvbxedtll5zylnub4466u
   dialogues.py: bafybeidr23gipmyw5t6o6jf52y4j733adbt4pnasjxrzfohsgpwt7ex6ea
   handlers.py: bafybeibvw24jf77gyscqlcde2pxbe5ajlny3dzcq6ses6rmrwbfcjhxozu
-  lookonchain_client.py: bafybeifcef6g3pmuppwzpzlzvmvhvftpkwgg4ax3okxmzyjlmifjkulwwe
-  models.py: bafybeiezpom5g23b4ialqwqcwubgw5jm72h5l63btntcmjjlv32g3aa4ci
+  lookonchain_client.py: bafybeiglj5yppteyua277csgjicsahp4so6nbrrtj662cpgntgriajtlo4
+  models.py: bafybeihnoquzcwqu3jblhvn7euvs7e77ufqhjbpds7n3myaewn7pppdhwm
   prompt.py: bafybeiabqzblbtlkngkpz5gfjo66ryngiatzfmjgx4bq3i4fpqodkitiqa
-  prompt_template.jinja: bafybeifs5cpi2g45w6wlgstu64lob6zqux6btzwjnfupxusc745mszuexu
+  prompt_template.jinja: bafybeickxzr4veie5rhs5yytgnnr553s5goeb5xhlz3qops6qifajolwey
   researchagent_client.py: bafybeiblaexoh4fcpwtidif3dyaiu4bkjy2jm5nj2jg4igev5nwmfjvy64
   strategy.py: bafybeighe2emfcjlvw6jninea3td3czbvvohuwo2xmmp45tdosy2z3gmm4
   tests/__init__.py: bafybeigb2ji4vkcap3hokcedggjwsrah7te2nxjhkorwf3ibwgyaa2glma
   tests/conftest.py: bafybeicvznjlmanmoghlq6y3atuuh62ke6wdfxkgwfmh5zrvjvmclatrl4
-  tests/test_lookonchain_client.py: bafybeigp57wqdeiwx3oop43m3cbnq4n4ridn4sm6k5wmyg33njl6keh5tu
+  tests/test_lookonchain_client.py: bafybeifba3y5m3ma3xosf2x7c56xyuymzzdjqqijkysjy3r4m7r3suqrnu
   tests/test_researchagent_client.py: bafybeif26rk3b7ls6afxtmnld24nhllbpkczvpfjuh5nxabuzqdbe2mfsm
-  tests/test_treeofalpha_client.py: bafybeigsm3xdvfxrua3aptij4guk2nnrry5npucllkpiqh3yz2bbbk6pey
-  tests/test_trendmoon_client.py: bafybeiasl7mvuf4cpgyotcxkio5rkbp3a6743wq2no7t63x25zgv3kebmm
-  treeofalpha_client.py: bafybeidan2hkrro6krfq4wortagh5q3yioznh5q7drhuapoz4cjteso5su
+  tests/test_treeofalpha_client.py: bafybeic3thvxbgkmgt5pg3ciekz5ytue4sq63ade7ldckyw2txk3mkr6f4
+  tests/test_trendmoon_client.py: bafybeifb5hqcis63zhyqsouicu5t24t775hbccoqjhxagkwc3lpjyr2jrm
+  treeofalpha_client.py: bafybeif5c7l3k4ns5tv2tcryhksg5xpz6ak2wpyethbsuc7durfblm4aou
   trendmoon_client.py: bafybeie5xslsmmt7av4tmbkje7fmqfosoy5avvxw3tjgerfohaaro47jxe
-  unlocks_client.py: bafybeiakwxz3ggedixdhgos7yezy2zznf7yaigc4otbeufaxqq4gihlryi
+  unlocks_client.py: bafybeiglxe4ub4cxwstkwlhihu7vjotzfxyde35vdtgyriozlo4ybp2w3a
 fingerprint_ignore_patterns: []
 connections: []
 contracts: []
@@ -134,4 +134,6 @@ dependencies:
   pydantic: {}
   psycopg2-binary: {}
   jinja2: {}
+  curl-adapter: {}
+  beautifulsoup4: {}
 is_abstract: false

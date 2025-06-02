@@ -32,8 +32,8 @@ from packages.xiuxiuxar.skills.simple_fsm.base_client import BaseClient, BaseAPI
 STATUS_FORCELIST = (429, 500, 502, 503, 504)
 DEFAULT_HEADERS = {
     "User-Agent": (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-        "(KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.3"
     )
 }
 

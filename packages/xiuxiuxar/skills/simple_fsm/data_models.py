@@ -39,9 +39,9 @@ class TriggerInfo(BaseModel):
 class KeyMetrics(BaseModel):
     """Key metrics."""
 
-    mindshare_1h: float | None = Field(
+    mindshare_24h: float | None = Field(
         None,
-        description="Relative share of social mentions last 1h",
+        description="24h mindshare change in %",
     )
     volume_change_24h: float | None = Field(
         None,
@@ -57,7 +57,7 @@ class SocialSummary(BaseModel):
     """Social summary."""
 
     sentiment_score: float | None = Field(None, description="Aggregated sentiment score (e.g. -1 to +1)")
-    recent_mention_count: int | None = Field(None, description="Number of social mentions in the last report")
+    mention_change_24h: float | None = Field(None, description="24h change in social mentions in %")
 
 
 class NewsItem(BaseModel):
