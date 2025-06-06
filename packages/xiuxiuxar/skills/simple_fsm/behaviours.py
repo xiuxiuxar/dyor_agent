@@ -64,7 +64,6 @@ if TYPE_CHECKING:
     from packages.xiuxiuxar.skills.simple_fsm.models import APIClientStrategy
 
 
-MAX_WORKERS = 4
 PROTOCOL_HTTP = "eightballer/http:0.1.0"
 PROTOCOL_WEBSOCKETS = "eightballer/websockets:0.1.0"
 PROTOCOL_HANDLER_MAP = {
@@ -908,8 +907,8 @@ class SetupDYORRound(BaseState):
     """This class implements the behaviour of the state SetupDYORRound."""
 
     def __init__(self, **kwargs: Any) -> None:
+        self.api_name = kwargs.pop("api_name", None)
         super().__init__(**kwargs)
-        self.api_name = kwargs.get("api_name")
         self.context.logger.info(f"API name: {self.api_name}")
         self._state = DyorabciappStates.SETUPDYORROUND
 
@@ -1284,12 +1283,14 @@ class IngestDataRound(BaseState):
     """This class implements the behaviour of the state IngestDataRound."""
 
     def __init__(self, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
-        self._state = DyorabciappStates.INGESTDATAROUND
         self._max_workers = kwargs.pop("max_workers", None)
+        super().__init__(**kwargs)
+        self.context.logger.info(f"IngestDataRound max_workers: {self._max_workers}")
+        self._state = DyorabciappStates.INGESTDATAROUND
+
         if self._max_workers is None:
-            msg = "max_workers must be provided"
-            raise ValueError(msg)
+            self._max_workers = os.cpu_count() or 4
+            self.context.logger.warning(f"max_workers not provided. Falling back to {self._max_workers}")
 
     def _validate_trigger_context(self) -> tuple[str, int]:
         asset_symbol = self.context.trigger_context.get("asset_symbol")
@@ -1636,8 +1637,8 @@ class HandleErrorRound(BaseState):
     JITTER = 0.2  # 20% jitter
 
     def __init__(self, **kwargs: Any) -> None:
+        self.ntfy_topic = kwargs.pop("ntfy_topic", "alerts")
         super().__init__(**kwargs)
-        self.ntfy_topic = kwargs.get("ntfy_topic", "alerts")
         self._state = DyorabciappStates.HANDLEERRORROUND
         self._retry_states = {}  # Store retry states in the class instance
 
