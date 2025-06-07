@@ -635,11 +635,17 @@ class ProcessDataRound(BaseState):
 
         mention_points = get_mention_points(trend_market_data)
         if len(mention_points) == 2:
-            latest_mentions = float(mention_points[0]["social_mentions"])
-            previous_mentions = float(mention_points[1]["social_mentions"])
-            if previous_mentions:
-                mention_change_24h = round(((latest_mentions - previous_mentions) / previous_mentions) * 100, 1)
-            else:
+            try:
+                latest_mentions = float(mention_points[0].get("social_mentions", 0))
+                previous_mentions = float(mention_points[1].get("social_mentions", 0))
+                if "social_mentions" not in mention_points[0] or "social_mentions" not in mention_points[1]:
+                    self.context.logger.warning(f"Missing social mentions in mention_points: {mention_points}")
+                if previous_mentions:
+                    mention_change_24h = round(((latest_mentions - previous_mentions) / previous_mentions) * 100, 1)
+                else:
+                    mention_change_24h = 0.0
+            except (ValueError, TypeError) as e:
+                self.context.logger.warning(f"Failed to parse social mentions: {e}")
                 mention_change_24h = 0.0
         else:
             mention_change_24h = 0.0
