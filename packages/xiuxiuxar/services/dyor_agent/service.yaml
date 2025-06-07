@@ -9,11 +9,13 @@ fingerprint:
   tests/__init__.py: bafybeiausykbndof27hjfgwqg6nnmk7zw7lyytwzekih3gszwdypbtxjka
   tests/test_service.py: bafybeicplirjoql5q3l5zjl5xrgamnoxuj3year7u2vrtfnzzllzeyutuy
 fingerprint_ignore_patterns: []
-agent: xiuxiuxar/dyor_agent:0.1.0:bafybeig7ur7a65wde6uvtcykxpoin43puxqp4ymt7dp7ethhgd4hh3jpiy
+agent: xiuxiuxar/dyor_agent:0.1.0:bafybeibk6heknzmu3wztwthdsvojhdre3j2sbr4ovg2sz63zyicqasctg4
 number_of_agents: 1
 deployment:
   agent:
-    ports: {}
+    ports:
+      0:
+        8888: 8888
     volumes: {}
 ---
 public_id: eightballer/http_server:0.1.0:bafybeicp3ubkonolxjgnwgqmaz624qduwzzz74fbjizu77lyvnpo77uv7u
@@ -26,6 +28,17 @@ config:
 public_id: xiuxiuxar/simple_fsm:0.1.0
 type: skill
 0:
+  behaviours:
+    main:
+      args:
+        max_workers: ${SKILL_SIMPLE_FSM_BEHAVIOURS_MAIN_ARGS_MAX_WORKERS:int:4}
+        api_name: ${SKILL_SIMPLE_FSM_BEHAVIOURS_MAIN_ARGS_API_NAME:str:xiuxiuxar/dyor_api}
+        ntfy_topic: ${SKILL_SIMPLE_FSM_BEHAVIOURS_MAIN_ARGS_NTFY_TOPIC:str:alerts}
+  handlers:
+    metrics_handler:
+      args:
+        enable_cors: false
+        expected_api_key: ${SKILL_SIMPLE_FSM_HANDLERS_METRICS_HANDLER_ARGS_EXPECTED_API_KEY:str:key}
   models:
     db_model:
       args:
@@ -34,3 +47,44 @@ type: skill
         POSTGRES_HOST: ${SKILL_SIMPLE_FSM_MODELS_DB_MODEL_ARGS_POSTGRES_HOST:str:host.docker.internal}
         POSTGRES_PORT: ${SKILL_SIMPLE_FSM_MODELS_DB_MODEL_ARGS_POSTGRES_PORT:int:5432}
         POSTGRES_DB: ${SKILL_SIMPLE_FSM_MODELS_DB_MODEL_ARGS_POSTGRES_DB:str:db_name}
+    llm_service:
+      args:
+        LLM_PRIMARY_MODEL: ${SKILL_SIMPLE_FSM_MODELS_LLM_SERVICE_ARGS_LLM_PRIMARY_MODEL:str:Meta-Llama-3-3-70B-Instruct}
+        LLM_FALLBACK_MODEL: ${SKILL_SIMPLE_FSM_MODELS_LLM_SERVICE_ARGS_LLM_FALLBACK_MODEL:str:DeepSeek-R1-Distill-Qwen-32B}
+        LLM_API_KEY: ${SKILL_SIMPLE_FSM_MODELS_LLM_SERVICE_ARGS_LLM_API_KEY:str:key}
+        LLM_BASE_URL: ${SKILL_SIMPLE_FSM_MODELS_LLM_SERVICE_ARGS_LLM_BASE_URL:str:https://api.openai.com/v1}
+        LLM_MAX_RETRIES: ${SKILL_SIMPLE_FSM_MODELS_LLM_SERVICE_ARGS_LLM_MAX_RETRIES:int:4}
+        LLM_BACKOFF_FACTOR: ${SKILL_SIMPLE_FSM_MODELS_LLM_SERVICE_ARGS_LLM_BACKOFF_FACTOR:float:1.5}
+        LLM_TIMEOUT: ${SKILL_SIMPLE_FSM_MODELS_LLM_SERVICE_ARGS_LLM_TIMEOUT:int:60}
+    lookonchain_client:
+      args:
+        base_url: ${SKILL_SIMPLE_FSM_MODELS_LOOKONCHAIN_CLIENT_ARGS_BASE_URL:str:http://localhost:8000}
+        search_endpoint: ${SKILL_SIMPLE_FSM_MODELS_LOOKONCHAIN_CLIENT_ARGS_SEARCH_ENDPOINT:str:http://localhost:8000}
+        timeout: ${SKILL_SIMPLE_FSM_MODELS_LOOKONCHAIN_CLIENT_ARGS_TIMEOUT:int:15}
+        max_retries: ${SKILL_SIMPLE_FSM_MODELS_LOOKONCHAIN_CLIENT_ARGS_MAX_RETRIES:int:3}
+        backoff_factor: ${SKILL_SIMPLE_FSM_MODELS_LOOKONCHAIN_CLIENT_ARGS_BACKOFF_FACTOR:float:0.5}
+    researchagent_client:
+      args:
+        base_url: ${SKILL_SIMPLE_FSM_MODELS_RESEARCHAGENT_CLIENT_ARGS_BASE_URL:str:http://localhost:8000}
+        api_key: ${SKILL_SIMPLE_FSM_MODELS_RESEARCHAGENT_CLIENT_ARGS_API_KEY:str:key}
+    treeofalpha_client:
+      args:
+        base_url: ${SKILL_SIMPLE_FSM_MODELS_TREEOFALPHA_CLIENT_ARGS_BASE_URL:str:http://localhost:8000}
+        news_endpoint: ${SKILL_SIMPLE_FSM_MODELS_TREEOFALPHA_CLIENT_ARGS_NEWS_ENDPOINT:str:news}
+        cache_ttl: ${SKILL_SIMPLE_FSM_MODELS_TREEOFALPHA_CLIENT_ARGS_CACHE_TTL:int:3600}
+        max_retries: ${SKILL_SIMPLE_FSM_MODELS_TREEOFALPHA_CLIENT_ARGS_MAX_RETRIES:int:3}
+        backoff_factor: ${SKILL_SIMPLE_FSM_MODELS_TREEOFALPHA_CLIENT_ARGS_BACKOFF_FACTOR:float:0.5}
+    trendmoon_client:
+      args:
+        base_url: ${SKILL_SIMPLE_FSM_MODELS_TRENDMOON_CLIENT_ARGS_BASE_URL:str:http://localhost:8000}
+        insights_url: ${SKILL_SIMPLE_FSM_MODELS_TRENDMOON_CLIENT_ARGS_INSIGHTS_URL:str:http://localhost:8000/insights}
+        api_key: ${SKILL_SIMPLE_FSM_MODELS_TRENDMOON_CLIENT_ARGS_API_KEY:str:key}
+        max_retries: ${SKILL_SIMPLE_FSM_MODELS_TRENDMOON_CLIENT_ARGS_MAX_RETRIES:int:3}
+        backoff_factor: ${SKILL_SIMPLE_FSM_MODELS_TRENDMOON_CLIENT_ARGS_BACKOFF_FACTOR:float:0.5}
+        timeout: ${SKILL_SIMPLE_FSM_MODELS_TRENDMOON_CLIENT_ARGS_TIMEOUT:int:15}
+    unlocks_client:
+      args:
+        base_url: ${SKILL_SIMPLE_FSM_MODELS_UNLOCKS_CLIENT_ARGS_BASE_URL:str:http://localhost:8000}
+        timeout: ${SKILL_SIMPLE_FSM_MODELS_UNLOCKS_CLIENT_ARGS_TIMEOUT:int:15}
+        max_retries: ${SKILL_SIMPLE_FSM_MODELS_UNLOCKS_CLIENT_ARGS_MAX_RETRIES:int:3}
+        backoff_factor: ${SKILL_SIMPLE_FSM_MODELS_UNLOCKS_CLIENT_ARGS_BACKOFF_FACTOR:float:0.5}
