@@ -17,6 +17,25 @@ class ProjectSummary(BaseModel):
     created_at: datetime | None = None
 
 
+class RecentSentiment(BaseModel):
+    """Recent sentiment information."""
+
+    sentiment: str | None = None
+    bullish: str | None = None
+    bearish: str | None = None
+
+
+class TopicSummary(BaseModel):
+    """Topic summary information."""
+
+    overview: str | None = None
+    recent_sentiment: RecentSentiment | None = None
+    developments_and_catalysts: str | None = None
+    full_report: str | None = None
+    topic: str | None = None
+    generated_at: datetime | None = None
+
+
 class AssetInfo(BaseModel):
     """Asset information."""
 
@@ -38,6 +57,11 @@ class TriggerInfo(BaseModel):
 
 class KeyMetrics(BaseModel):
     """Key metrics."""
+
+    mindshare: float | None = Field(
+        None,
+        description="Latest mindshare",
+    )
 
     mindshare_24h: float | None = Field(
         None,
@@ -128,6 +152,7 @@ class StructuredPayload(BaseModel):
     onchain_highlights: list[OnchainHighlight]
     official_updates: list[OfficialUpdate]
     project_summary: ProjectSummary | None = None
+    topic_summary: TopicSummary | None = None
     unlocks_data: dict | None = None  # Raw unlocks data for reporting/LLM
     unlocks_recent: list[UnlockEvent] = []  # Recent unlocks data for reporting/LLM
     unlocks_upcoming: list[UnlockEvent] = []  # Upcoming unlocks data for reporting/LLM
