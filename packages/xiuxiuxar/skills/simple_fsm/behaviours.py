@@ -1309,6 +1309,11 @@ class IngestDataRound(BaseState):
             self._max_workers = os.cpu_count() or 4
             self.context.logger.warning(f"max_workers not provided. Falling back to {self._max_workers}")
 
+        self._executor = ThreadPoolExecutor(max_workers=self._max_workers)
+        self._request_queue: list | None = None
+        self._futures: dict | None = None
+        self._phase: str | None = None
+
     def _validate_trigger_context(self) -> tuple[str, int]:
         asset_symbol = self.context.trigger_context.get("asset_symbol")
         trigger_id = self.context.trigger_context.get("trigger_id")
@@ -1350,35 +1355,6 @@ class IngestDataRound(BaseState):
             self.context.logger.warning(f"Error checking for existing full unlocks data: {e}")
             return None
 
-    def _fetch_phase1_data(self, asset_symbol, asset_name):
-        """Fetch data from all sources except unlocks."""
-        phase1_sources = [s for s in DATA_SOURCES if s != "unlocks"]
-        with ThreadPoolExecutor(max_workers=self._max_workers) as executor:
-            futures = {}
-            for source in phase1_sources:
-                config = DATA_SOURCES[source]
-                if config.get("data_type_handler") == "multi":
-                    for endpoint, fetcher in config["fetchers"].items():
-                        futures[f"{source}_{endpoint}"] = executor.submit(
-                            fetcher, self.context, asset_symbol, asset_name=asset_name
-                        )
-                else:
-                    fetcher = config["fetcher"]
-                    futures[source] = executor.submit(fetcher, self.context, asset_symbol, asset_name=asset_name)
-            for name, future in futures.items():
-                try:
-                    result = future.result()
-                    self._process_future_result(name, result)
-                except (TrendmoonAPIError, TreeOfAlphaAPIError, LookOnChainAPIError, ResearchAgentAPIError) as e:
-                    http_response = getattr(e, "response", None)
-                    error_dump = {
-                        "error": str(e),
-                        "http_response": getattr(http_response, "text", None) if http_response else None,
-                        "status_code": getattr(http_response, "status_code", None) if http_response else None,
-                    }
-                    self._process_future_result(name, None, error=error_dump)
-                    self.context.logger.warning(f"Error fetching {name}: {e} | HTTP: {error_dump}")
-
     def _update_asset_name_if_needed(self, asset_symbol, asset_name):
         """Update asset name in DB and trigger_context if needed, return the resolved asset_name."""
         trendmoon_raw = self.context.raw_data.get("trendmoon", {})
@@ -1405,7 +1381,7 @@ class IngestDataRound(BaseState):
                 self.context.trigger_context["asset_name"] = asset_name
         return asset_name
 
-    def _fetch_unlocks_data(self):
+    def _fetch_unlocks_data_task(self):
         """Fetch or reuse full unlocks data and store in raw_data['unlocks']."""
         try:
             full_unlocks_item = self._get_existing_full_unlocks_data()
@@ -1433,6 +1409,7 @@ class IngestDataRound(BaseState):
         except (sqlalchemy.exc.SQLAlchemyError, TypeError, ValueError) as e:
             self.context.logger.warning(f"Error fetching or storing unlocks data: {e}")
             self.context.raw_data["unlocks"] = []
+            raise
 
     def _process_future_result(self, name, result, error=None):
         if error:
@@ -1452,25 +1429,109 @@ class IngestDataRound(BaseState):
         else:
             self.context.raw_data[name] = result
 
+    def _setup_run(self) -> None:
+        """Set up a new run."""
+        self.context.logger.info(
+            f"Setting up data ingestion run for trigger {self.context.trigger_context.get('trigger_id')}"
+        )
+        self._request_queue = []
+        self._futures = {}
+        self._initialize_raw_data()
+        asset_symbol, _ = self._validate_trigger_context()
+        asset_name = self.context.trigger_context.get("asset_name")
+
+        phase1_sources = [s for s in DATA_SOURCES if s != "unlocks"]
+        for source in phase1_sources:
+            config = DATA_SOURCES[source]
+            if config.get("data_type_handler") == "multi":
+                for endpoint, fetcher in config["fetchers"].items():
+                    self._request_queue.append(
+                        {
+                            "name": f"{source}_{endpoint}",
+                            "fetcher": fetcher,
+                            "symbol": asset_symbol,
+                            "asset_name": asset_name,
+                        }
+                    )
+            else:
+                fetcher = config["fetcher"]
+                self._request_queue.append(
+                    {"name": source, "fetcher": fetcher, "symbol": asset_symbol, "asset_name": asset_name}
+                )
+
+    def _submit_new_requests(self) -> None:
+        """Submit new requests from the queue up to max_workers."""
+        while self._request_queue and len(self._futures) < self._max_workers:
+            request_info = self._request_queue.pop(0)
+            name = request_info["name"]
+            fetcher = request_info["fetcher"]
+            symbol = request_info["symbol"]
+            asset_name = request_info["asset_name"]
+
+            future = self._executor.submit(fetcher, self.context, symbol, asset_name=asset_name)
+            self._futures[name] = future
+
+    def _process_completed_futures(self) -> None:
+        """Process any futures that have completed."""
+        if not self._futures:
+            return
+        done_futures = {name: future for name, future in self._futures.items() if future.done()}
+
+        for name, future in done_futures.items():
+            del self._futures[name]
+            try:
+                result = future.result()
+                self._process_future_result(name, result)
+            except (TrendmoonAPIError, TreeOfAlphaAPIError, LookOnChainAPIError, ResearchAgentAPIError) as e:
+                http_response = getattr(e, "response", None)
+                error_dump = {
+                    "error": str(e),
+                    "http_response": getattr(http_response, "text", None) if http_response else None,
+                    "status_code": getattr(http_response, "status_code", None) if http_response else None,
+                }
+                self._process_future_result(name, None, error=error_dump)
+                self.context.logger.warning(f"Error fetching {name}: {e} | HTTP: {error_dump}")
+            except Exception as e:
+                self.context.logger.exception(f"Unexpected error processing future for {name}: {e}")
+                self._process_future_result(name, None, error={"error": str(e)})
+
+    def _finish_run(self) -> None:
+        """Finalize the run and transition."""
+        self.context.logger.info(
+            f"Data ingestion run complete for trigger {self.context.trigger_context.get('trigger_id')}"
+        )
+        self._event = DyorabciappEvents.DONE
+        self._is_done = True
+        self._phase = None
+        self._futures = None
+        self._request_queue = None
+
     def act(self) -> None:
         """Ingest data from all sources."""
-        self.context.logger.info(f"Entering state: {self._state}")
         try:
-            self._initialize_raw_data()
-            asset_symbol, _ = self._validate_trigger_context()
-            asset_name = self.context.trigger_context.get("asset_name", None)
-            self.context.logger.info(f"Fetching data for symbol: {asset_symbol}")
+            if self._phase is None:
+                self.context.logger.info(f"Entering state: {self._state}")
+                self._setup_run()
+                self._phase = "phase1"
 
-            self._fetch_phase1_data(asset_symbol, asset_name)
-            asset_name = self._update_asset_name_if_needed(asset_symbol, asset_name)
-            if asset_name is None:
-                self.context.logger.warning(
-                    f"asset_name is still None for symbol {asset_symbol} "
-                    "before unlocks fetch. Using symbol as fallback."
-                )
-            self._fetch_unlocks_data()
+            self._process_completed_futures()
 
-            self._event = DyorabciappEvents.DONE
+            if self._phase == "phase1":
+                self._submit_new_requests()
+                if not self._request_queue and not self._futures:
+                    self.context.logger.info("Phase 1 data ingestion complete.")
+                    asset_symbol, _ = self._validate_trigger_context()
+                    asset_name = self.context.trigger_context.get("asset_name")
+                    self._update_asset_name_if_needed(asset_symbol, asset_name)
+                    self._phase = "unlocks"
+                    future = self._executor.submit(self._fetch_unlocks_data_task)
+                    self._futures["unlocks"] = future
+
+            elif self._phase == "unlocks":
+                if not self._futures:
+                    self.context.logger.info("Unlocks data ingestion complete.")
+                    self._finish_run()
+
         except Exception as e:
             self.context.logger.exception(f"Error during data ingestion: {e}")
             self.context.error_context = {
@@ -1481,7 +1542,7 @@ class IngestDataRound(BaseState):
                 "asset_id": getattr(self.context, "trigger_context", {}).get("asset_id"),
             }
             self._event = DyorabciappEvents.ERROR
-        self._is_done = True
+            self._is_done = True
 
 
 class GenerateReportRound(BaseState):
@@ -1506,6 +1567,13 @@ class GenerateReportRound(BaseState):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self._state = DyorabciappStates.GENERATEREPORTROUND
+        self._executor = ThreadPoolExecutor(max_workers=1)
+        self._future = None
+        self._prompt = None
+        self._payload = None
+        self._attempt = 0
+        self._max_retries = 3
+        self._last_error = None
 
     def _fetch_structured_payload(self):
         """Fetch the structured payload from the database."""
@@ -1535,99 +1603,128 @@ class GenerateReportRound(BaseState):
                 missing.append(section)
         return missing
 
-    def act(self) -> None:
-        """Generate a report for the given trigger/asset, retrying LLM if output is invalid."""
-        self.context.logger.info(f"Entering state: {self._state}")
-        max_retries = 3
-        try:
-            # Check if report already exists
-            trigger_id = self.context.trigger_context.get("trigger_id")
-            if self.context.db_model.report_exists(trigger_id):
-                self.context.logger.warning(f"Report already exists for trigger_id={trigger_id}")
-                self._event = DyorabciappEvents.DONE
-                self._is_done = True
-                return
+    def _setup_run(self) -> bool:
+        """Set up a new report generation run. Returns False if report already exists."""
+        self._future = None
+        self._prompt = None
+        self._payload = None
+        self._attempt = 1
+        self._last_error = None
 
-            # 1. Fetch structured payload
-            payload = self._fetch_structured_payload()
+        trigger_id = self.context.trigger_context.get("trigger_id")
+        if self.context.db_model.report_exists(trigger_id):
+            self.context.logger.warning(f"Report already exists for trigger_id={trigger_id}")
+            return False
 
-            # 2. Build prompt
-            prompt_context = payload
-            prompt = build_report_prompt(prompt_context)
+        self._payload = self._fetch_structured_payload()
+        self._prompt = build_report_prompt(self._payload)
+        self.context.logger.info("Built report prompt.")
+        self.context.logger.debug(f"Prompt: {self._prompt}")
+        return True
 
-            self.context.logger.info(f"Prompt: {prompt}")
+    def _submit_llm_request(self) -> None:
+        """Submit a request to the LLM service."""
+        self.context.logger.info(f"Submitting LLM request (attempt {self._attempt}/{self._max_retries})")
+        self._future = self._executor.submit(self.context.llm_service.generate_summary, self._prompt, self.MODEL_CONFIG)
 
-            last_error = None
-            for attempt in range(1, max_retries + 1):
-                try:
-                    llm_result = self.context.llm_service.generate_summary(prompt, self.MODEL_CONFIG)
-                    llm_output = llm_result["content"]
-                    llm_model_used = llm_result["llm_model_used"]
-                    generation_time_ms = llm_result["generation_time_ms"]
-                    token_usage_dict = llm_result["token_usage"]
+    def _process_llm_result_and_store(self, llm_result: dict) -> None:
+        """Process, validate, and store the LLM result."""
+        llm_output = llm_result["content"]
+        self.context.logger.info(f"LLM output (attempt {self._attempt}): {llm_output[:500]}...")
 
-                    self.context.logger.info(f"LLM output (attempt {attempt}): {llm_output}")
+        if not self._validate_markdown(llm_output):
+            msg = f"LLM output is not valid Markdown (attempt {self._attempt})."
+            raise ValueError(msg)
 
-                    if not self._validate_markdown(llm_output):
-                        msg = f"LLM output is not valid Markdown (attempt {attempt})."
-                        raise ValueError(msg)
+        missing_sections = self._check_required_sections(llm_output)
+        if missing_sections:
+            msg = f"LLM output missing required sections: {', '.join(missing_sections)} (attempt {self._attempt})"
+            raise ValueError(msg)
 
-                    missing_sections = self._check_required_sections(llm_output)
-                    if missing_sections:
-                        msg = f"LLM output missing required sections: {', '.join(missing_sections)} (attempt {attempt})"
-                        raise ValueError(msg)
+        report_id = self.context.db_model.store_report(
+            trigger_id=self.context.trigger_context.get("trigger_id"),
+            asset_id=self.context.trigger_context.get("asset_id"),
+            report_content_markdown=llm_output,
+            report_data_json=self._payload,
+            llm_model_used=llm_result["llm_model_used"],
+            generation_time_ms=llm_result["generation_time_ms"],
+            token_usage=llm_result["token_usage"],
+        )
 
-                    # Store the report if valid
-                    report_id = self.context.db_model.store_report(
-                        trigger_id=self.context.trigger_context.get("trigger_id"),
-                        asset_id=self.context.trigger_context.get("asset_id"),
-                        report_content_markdown=llm_output,
-                        report_data_json=payload,
-                        llm_model_used=llm_model_used,
-                        generation_time_ms=generation_time_ms,
-                        token_usage=token_usage_dict,
-                    )
+        if not hasattr(self.context, "report_context"):
+            self.context.report_context = {}
+        self.context.report_context["report_id"] = report_id
+        self.context.strategy.record_report_generated()
+        self.context.logger.info(f"Stored report with ID {report_id}.")
 
-                    if not hasattr(self.context, "report_context"):
-                        self.context.report_context = {}
-                    self.context.report_context["report_id"] = report_id
+    def _create_error_context(self, error_type: str, error_message: str) -> dict:
+        """Create a standardized error context dictionary."""
+        return {
+            "error_type": error_type,
+            "error_message": error_message,
+            "trigger_id": self.context.trigger_context.get("trigger_id"),
+            "asset_id": self.context.trigger_context.get("asset_id"),
+            "originating_round": str(self._state),
+        }
 
-                    self.context.strategy.record_report_generated()
+    def _handle_max_retries_exceeded(self) -> None:
+        """Log and set context when max retries are exceeded."""
+        error_message = f"Report generation failed after {self._max_retries} attempts: {self._last_error}"
+        critical_info = self._create_error_context("report_generation_error", error_message)
+        critical_info["level"] = "CRITICAL"
+        self.context.logger.critical(error_message, extra=critical_info)
+        self.context.error_context = critical_info
 
-                    self._event = DyorabciappEvents.DONE
-                    self._is_done = True
-                    return
-                except (LLMServiceError, ValueError) as e:
-                    last_error = e
-                    self.context.logger.warning(f"LLM report generation failed (attempt {attempt}/{max_retries}): {e}")
-                    if attempt == max_retries:
-                        break
-            # If we reach here, all attempts failed
-            # Log a critical error and return to WatchingRound
-            critical_info = {
-                "level": "CRITICAL",
-                "error_type": "report_generation_error",
-                "error_message": f"Report generation failed after {max_retries} attempts: {last_error}",
-                "trigger_id": self.context.trigger_context.get("trigger_id"),
-                "asset_id": self.context.trigger_context.get("asset_id"),
-                "originating_round": str(self._state),
-            }
-            self.context.logger.critical(
-                f"LLM report generation failed after {max_retries} attempts: {last_error}", extra=critical_info
-            )
-            self.context.error_context = critical_info
-            self._event = DyorabciappEvents.DONE
-        except Exception as e:
-            self.context.logger.exception(f"Error in GenerateReportRound: {e}")
-            self.context.error_context = {
-                "error_type": "report_generation_error",
-                "error_message": str(e),
-                "trigger_id": self.context.trigger_context.get("trigger_id"),
-                "asset_id": self.context.trigger_context.get("asset_id"),
-                "originating_round": str(self._state),
-            }
-            self._event = DyorabciappEvents.ERROR
+    def _finish_run(self, success: bool = True) -> None:
+        """Finalize the run and set the event."""
+        self._event = DyorabciappEvents.DONE if success else DyorabciappEvents.ERROR
         self._is_done = True
+        self._future = None
+        self._prompt = None
+        self._payload = None
+        self._attempt = 0
+        self._last_error = None
+
+    def act(self) -> None:
+        """Generate a report using a non-blocking, asynchronous pattern."""
+        if self._attempt == 0:  # First call for this trigger
+            self.context.logger.info(f"Entering state: {self._state}")
+            if not self._setup_run():
+                self._finish_run(success=True)  # Report exists, consider it done
+                return
+            self._submit_llm_request()
+            return  # Defer processing to the next tick
+
+        if self._future is None:
+            self.context.logger.error("GenerateReportRound: _future is None unexpectedly.")
+            self.context.error_context = self._create_error_context("internal_error", "Future was not set.")
+            self._finish_run(success=False)
+            return
+
+        if not self._future.done():
+            self.context.logger.debug("Waiting for LLM response...")
+            return
+
+        # Future is done, process it
+        try:
+            llm_result = self._future.result()
+            self._process_llm_result_and_store(llm_result)
+            self._finish_run(success=True)
+        except (LLMServiceError, ValueError) as e:
+            self._last_error = e
+            self.context.logger.warning(
+                f"LLM report generation failed (attempt {self._attempt}/{self._max_retries}): {e}"
+            )
+            self._attempt += 1
+            if self._attempt > self._max_retries:
+                self._handle_max_retries_exceeded()
+                self._finish_run(success=True)  # Finished with critical error, but "done" per original logic
+            else:
+                self._submit_llm_request()  # Retry
+        except Exception as e:
+            self.context.logger.exception(f"Unexpected error in GenerateReportRound: {e}")
+            self.context.error_context = self._create_error_context("report_generation_error", str(e))
+            self._finish_run(success=False)
 
 
 class HandleErrorRound(BaseState):
