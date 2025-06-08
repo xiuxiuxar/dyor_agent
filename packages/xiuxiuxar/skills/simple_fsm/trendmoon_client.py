@@ -320,6 +320,32 @@ class TrendmoonClient(Model, BaseClient):
         self.context.logger.info(f"Fetching keyword trends for '{keyword}' with params: {provided_params}")
         return self._make_request("GET", endpoint, params=params)
 
+    def get_topic_summary(self, topic: str) -> dict[str, Any] | None:
+        """Retrieves a summary for a specific topic.
+
+        Args:
+        ----
+            topic: The topic to summarize
+
+        Returns:
+        -------
+            Optional[dict[str, Any]]: Topic summary or None on error
+
+        Raises:
+        ------
+            TrendmoonAPIError: If the request fails after retries
+            ValueError: If topic is empty
+
+        """
+        if not topic:
+            msg = "topic must not be empty"
+            raise ValueError(msg)
+
+        endpoint = "/social/topic_summary"
+        params = {"topic": topic}
+        self.context.logger.info(f"Fetching topic summary for: {topic}")
+        return self._make_request("GET", endpoint, params=params)
+
     # -- Messages
 
     @validate_iso_dates("start_date", "end_date")

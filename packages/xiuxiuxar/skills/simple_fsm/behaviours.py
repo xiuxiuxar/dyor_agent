@@ -64,7 +64,6 @@ if TYPE_CHECKING:
     from packages.xiuxiuxar.skills.simple_fsm.models import APIClientStrategy
 
 
-MAX_WORKERS = 4
 PROTOCOL_HTTP = "eightballer/http:0.1.0"
 PROTOCOL_WEBSOCKETS = "eightballer/websockets:0.1.0"
 PROTOCOL_HANDLER_MAP = {
@@ -515,7 +514,9 @@ class ProcessDataRound(BaseState):
         research_raw = context.raw_data.get("researchagent")
         unlocks_raw = context.raw_data.get("unlocks")
 
-        social_data, coin_details, project_summary = self._extract_trendmoon_social_and_coin_details(trendmoon_raw)
+        social_data, coin_details, project_summary, topic_summary = self._extract_trendmoon_social_and_coin_details(
+            trendmoon_raw
+        )
         trend_market_data = self._extract_trend_market_data(social_data)
         unlocks_data, unlocks_recent, unlocks_upcoming = self._build_unlock_events(unlocks_raw, context)
 
@@ -545,6 +546,7 @@ class ProcessDataRound(BaseState):
             onchain_highlights=self._build_onchain_highlights(research_raw, context),
             official_updates=self._build_official_updates(look_raw),
             project_summary=project_summary,
+            topic_summary=topic_summary,
             unlocks_data=None,
             unlocks_recent=unlocks_recent,
             unlocks_upcoming=unlocks_upcoming,
@@ -555,13 +557,15 @@ class ProcessDataRound(BaseState):
             social_data = trendmoon_raw.get("social", {})
             coin_details = trendmoon_raw.get("coin_details", {})
             project_summary = trendmoon_raw.get("project_summary", {})
+            topic_summary = trendmoon_raw.get("topic_summary", {})
         else:
             social_data = {}
             coin_details = {}
             project_summary = {}
+            topic_summary = {}
         if isinstance(social_data, list):
             social_data = social_data[0] if social_data else {}
-        return social_data, coin_details, project_summary
+        return social_data, coin_details, project_summary, topic_summary
 
     def _extract_trend_market_data(self, social_data):
         return social_data.get("trend_market_data", [])
@@ -606,7 +610,13 @@ class ProcessDataRound(BaseState):
         if mindshare_points:
             mindshare_24h = round(float(mindshare_points[0]["lc_social_dominance"]), 1)
 
+        # Use the latest (most recent by date) lc_social_dominance for mindshare
+        latest_mindshare = 0.0
+        if mindshare_points:
+            latest_mindshare = mindshare_points[0]["lc_social_dominance"]
+
         return KeyMetrics(
+            mindshare=latest_mindshare,
             mindshare_24h=mindshare_24h,
             volume_change_24h=volume_change_24h,
             price_change_24h=price_change_24h,
@@ -636,11 +646,17 @@ class ProcessDataRound(BaseState):
 
         mention_points = get_mention_points(trend_market_data)
         if len(mention_points) == 2:
-            latest_mentions = float(mention_points[0]["social_mentions"])
-            previous_mentions = float(mention_points[1]["social_mentions"])
-            if previous_mentions:
-                mention_change_24h = round(((latest_mentions - previous_mentions) / previous_mentions) * 100, 1)
-            else:
+            try:
+                latest_mentions = float(mention_points[0].get("social_mentions", 0))
+                previous_mentions = float(mention_points[1].get("social_mentions", 0))
+                if "social_mentions" not in mention_points[0] or "social_mentions" not in mention_points[1]:
+                    self.context.logger.warning(f"Missing social mentions in mention_points: {mention_points}")
+                if previous_mentions:
+                    mention_change_24h = round(((latest_mentions - previous_mentions) / previous_mentions) * 100, 1)
+                else:
+                    mention_change_24h = 0.0
+            except (ValueError, TypeError) as e:
+                self.context.logger.warning(f"Failed to parse social mentions: {e}")
                 mention_change_24h = 0.0
         else:
             mention_change_24h = 0.0
@@ -908,8 +924,8 @@ class SetupDYORRound(BaseState):
     """This class implements the behaviour of the state SetupDYORRound."""
 
     def __init__(self, **kwargs: Any) -> None:
+        self.api_name = kwargs.pop("api_name", None)
         super().__init__(**kwargs)
-        self.api_name = kwargs.get("api_name")
         self.context.logger.info(f"API name: {self.api_name}")
         self._state = DyorabciappStates.SETUPDYORROUND
 
@@ -1284,12 +1300,14 @@ class IngestDataRound(BaseState):
     """This class implements the behaviour of the state IngestDataRound."""
 
     def __init__(self, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
-        self._state = DyorabciappStates.INGESTDATAROUND
         self._max_workers = kwargs.pop("max_workers", None)
+        super().__init__(**kwargs)
+        self.context.logger.info(f"IngestDataRound max_workers: {self._max_workers}")
+        self._state = DyorabciappStates.INGESTDATAROUND
+
         if self._max_workers is None:
-            msg = "max_workers must be provided"
-            raise ValueError(msg)
+            self._max_workers = os.cpu_count() or 4
+            self.context.logger.warning(f"max_workers not provided. Falling back to {self._max_workers}")
 
     def _validate_trigger_context(self) -> tuple[str, int]:
         asset_symbol = self.context.trigger_context.get("asset_symbol")
@@ -1477,6 +1495,14 @@ class GenerateReportRound(BaseState):
         "Conclusion",
     ]
 
+    MODEL_CONFIG = {
+        "temperature": 0.7,
+        "max_tokens": 1024,
+        "top_p": 1.0,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0,
+    }
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self._state = DyorabciappStates.GENERATEREPORTROUND
@@ -1531,18 +1557,10 @@ class GenerateReportRound(BaseState):
 
             self.context.logger.info(f"Prompt: {prompt}")
 
-            model_config = {
-                "temperature": 0.7,
-                "max_tokens": 1024,
-                "top_p": 1.0,
-                "frequency_penalty": 0.0,
-                "presence_penalty": 0.0,
-            }
-
             last_error = None
             for attempt in range(1, max_retries + 1):
                 try:
-                    llm_result = self.context.llm_service.generate_summary(prompt, model_config)
+                    llm_result = self.context.llm_service.generate_summary(prompt, self.MODEL_CONFIG)
                     llm_output = llm_result["content"]
                     llm_model_used = llm_result["llm_model_used"]
                     generation_time_ms = llm_result["generation_time_ms"]
@@ -1585,15 +1603,20 @@ class GenerateReportRound(BaseState):
                     if attempt == max_retries:
                         break
             # If we reach here, all attempts failed
-            self.context.logger.error(f"Report generation failed after {max_retries} attempts: {last_error}")
-            self.context.error_context = {
+            # Log a critical error and return to WatchingRound
+            critical_info = {
+                "level": "CRITICAL",
                 "error_type": "report_generation_error",
                 "error_message": f"Report generation failed after {max_retries} attempts: {last_error}",
                 "trigger_id": self.context.trigger_context.get("trigger_id"),
                 "asset_id": self.context.trigger_context.get("asset_id"),
                 "originating_round": str(self._state),
             }
-            self._event = DyorabciappEvents.RETRY
+            self.context.logger.critical(
+                f"LLM report generation failed after {max_retries} attempts: {last_error}", extra=critical_info
+            )
+            self.context.error_context = critical_info
+            self._event = DyorabciappEvents.DONE
         except Exception as e:
             self.context.logger.exception(f"Error in GenerateReportRound: {e}")
             self.context.error_context = {
@@ -1636,8 +1659,8 @@ class HandleErrorRound(BaseState):
     JITTER = 0.2  # 20% jitter
 
     def __init__(self, **kwargs: Any) -> None:
+        self.ntfy_topic = kwargs.pop("ntfy_topic", "alerts")
         super().__init__(**kwargs)
-        self.ntfy_topic = kwargs.get("ntfy_topic", "alerts")
         self._state = DyorabciappStates.HANDLEERRORROUND
         self._retry_states = {}  # Store retry states in the class instance
 
