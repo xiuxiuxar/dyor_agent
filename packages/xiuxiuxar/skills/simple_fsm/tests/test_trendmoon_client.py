@@ -62,8 +62,8 @@ CONTRACT_ADDRESS = "0x123..."
 COIN_ID = "test-coin-123"
 KEYWORD = "bitcoin moon"
 GROUP_USERNAME = "test_group"
-START_DATE = "2024-01-01T00:00:00"
-END_DATE = "2024-01-02T00:00:00"
+START_DATE = "2025-01-01T00:00:00"
+END_DATE = "2025-03-01T00:00:00"
 
 # Integration test constants
 TEST_PROJECT = "taraxa"
@@ -72,6 +72,7 @@ TEST_CONTRACT = "0xb8c77482e45f1f44de1745f52c74426c631bdd52"
 TEST_COIN_ID = "taraxa"
 TEST_KEYWORD = "bitcoin halving"
 TEST_GROUP = "bitcoin_signals"
+TEST_TOPIC = "bitcoin"
 
 # --- Fixtures ---
 
@@ -582,6 +583,14 @@ class TestTrendmoonClientIntegration:
         assert isinstance(result, dict)
         assert "coin_id" in result or "trend_market_data" in result
 
+    def test_get_topic_summary(self, staging_client):
+        """Test fetching topic summary from staging."""
+        result = staging_client.get_topic_summary(topic=TEST_TOPIC)
+        assert result is not None
+        assert isinstance(result, dict)
+        assert "overview" in result
+        assert "recent_sentiment" in result
+
     def test_get_keyword_trend(self, staging_client):
         """Test fetching keyword trends from staging."""
         result = staging_client.get_keyword_trend(
@@ -597,7 +606,7 @@ class TestTrendmoonClientIntegration:
     def test_search_messages(self, staging_client):
         """Test searching messages from staging."""
         end_date = datetime.now(UTC)
-        start_date = end_date - timedelta(days=1)
+        start_date = end_date - timedelta(days=90)
         result = staging_client.search_messages(
             text=TEST_KEYWORD, start_date=start_date.isoformat(), end_date=end_date.isoformat(), size=10
         )
