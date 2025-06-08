@@ -30,12 +30,18 @@ You are a crypto markets analyst with deep expertise in decentralized finance, m
 {{ project_summary.summary }}
 {% endif %}
 
+{% if topic_summary %}
+### Topic Summary
+{{ topic_summary}}
+{% endif %}
+
 ### Market Metrics
 
 - 24h Price Change: {{ key_metrics.price_change_24h }}%
 - 24h Volume Change: {{ key_metrics.volume_change_24h }}%
-- 24h Mindshare Change: {{ key_metrics.mindshare_24h }}
-- 24h Mentions Change : {{ social_summary.mention_change_24h }}
+- 24h Mindshare Change: {{ key_metrics.mindshare_24h }}%
+- 24h Mentions Change : {{ social_summary.mention_change_24h }}%
+- Latest Mindshare : {{ key_metrics.mindshare }}
 - Sentiment Score: {{ social_summary.sentiment_score }}
 
 
