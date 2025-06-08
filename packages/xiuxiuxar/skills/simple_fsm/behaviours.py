@@ -1484,6 +1484,14 @@ class GenerateReportRound(BaseState):
         "Conclusion",
     ]
 
+    MODEL_CONFIG = {
+        "temperature": 0.7,
+        "max_tokens": 1024,
+        "top_p": 1.0,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0,
+    }
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self._state = DyorabciappStates.GENERATEREPORTROUND
@@ -1538,18 +1546,10 @@ class GenerateReportRound(BaseState):
 
             self.context.logger.info(f"Prompt: {prompt}")
 
-            model_config = {
-                "temperature": 0.7,
-                "max_tokens": 1024,
-                "top_p": 1.0,
-                "frequency_penalty": 0.0,
-                "presence_penalty": 0.0,
-            }
-
             last_error = None
             for attempt in range(1, max_retries + 1):
                 try:
-                    llm_result = self.context.llm_service.generate_summary(prompt, model_config)
+                    llm_result = self.context.llm_service.generate_summary(prompt, self.MODEL_CONFIG)
                     llm_output = llm_result["content"]
                     llm_model_used = llm_result["llm_model_used"]
                     generation_time_ms = llm_result["generation_time_ms"]
@@ -1592,15 +1592,20 @@ class GenerateReportRound(BaseState):
                     if attempt == max_retries:
                         break
             # If we reach here, all attempts failed
-            self.context.logger.error(f"Report generation failed after {max_retries} attempts: {last_error}")
-            self.context.error_context = {
+            # Log a critical error and return to WatchingRound
+            critical_info = {
+                "level": "CRITICAL",
                 "error_type": "report_generation_error",
                 "error_message": f"Report generation failed after {max_retries} attempts: {last_error}",
                 "trigger_id": self.context.trigger_context.get("trigger_id"),
                 "asset_id": self.context.trigger_context.get("asset_id"),
                 "originating_round": str(self._state),
             }
-            self._event = DyorabciappEvents.RETRY
+            self.context.logger.critical(
+                f"LLM report generation failed after {max_retries} attempts: {last_error}", extra=critical_info
+            )
+            self.context.error_context = critical_info
+            self._event = DyorabciappEvents.DONE
         except Exception as e:
             self.context.logger.exception(f"Error in GenerateReportRound: {e}")
             self.context.error_context = {
