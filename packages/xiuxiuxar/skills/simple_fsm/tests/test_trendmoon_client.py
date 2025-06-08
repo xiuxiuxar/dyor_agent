@@ -606,7 +606,7 @@ class TestTrendmoonClientIntegration:
     def test_search_messages(self, staging_client):
         """Test searching messages from staging."""
         end_date = datetime.now(UTC)
-        start_date = end_date - timedelta(days=1)
+        start_date = end_date - timedelta(days=90)
         result = staging_client.search_messages(
             text=TEST_KEYWORD, start_date=start_date.isoformat(), end_date=end_date.isoformat(), size=10
         )
