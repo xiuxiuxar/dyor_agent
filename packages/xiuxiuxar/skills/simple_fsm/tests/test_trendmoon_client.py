@@ -62,8 +62,8 @@ CONTRACT_ADDRESS = "0x123..."
 COIN_ID = "test-coin-123"
 KEYWORD = "bitcoin moon"
 GROUP_USERNAME = "test_group"
-START_DATE = "2024-01-01T00:00:00"
-END_DATE = "2024-01-02T00:00:00"
+START_DATE = "2025-01-01T00:00:00"
+END_DATE = "2025-03-01T00:00:00"
 
 # Integration test constants
 TEST_PROJECT = "taraxa"
