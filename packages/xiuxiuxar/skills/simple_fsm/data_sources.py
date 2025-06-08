@@ -37,6 +37,21 @@ def trendmoon_coin_details(context, symbol, **_):
     ).get_coin_details(symbol=symbol)
 
 
+def trendmoon_topic_summary(context, topic, **_):
+    """Fetch topic summary from Trendmoon."""
+    cfg = context.api_client_configs["trendmoon"]
+    return TrendmoonClient(
+        name="trendmoon_client",
+        base_url=cfg["base_url"],
+        insights_url=cfg.get("insights_url"),
+        api_key=cfg["api_key"],
+        max_retries=cfg.get("max_retries", 3),
+        backoff_factor=cfg.get("backoff_factor", 0.5),
+        timeout=cfg.get("timeout", 15),
+        skill_context=context,
+    ).get_topic_summary(topic=topic)
+
+
 def trendmoon_project_summary(context, symbol, **_):
     """Fetch project summary from Trendmoon."""
     cfg = context.api_client_configs["trendmoon"]
@@ -137,6 +152,7 @@ DATA_SOURCES = {
             "social": trendmoon_social,
             "coin_details": trendmoon_coin_details,
             "project_summary": trendmoon_project_summary,
+            "topic_summary": trendmoon_topic_summary,
         },
         "processor": "serialize_trendmoon_data",
         "data_type_handler": "multi",

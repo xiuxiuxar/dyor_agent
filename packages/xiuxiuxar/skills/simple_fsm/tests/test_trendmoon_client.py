@@ -72,6 +72,7 @@ TEST_CONTRACT = "0xb8c77482e45f1f44de1745f52c74426c631bdd52"
 TEST_COIN_ID = "taraxa"
 TEST_KEYWORD = "bitcoin halving"
 TEST_GROUP = "bitcoin_signals"
+TEST_TOPIC = "bitcoin"
 
 # --- Fixtures ---
 
@@ -581,6 +582,14 @@ class TestTrendmoonClientIntegration:
         assert result is not None
         assert isinstance(result, dict)
         assert "coin_id" in result or "trend_market_data" in result
+
+    def test_get_topic_summary(self, staging_client):
+        """Test fetching topic summary from staging."""
+        result = staging_client.get_topic_summary(topic=TEST_TOPIC)
+        assert result is not None
+        assert isinstance(result, dict)
+        assert "overview" in result
+        assert "recent_sentiment" in result
 
     def test_get_keyword_trend(self, staging_client):
         """Test fetching keyword trends from staging."""

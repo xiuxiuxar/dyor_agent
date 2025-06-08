@@ -514,7 +514,9 @@ class ProcessDataRound(BaseState):
         research_raw = context.raw_data.get("researchagent")
         unlocks_raw = context.raw_data.get("unlocks")
 
-        social_data, coin_details, project_summary = self._extract_trendmoon_social_and_coin_details(trendmoon_raw)
+        social_data, coin_details, project_summary, topic_summary = self._extract_trendmoon_social_and_coin_details(
+            trendmoon_raw
+        )
         trend_market_data = self._extract_trend_market_data(social_data)
         unlocks_data, unlocks_recent, unlocks_upcoming = self._build_unlock_events(unlocks_raw, context)
 
@@ -544,6 +546,7 @@ class ProcessDataRound(BaseState):
             onchain_highlights=self._build_onchain_highlights(research_raw, context),
             official_updates=self._build_official_updates(look_raw),
             project_summary=project_summary,
+            topic_summary=topic_summary,
             unlocks_data=None,
             unlocks_recent=unlocks_recent,
             unlocks_upcoming=unlocks_upcoming,
@@ -554,13 +557,15 @@ class ProcessDataRound(BaseState):
             social_data = trendmoon_raw.get("social", {})
             coin_details = trendmoon_raw.get("coin_details", {})
             project_summary = trendmoon_raw.get("project_summary", {})
+            topic_summary = trendmoon_raw.get("topic_summary", {})
         else:
             social_data = {}
             coin_details = {}
             project_summary = {}
+            topic_summary = {}
         if isinstance(social_data, list):
             social_data = social_data[0] if social_data else {}
-        return social_data, coin_details, project_summary
+        return social_data, coin_details, project_summary, topic_summary
 
     def _extract_trend_market_data(self, social_data):
         return social_data.get("trend_market_data", [])
@@ -605,7 +610,13 @@ class ProcessDataRound(BaseState):
         if mindshare_points:
             mindshare_24h = round(float(mindshare_points[0]["lc_social_dominance"]), 1)
 
+        # Use the latest (most recent by date) lc_social_dominance for mindshare
+        latest_mindshare = 0.0
+        if mindshare_points:
+            latest_mindshare = mindshare_points[0]["lc_social_dominance"]
+
         return KeyMetrics(
+            mindshare=latest_mindshare,
             mindshare_24h=mindshare_24h,
             volume_change_24h=volume_change_24h,
             price_change_24h=price_change_24h,
