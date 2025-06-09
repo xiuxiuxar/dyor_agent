@@ -351,6 +351,7 @@ class ProcessDataRound(BaseState):
         if is_multi:
             if not isinstance(data, dict):
                 errors[source] = "Expected dict for multi data type"
+                return errors
             for data_type, subdata in data.items():
                 if not subdata:
                     continue
@@ -680,6 +681,8 @@ class ProcessDataRound(BaseState):
         )
 
     def _build_news_items(self, tree_raw):
+        if not tree_raw:
+            return []
         return [
             NewsItem(
                 headline=r.get("title", ""),
