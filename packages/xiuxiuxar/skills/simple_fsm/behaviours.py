@@ -1500,6 +1500,9 @@ class IngestDataRound(BaseState):
 
     def _finish_run(self) -> None:
         """Finalize the run and transition."""
+        if self._futures and any(not f.done() for f in self._futures.values()):
+            self.context.logger.info("Data ingestion run not complete. Waiting for futures to complete.")
+            return
         self.context.logger.info(
             f"Data ingestion run complete for trigger {self.context.trigger_context.get('trigger_id')}"
         )
