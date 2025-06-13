@@ -145,29 +145,42 @@ class WatchingRound(BaseState):
 
         try:
             # Query for unprocessed triggers
-            with self.context.db_model.engine.connect() as conn:
-                result = conn.execute(
+            with self.context.db_model.engine.begin() as conn:
+                row = conn.execute(
                     text("""
-                    SELECT t.trigger_id, t.asset_id, a.symbol, a.name, t.trigger_details
-                    FROM triggers t
-                    JOIN assets a ON t.asset_id = a.asset_id
-                    WHERE t.status = 'pending'
-                    ORDER BY t.created_at ASC
-                    LIMIT 1
+                    WITH next AS (
+                        SELECT trigger_id
+                        FROM   triggers
+                        WHERE  status = 'pending'
+                        ORDER  BY created_at
+                        LIMIT  1
+                        FOR UPDATE SKIP LOCKED
+                    )
+                    UPDATE triggers AS t
+                    SET    status = 'processing',
+                        processing_started_at = NOW()
+                    FROM   next
+                    WHERE  t.trigger_id = next.trigger_id
+                    RETURNING t.trigger_id,
+                            t.asset_id,
+                            (SELECT symbol FROM assets WHERE asset_id = t.asset_id)   AS symbol,
+                            (SELECT name   FROM assets WHERE asset_id = t.asset_id)   AS name,
+                            t.trigger_details
                 """)
-                )
-                trigger = result.fetchone()
+                ).fetchone()
 
-                if trigger:
+                if row:
                     # Found a trigger, set up context and transition
                     self.context.trigger_context = {
-                        "trigger_id": trigger[0],
-                        "asset_id": trigger[1],
-                        "asset_symbol": trigger[2],
-                        "asset_name": trigger[3],
-                        "trigger_details": trigger[4],
+                        "trigger_id": row.trigger_id,
+                        "asset_id": row.asset_id,
+                        "asset_symbol": row.symbol,
+                        "asset_name": row.name,
+                        "trigger_details": row.trigger_details,
                     }
-                    self.context.logger.info(f"Found trigger {trigger[0]} for asset {trigger[2]} (ID: {trigger[1]})")
+                    self.context.logger.info(
+                        f"Found trigger {row.trigger_id} for asset {row.symbol} - set to processing"
+                    )
                     self._event = DyorabciappEvents.TRIGGER
                 else:
                     self.context.logger.debug("No pending triggers found")
@@ -1439,6 +1452,7 @@ class IngestDataRound(BaseState):
         )
         self._request_queue = []
         self._futures = {}
+        self._is_done = False  # Reset done state for new trigger
         self._initialize_raw_data()
         asset_symbol, _ = self._validate_trigger_context()
         asset_name = self.context.trigger_context.get("asset_name")
@@ -1616,6 +1630,7 @@ class GenerateReportRound(BaseState):
         self._payload = None
         self._attempt = 1
         self._last_error = None
+        self._is_done = False  # Reset done state for new trigger
 
         trigger_id = self.context.trigger_context.get("trigger_id")
         if self.context.db_model.report_exists(trigger_id):
