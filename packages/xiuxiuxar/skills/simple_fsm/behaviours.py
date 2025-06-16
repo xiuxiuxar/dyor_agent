@@ -326,7 +326,13 @@ class ProcessDataRound(BaseState):
                     repr(raw)[:500],
                     repr(serialized_raw)[:500],
                 )
-                if config.get("data_type_handler") == "multi" and isinstance(serialized_raw, dict):
+                if config.get("data_type_handler") == "multi":
+                    if not isinstance(serialized_raw, dict):
+                        self.context.logger.warning(
+                            f"Expected dict for multi data type in source={source}, "
+                            f"got {type(serialized_raw)}. Skipping."
+                        )
+                        continue
                     for subkey, subval in serialized_raw.items():
                         self.context.logger.info(
                             "Storing multi raw data for source=%s, subkey=%s, type(subval)=%s, subval=%s",
@@ -572,6 +578,15 @@ class ProcessDataRound(BaseState):
             coin_details = trendmoon_raw.get("coin_details", {})
             project_summary = trendmoon_raw.get("project_summary", {})
             topic_summary = trendmoon_raw.get("topic_summary", {})
+
+            if social_data is None:
+                social_data = {}
+            if coin_details is None:
+                coin_details = {}
+            if project_summary is None:
+                project_summary = {}
+            if topic_summary is None:
+                topic_summary = {}
         else:
             social_data = {}
             coin_details = {}
@@ -582,6 +597,8 @@ class ProcessDataRound(BaseState):
         return social_data, coin_details, project_summary, topic_summary
 
     def _extract_trend_market_data(self, social_data):
+        if social_data is None:
+            return []
         return social_data.get("trend_market_data", [])
 
     def _build_key_metrics(self, trend_market_data):
@@ -637,6 +654,8 @@ class ProcessDataRound(BaseState):
         )
 
     def _build_social_summary(self, social_data):
+        if social_data is None:
+            social_data = {}
         trend_market_data = social_data.get("trend_market_data", [])
         latest_sentiment = 0.0
         if trend_market_data:
@@ -682,7 +701,7 @@ class ProcessDataRound(BaseState):
         )
 
     def _build_asset_info(self, coin_details, social_data, context):
-        asset_source = coin_details or social_data
+        asset_source = coin_details or social_data or {}
         return AssetInfo(
             name=asset_source.get("name", context.trigger_context.get("asset_name", "")),
             symbol=asset_source.get("symbol", context.trigger_context.get("asset_symbol", "")),
@@ -764,6 +783,9 @@ class ProcessDataRound(BaseState):
     def _update_asset_metadata_from_trendmoon(self, asset_id: int) -> None:
         trendmoon_raw = self.context.raw_data.get("trendmoon", {})
         coin_details = trendmoon_raw.get("coin_details", {}) if isinstance(trendmoon_raw, dict) else {}
+
+        if coin_details is None:
+            coin_details = {}
         coingecko_id = coin_details.get("id")
         categories = coin_details.get("categories")
         category = categories[0] if categories and isinstance(categories, list) and categories else None
@@ -1378,6 +1400,11 @@ class IngestDataRound(BaseState):
         if isinstance(trendmoon_raw, dict):
             coin_details = trendmoon_raw.get("coin_details", {})
             project_summary = trendmoon_raw.get("project_summary", {})
+
+            if coin_details is None:
+                coin_details = {}
+            if project_summary is None:
+                project_summary = {}
             real_name = coin_details.get("name") or project_summary.get("name")
         if real_name and real_name.lower() != asset_symbol.lower():
             try:
@@ -1501,13 +1528,38 @@ class IngestDataRound(BaseState):
                 self._process_future_result(name, result)
             except (TrendmoonAPIError, TreeOfAlphaAPIError, LookOnChainAPIError, ResearchAgentAPIError) as e:
                 http_response = getattr(e, "response", None)
+                status_code = getattr(http_response, "status_code", None) if http_response else None
+                response_text = getattr(http_response, "text", None) if http_response else None
+
                 error_dump = {
                     "error": str(e),
-                    "http_response": getattr(http_response, "text", None) if http_response else None,
-                    "status_code": getattr(http_response, "status_code", None) if http_response else None,
+                    "http_response": response_text,
+                    "status_code": status_code,
                 }
                 self._process_future_result(name, None, error=error_dump)
                 self.context.logger.warning(f"Error fetching {name}: {e} | HTTP: {error_dump}")
+
+                # Check for critical asset validation errors (404 "Coin not found")
+                error_str = str(e).lower()
+                # TrendMoon coin_details 404 means invalid asset symbol
+                is_coin_not_found = name == "trendmoon_coin_details" and "status 404" in error_str
+                if is_coin_not_found:
+                    self.context.logger.exception(f"Invalid asset symbol detected for {name}: {e}")
+                    asset_symbol = self.context.trigger_context.get("asset_symbol")
+                    self.context.error_context = {
+                        "error_type": "asset_validation_error",
+                        "error_message": f"Asset symbol '{asset_symbol}' not found in external APIs",
+                        "error_source": "asset_lookup",
+                        "trigger_id": self.context.trigger_context.get("trigger_id"),
+                        "asset_id": self.context.trigger_context.get("asset_id"),
+                        "originating_round": str(self._state),
+                        "critical": True,
+                        "recoverable": False,
+                    }
+
+                    self._event = DyorabciappEvents.ERROR
+                    self._is_done = True
+                    return
             except Exception as e:
                 self.context.logger.exception(f"Unexpected error processing future for {name}: {e}")
                 self._process_future_result(name, None, error={"error": str(e)})
@@ -1766,6 +1818,7 @@ class HandleErrorRound(BaseState):
         "configuration_error": False,
         "validation_error": False,
         "data_validation_error": False,
+        "asset_validation_error": False,
         "internal_logic_error": False,
         "resource_exhaustion": False,
         "llm_content_filter": False,
@@ -1844,17 +1897,17 @@ class HandleErrorRound(BaseState):
             self.context.logger.critical(f"Failed to send alert to ntfy.sh: {e!s} | {alert_msg}")
             self.context.logger.critical(alert_msg)
 
-    def _update_trigger_status_error(self, trigger_id: int) -> None:
+    def _update_trigger_status_error(self, trigger_id: int, error_message: str | None = None) -> None:
         # Mark the trigger as errored in the DB
         try:
             with self.context.db_model.engine.connect() as conn:
                 conn.execute(
                     text("""
                         UPDATE triggers
-                        SET status = 'error', completed_at = NOW()
+                        SET status = 'error', completed_at = NOW(), error_message = :error_message
                         WHERE trigger_id = :trigger_id
                     """),
-                    {"trigger_id": trigger_id},
+                    {"trigger_id": trigger_id, "error_message": error_message},
                 )
                 conn.commit()
         except sqlalchemy.exc.SQLAlchemyError as e:
@@ -1896,7 +1949,8 @@ class HandleErrorRound(BaseState):
             self._event = DyorabciappEvents.RETRY
         else:
             if trigger_id is not None:
-                self._update_trigger_status_error(trigger_id)
+                error_message = error_context.get("error_message", "Unknown error")
+                self._update_trigger_status_error(trigger_id, error_message)
             self._event = DyorabciappEvents.DONE
         self._is_done = True
 
@@ -1949,6 +2003,11 @@ class DyorabciappFsmBehaviour(FSMBehaviour):
         self.register_transition(
             source=DyorabciappStates.HANDLEERRORROUND.value,
             event=DyorabciappEvents.RETRY,
+            destination=DyorabciappStates.WATCHINGROUND.value,
+        )
+        self.register_transition(
+            source=DyorabciappStates.HANDLEERRORROUND.value,
+            event=DyorabciappEvents.DONE,
             destination=DyorabciappStates.WATCHINGROUND.value,
         )
         self.register_transition(
