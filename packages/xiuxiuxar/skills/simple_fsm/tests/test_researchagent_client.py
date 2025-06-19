@@ -52,7 +52,7 @@ TEST_LIMIT = 5
 def live_client():
     """Create a ResearchAgentClient for live testing."""
     api_key = os.getenv("RESEARCH_AGENT_API_KEY")
-    base_url = os.getenv("RESEARCH_AGENT_BASE_URL", "https://docker.trendmoon.io/v1")
+    base_url = os.getenv("RESEARCH_AGENT_BASE_URL")
     if not api_key:
         pytest.skip("Integration test environment variables not set")
     mock_context = MagicMock()
