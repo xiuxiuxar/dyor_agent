@@ -18,6 +18,7 @@
 
 """Tests for the Tree of Alpha client."""
 
+import os
 import time
 import logging
 from pathlib import Path
@@ -48,8 +49,8 @@ except ImportError as e:
     raise ImportError(msg) from None
 
 # --- Constants for Testing ---
-BASE_URL = "https://news.treeofalpha.com"
-NEWS_ENDPOINT = "api/news"
+BASE_URL = os.getenv("SKILL_SIMPLE_FSM_MODELS_TREEOFALPHA_CLIENT_ARGS_BASE_URL")
+NEWS_ENDPOINT = os.getenv("SKILL_SIMPLE_FSM_MODELS_TREEOFALPHA_CLIENT_ARGS_NEWS_ENDPOINT")
 TEST_LIMIT = 100
 TEST_QUERY = "bitcoin"
 TEST_SYMBOL = "BTC"
