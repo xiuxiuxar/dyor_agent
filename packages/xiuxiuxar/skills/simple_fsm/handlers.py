@@ -138,8 +138,6 @@ class HttpHandler(Handler):
                 self._handle_invalid(http_msg, http_dialogue)
             elif url_path == "/status":
                 self._handle_status(http_msg, http_dialogue)
-            elif url_path == "/metrics":
-                self._handle_metrics(http_msg, http_dialogue)
         else:
             self._handle_invalid(http_msg, http_dialogue)
 
