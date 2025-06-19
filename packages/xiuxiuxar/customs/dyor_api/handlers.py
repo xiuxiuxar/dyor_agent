@@ -508,6 +508,7 @@ class DyorApiHandler(Handler):
             return self.success_response(message, data, status_code, status_text)
 
     def _handle_create_trigger(self, message: ApiHttpMessage, body: bytes) -> ApiHttpMessage:
+        self.context.logger.info(f"Creating trigger with body: {body}")
         try:
             data = json.loads(body)
             # Validate input using TriggerCreate (which now allows asset_id or asset_symbol)
@@ -515,7 +516,7 @@ class DyorApiHandler(Handler):
             asset_id = trigger_create.asset_id
             asset_symbol = trigger_create.asset_symbol
             if asset_symbol:
-                asset_symbol = asset_symbol.upper()  # Ensure uppercase for DB
+                asset_symbol = asset_symbol.upper()
             with self.get_session() as session:
                 # If asset_symbol is provided, resolve or create asset
                 if asset_symbol:
@@ -542,10 +543,9 @@ class DyorApiHandler(Handler):
                         status_code=400,
                         error_code="BAD_REQUEST",
                     )
-                # Prepare trigger creation dict
                 trigger_dict = trigger_create.model_dump()
                 trigger_dict["asset_id"] = asset_id
-                trigger_dict.pop("asset_symbol", None)  # Not a DB column
+                trigger_dict.pop("asset_symbol", None)
                 new_trigger = Trigger(**trigger_dict, processing_started_at=datetime.now(UTC))
                 session.add(new_trigger)
                 session.commit()
