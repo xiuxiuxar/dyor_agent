@@ -18,6 +18,7 @@
 
 """Tests for the LookOnChain client."""
 
+import os
 import logging
 from pathlib import Path
 from datetime import UTC, datetime
@@ -50,8 +51,8 @@ except ImportError as e:
     raise ImportError(msg) from None
 
 # --- Constants for Testing ---
-BASE_DOMAIN = "https://www.lookonchain.com"
-SEARCH_ENDPOINT = f"{BASE_DOMAIN}/ashx/search_list.ashx"
+BASE_DOMAIN = os.getenv("SKILL_SIMPLE_FSM_MODELS_LOOKONCHAIN_CLIENT_ARGS_BASE_URL")
+SEARCH_ENDPOINT = os.getenv("SKILL_SIMPLE_FSM_MODELS_LOOKONCHAIN_CLIENT_ARGS_SEARCH_ENDPOINT")
 TEST_QUERY = "ethereum"
 TEST_PAGE = 1
 TEST_COUNT = 20
