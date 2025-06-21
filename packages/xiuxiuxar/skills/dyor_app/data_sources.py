@@ -1,10 +1,28 @@
-"""Data sources for the simple FSM."""
+# ------------------------------------------------------------------------------
+#
+#   Copyright 2025 xiuxiuxar
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+# ------------------------------------------------------------------------------
 
-from packages.xiuxiuxar.skills.simple_fsm.unlocks_client import UnlocksClient
-from packages.xiuxiuxar.skills.simple_fsm.trendmoon_client import TrendmoonClient, TrendmoonAPIError
-from packages.xiuxiuxar.skills.simple_fsm.lookonchain_client import LookOnChainClient
-from packages.xiuxiuxar.skills.simple_fsm.treeofalpha_client import TreeOfAlphaClient
-from packages.xiuxiuxar.skills.simple_fsm.researchagent_client import ResearchAgentClient
+"""Data sources for the DYOR App FSM."""
+
+from packages.xiuxiuxar.skills.dyor_app.unlocks_client import UnlocksClient
+from packages.xiuxiuxar.skills.dyor_app.trendmoon_client import TrendmoonClient, TrendmoonAPIError
+from packages.xiuxiuxar.skills.dyor_app.lookonchain_client import LookOnChainClient
+from packages.xiuxiuxar.skills.dyor_app.treeofalpha_client import TreeOfAlphaClient
+from packages.xiuxiuxar.skills.dyor_app.researchagent_client import ResearchAgentClient
 
 
 def trendmoon_social(context, symbol, **_):

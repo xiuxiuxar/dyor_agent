@@ -16,7 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 
-"""This module contains the implementation of the behaviours of 'simple_fsm' skill."""
+"""This module contains the implementation of the behaviours of DYOR App skill."""
 
 from typing import Any
 from datetime import UTC, tzinfo, datetime, timedelta
@@ -26,7 +26,7 @@ import sqlalchemy
 from pydantic import ValidationError
 from sqlalchemy import text
 
-from packages.xiuxiuxar.skills.simple_fsm.data_models import (
+from packages.xiuxiuxar.skills.dyor_app.data_models import (
     NewsItem,
     AssetInfo,
     KeyMetrics,
@@ -36,8 +36,8 @@ from packages.xiuxiuxar.skills.simple_fsm.data_models import (
     OnchainHighlight,
     StructuredPayload,
 )
-from packages.xiuxiuxar.skills.simple_fsm.data_sources import DATA_SOURCES, unlocks_project_filter
-from packages.xiuxiuxar.skills.simple_fsm.behaviours.base import BaseState, DyorabciappEvents, DyorabciappStates
+from packages.xiuxiuxar.skills.dyor_app.data_sources import DATA_SOURCES, unlocks_project_filter
+from packages.xiuxiuxar.skills.dyor_app.behaviours.base import BaseState, DyorabciappEvents, DyorabciappStates
 
 
 class ProcessDataRound(BaseState):

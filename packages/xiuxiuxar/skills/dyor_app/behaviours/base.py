@@ -16,7 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 
-"""This module contains the implementation of the behaviours of 'simple_fsm' skill."""
+"""This module contains the implementation of the behaviours of DYOR App skill."""
 
 import importlib
 from abc import ABC

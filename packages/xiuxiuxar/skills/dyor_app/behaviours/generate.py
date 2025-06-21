@@ -16,7 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 
-"""This module contains the implementation of the behaviours of 'simple_fsm' skill."""
+"""This module contains the implementation of the behaviours of DYOR App skill."""
 
 import re
 from typing import Any
@@ -24,9 +24,9 @@ from concurrent.futures import ThreadPoolExecutor
 
 import markdown
 
-from packages.xiuxiuxar.skills.simple_fsm.models import LLMServiceError
-from packages.xiuxiuxar.skills.simple_fsm.prompt import build_report_prompt
-from packages.xiuxiuxar.skills.simple_fsm.behaviours.base import BaseState, DyorabciappEvents, DyorabciappStates
+from packages.xiuxiuxar.skills.dyor_app.models import LLMServiceError
+from packages.xiuxiuxar.skills.dyor_app.prompt import build_report_prompt
+from packages.xiuxiuxar.skills.dyor_app.behaviours.base import BaseState, DyorabciappEvents, DyorabciappStates
 
 
 class GenerateReportRound(BaseState):

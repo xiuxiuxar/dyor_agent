@@ -16,7 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 
-"""This module contains the implementation of the behaviours of 'simple_fsm' skill."""
+"""This module contains the implementation of the behaviours of DYOR App skill."""
 
 import os
 import json
@@ -27,12 +27,12 @@ from concurrent.futures import ThreadPoolExecutor
 import sqlalchemy
 from sqlalchemy import text
 
-from packages.xiuxiuxar.skills.simple_fsm.data_sources import DATA_SOURCES, unlocks_fetcher
-from packages.xiuxiuxar.skills.simple_fsm.behaviours.base import BaseState, DyorabciappEvents, DyorabciappStates
-from packages.xiuxiuxar.skills.simple_fsm.trendmoon_client import TrendmoonAPIError
-from packages.xiuxiuxar.skills.simple_fsm.lookonchain_client import LookOnChainAPIError
-from packages.xiuxiuxar.skills.simple_fsm.treeofalpha_client import TreeOfAlphaAPIError
-from packages.xiuxiuxar.skills.simple_fsm.researchagent_client import ResearchAgentAPIError
+from packages.xiuxiuxar.skills.dyor_app.data_sources import DATA_SOURCES, unlocks_fetcher
+from packages.xiuxiuxar.skills.dyor_app.behaviours.base import BaseState, DyorabciappEvents, DyorabciappStates
+from packages.xiuxiuxar.skills.dyor_app.trendmoon_client import TrendmoonAPIError
+from packages.xiuxiuxar.skills.dyor_app.lookonchain_client import LookOnChainAPIError
+from packages.xiuxiuxar.skills.dyor_app.treeofalpha_client import TreeOfAlphaAPIError
+from packages.xiuxiuxar.skills.dyor_app.researchagent_client import ResearchAgentAPIError
 
 
 class IngestDataRound(BaseState):
@@ -247,6 +247,9 @@ class IngestDataRound(BaseState):
                 if is_coin_not_found:
                     self.context.logger.exception(f"Invalid asset symbol detected for {name}: {e}")
                     asset_symbol = self.context.trigger_context.get("asset_symbol")
+                    # Clean up ongoing requests before setting error context
+                    self._cleanup_futures()
+
                     self.context.error_context = {
                         "error_type": "asset_validation_error",
                         "error_message": f"Asset symbol '{asset_symbol}' not found in external APIs",
@@ -278,6 +281,18 @@ class IngestDataRound(BaseState):
         self._phase = None
         self._futures = None
         self._request_queue = None
+
+    def _cleanup_futures(self) -> None:
+        """Cancel ongoing futures and clean up executor state."""
+        if self._futures:
+            for name, future in self._futures.items():
+                if not future.done():
+                    future.cancel()
+                    self.context.logger.info(f"Cancelled future: {name}")
+            self._futures.clear()
+
+        if self._request_queue:
+            self._request_queue.clear()
 
     def act(self) -> None:
         """Ingest data from all sources."""

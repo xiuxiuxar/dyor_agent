@@ -16,14 +16,14 @@
 #
 # ------------------------------------------------------------------------------
 
-"""This module contains the implementation of the behaviours of 'simple_fsm' skill."""
+"""This module contains the implementation of the behaviours of DYOR App skill."""
 
 from typing import Any
 
 import sqlalchemy
 from sqlalchemy import text
 
-from packages.xiuxiuxar.skills.simple_fsm.behaviours.base import BaseState, DyorabciappEvents, DyorabciappStates
+from packages.xiuxiuxar.skills.dyor_app.behaviours.base import BaseState, DyorabciappEvents, DyorabciappStates
 
 
 class WatchingRound(BaseState):
@@ -40,6 +40,10 @@ class WatchingRound(BaseState):
         3. If there are no triggers, set the event to NO_TRIGGER.
         """
         self.context.logger.debug(f"Entering state: {self._state}")
+
+        # Clear any stale error context from previous trigger processing cycles
+        if hasattr(self.context, "error_context"):
+            self.context.error_context = None
 
         try:
             # Query for unprocessed triggers

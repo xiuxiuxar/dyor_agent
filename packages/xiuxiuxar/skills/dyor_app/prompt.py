@@ -15,7 +15,7 @@
 #   limitations under the License.
 #
 # ------------------------------------------------------------------------------
-"""This module contains the prompt for the simple_fsm skill."""
+"""This module contains the prompt for the DYOR App skill."""
 
 from typing import Any
 from pathlib import Path
