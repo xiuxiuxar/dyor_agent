@@ -24,7 +24,7 @@ skills:
 - eightballer/prometheus:0.1.0:bafybeicl5i7e467aowfarke4bbyixo2dggar276njmvyuwbsby5pxshhtu
 - xiuxiuxar/dyor_app:0.1.0:bafybeifaithfsuxi3fklbl6dd6z4f6rctmijbaal2s4grkkqqhengk5owe
 customs:
-- xiuxiuxar/dyor_api:0.1.0:bafybeidvvcwu34lpf7sxiwpe3fle4u6tvj22qkdhhyloxjhm3757i4xi3i
+- xiuxiuxar/dyor_api:0.1.0:bafybeic2ngukvyual4mrwm4rp2zbqnzbn3op2p3e22e4si3kuwp4vee4je
 default_ledger: ethereum
 required_ledgers:
 - ethereum
