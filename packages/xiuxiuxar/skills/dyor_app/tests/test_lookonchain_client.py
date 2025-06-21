@@ -35,8 +35,8 @@ import sys  # noqa: E402
 sys.path.insert(0, str(ROOT_DIR))
 
 try:
-    from packages.xiuxiuxar.skills.simple_fsm.base_client import BaseClient
-    from packages.xiuxiuxar.skills.simple_fsm.lookonchain_client import (
+    from packages.xiuxiuxar.skills.dyor_app.base_client import BaseClient
+    from packages.xiuxiuxar.skills.dyor_app.lookonchain_client import (
         NetworkError,
         ParsingError,
         ScrapedDataItem,
@@ -51,8 +51,8 @@ except ImportError as e:
     raise ImportError(msg) from None
 
 # --- Constants for Testing ---
-BASE_DOMAIN = os.getenv("SKILL_SIMPLE_FSM_MODELS_LOOKONCHAIN_CLIENT_ARGS_BASE_URL")
-SEARCH_ENDPOINT = os.getenv("SKILL_SIMPLE_FSM_MODELS_LOOKONCHAIN_CLIENT_ARGS_SEARCH_ENDPOINT")
+BASE_DOMAIN = os.getenv("SKILL_DYOR_APP_MODELS_LOOKONCHAIN_CLIENT_ARGS_BASE_URL")
+SEARCH_ENDPOINT = os.getenv("SKILL_DYOR_APP_MODELS_LOOKONCHAIN_CLIENT_ARGS_SEARCH_ENDPOINT")
 TEST_QUERY = "ethereum"
 TEST_PAGE = 1
 TEST_COUNT = 20

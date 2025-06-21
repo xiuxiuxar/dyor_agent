@@ -35,8 +35,8 @@ import sys  # noqa: E402
 sys.path.insert(0, str(ROOT_DIR))
 
 try:
-    from packages.xiuxiuxar.skills.simple_fsm.base_client import BaseClient
-    from packages.xiuxiuxar.skills.simple_fsm.trendmoon_client import (
+    from packages.xiuxiuxar.skills.dyor_app.base_client import BaseClient
+    from packages.xiuxiuxar.skills.dyor_app.trendmoon_client import (
         MatchModes,
         TimeIntervals,
         TrendmoonClient,

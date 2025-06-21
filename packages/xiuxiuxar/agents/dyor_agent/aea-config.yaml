@@ -22,9 +22,9 @@ protocols:
 - open_aea/signing:1.0.0:bafybeig2d36zxy65vd7fwhs7scotuktydcarm74aprmrb5nioiymr3yixm
 skills:
 - eightballer/prometheus:0.1.0:bafybeicl5i7e467aowfarke4bbyixo2dggar276njmvyuwbsby5pxshhtu
-- xiuxiuxar/simple_fsm:0.1.0:bafybeiacxo3ayj2t6npuidgq45gpqzijgi52xdiziy7a747cc472pv6x6q
+- xiuxiuxar/dyor_app:0.1.0:bafybeifaithfsuxi3fklbl6dd6z4f6rctmijbaal2s4grkkqqhengk5owe
 customs:
-- xiuxiuxar/dyor_api:0.1.0:bafybeihstg67o2pxeyjasspefepgafzwcqilu7uyrg7jgrulmdgjr6v6d4
+- xiuxiuxar/dyor_api:0.1.0:bafybeidvvcwu34lpf7sxiwpe3fle4u6tvj22qkdhhyloxjhm3757i4xi3i
 default_ledger: ethereum
 required_ledgers:
 - ethereum
@@ -70,74 +70,74 @@ type: connection
 config:
   host: 0.0.0.0
   port: 8888
-  target_skill_id: xiuxiuxar/simple_fsm:0.1.0
+  target_skill_id: xiuxiuxar/dyor_app:0.1.0
 ---
 public_id: eightballer/websocket_server:0.1.0:bafybeib4t4ay6kfjokq3cydparpzs4zllyl2yujvfsbc24xogwyxsswaqy
 type: connection
 config:
   host: 0.0.0.0
   port: 5556
-  target_skill_id: xiuxiuxar/simple_fsm:0.1.0
+  target_skill_id: xiuxiuxar/dyor_app:0.1.0
 ---
-public_id: xiuxiuxar/simple_fsm:0.1.0
+public_id: xiuxiuxar/dyor_app:0.1.0
 type: skill
 behaviours:
   main:
     args:
-      max_workers: ${SKILL_SIMPLE_FSM_BEHAVIOURS_MAIN_ARGS_MAX_WORKERS:int:4}
-      api_name: ${SKILL_SIMPLE_FSM_BEHAVIOURS_MAIN_ARGS_API_NAME:str:xiuxiuxar/dyor_api}
-      ntfy_topic: ${SKILL_SIMPLE_FSM_BEHAVIOURS_MAIN_ARGS_NTFY_TOPIC:str:alerts}
+      max_workers: ${SKILL_DYOR_APP_BEHAVIOURS_MAIN_ARGS_MAX_WORKERS:int:4}
+      api_name: ${SKILL_DYOR_APP_BEHAVIOURS_MAIN_ARGS_API_NAME:str:xiuxiuxar/dyor_api}
+      ntfy_topic: ${SKILL_DYOR_APP_BEHAVIOURS_MAIN_ARGS_NTFY_TOPIC:str:alerts}
 handlers:
   metrics_handler:
     args:
       enable_cors: false
-      expected_api_key: ${SKILL_SIMPLE_FSM_HANDLERS_METRICS_HANDLER_ARGS_EXPECTED_API_KEY:str:key}
+      expected_api_key: ${SKILL_DYOR_APP_HANDLERS_METRICS_HANDLER_ARGS_EXPECTED_API_KEY:str:key}
 models:
   db_model:
     args:
-      POSTGRES_USER: ${SKILL_SIMPLE_FSM_MODELS_DB_MODEL_ARGS_POSTGRES_USER:str:user}
-      POSTGRES_PASSWORD: ${SKILL_SIMPLE_FSM_MODELS_DB_MODEL_ARGS_POSTGRES_PASSWORD:str:pass}
-      POSTGRES_HOST: ${SKILL_SIMPLE_FSM_MODELS_DB_MODEL_ARGS_POSTGRES_HOST:str:host.docker.internal}
-      POSTGRES_PORT: ${SKILL_SIMPLE_FSM_MODELS_DB_MODEL_ARGS_POSTGRES_PORT:int:5432}
-      POSTGRES_DB: ${SKILL_SIMPLE_FSM_MODELS_DB_MODEL_ARGS_POSTGRES_DB:str:db_name}
+      POSTGRES_USER: ${SKILL_DYOR_APP_MODELS_DB_MODEL_ARGS_POSTGRES_USER:str:user}
+      POSTGRES_PASSWORD: ${SKILL_DYOR_APP_MODELS_DB_MODEL_ARGS_POSTGRES_PASSWORD:str:pass}
+      POSTGRES_HOST: ${SKILL_DYOR_APP_MODELS_DB_MODEL_ARGS_POSTGRES_HOST:str:host.docker.internal}
+      POSTGRES_PORT: ${SKILL_DYOR_APP_MODELS_DB_MODEL_ARGS_POSTGRES_PORT:int:5432}
+      POSTGRES_DB: ${SKILL_DYOR_APP_MODELS_DB_MODEL_ARGS_POSTGRES_DB:str:db_name}
   llm_service:
     args:
-      LLM_PRIMARY_MODEL: ${SKILL_SIMPLE_FSM_MODELS_LLM_SERVICE_ARGS_LLM_PRIMARY_MODEL:str:Meta-Llama-3-3-70B-Instruct}
-      LLM_FALLBACK_MODEL: ${SKILL_SIMPLE_FSM_MODELS_LLM_SERVICE_ARGS_LLM_FALLBACK_MODEL:str:DeepSeek-R1-Distill-Qwen-32B}
-      LLM_API_KEY: ${SKILL_SIMPLE_FSM_MODELS_LLM_SERVICE_ARGS_LLM_API_KEY:str:key}
-      LLM_BASE_URL: ${SKILL_SIMPLE_FSM_MODELS_LLM_SERVICE_ARGS_LLM_BASE_URL:str:https://api.openai.com/v1}
-      LLM_MAX_RETRIES: ${SKILL_SIMPLE_FSM_MODELS_LLM_SERVICE_ARGS_LLM_MAX_RETRIES:int:4}
-      LLM_BACKOFF_FACTOR: ${SKILL_SIMPLE_FSM_MODELS_LLM_SERVICE_ARGS_LLM_BACKOFF_FACTOR:float:1.5}
-      LLM_TIMEOUT: ${SKILL_SIMPLE_FSM_MODELS_LLM_SERVICE_ARGS_LLM_TIMEOUT:int:60}
+      LLM_PRIMARY_MODEL: ${SKILL_DYOR_APP_MODELS_LLM_SERVICE_ARGS_LLM_PRIMARY_MODEL:str:Meta-Llama-3-3-70B-Instruct}
+      LLM_FALLBACK_MODEL: ${SKILL_DYOR_APP_MODELS_LLM_SERVICE_ARGS_LLM_FALLBACK_MODEL:str:DeepSeek-R1-Distill-Qwen-32B}
+      LLM_API_KEY: ${SKILL_DYOR_APP_MODELS_LLM_SERVICE_ARGS_LLM_API_KEY:str:key}
+      LLM_BASE_URL: ${SKILL_DYOR_APP_MODELS_LLM_SERVICE_ARGS_LLM_BASE_URL:str:https://api.openai.com/v1}
+      LLM_MAX_RETRIES: ${SKILL_DYOR_APP_MODELS_LLM_SERVICE_ARGS_LLM_MAX_RETRIES:int:4}
+      LLM_BACKOFF_FACTOR: ${SKILL_DYOR_APP_MODELS_LLM_SERVICE_ARGS_LLM_BACKOFF_FACTOR:float:1.5}
+      LLM_TIMEOUT: ${SKILL_DYOR_APP_MODELS_LLM_SERVICE_ARGS_LLM_TIMEOUT:int:60}
   lookonchain_client:
     args:
-      base_url: ${SKILL_SIMPLE_FSM_MODELS_LOOKONCHAIN_CLIENT_ARGS_BASE_URL:str:http://localhost:8000}
-      search_endpoint: ${SKILL_SIMPLE_FSM_MODELS_LOOKONCHAIN_CLIENT_ARGS_SEARCH_ENDPOINT:str:http://localhost:8000}
-      timeout: ${SKILL_SIMPLE_FSM_MODELS_LOOKONCHAIN_CLIENT_ARGS_TIMEOUT:int:15}
-      max_retries: ${SKILL_SIMPLE_FSM_MODELS_LOOKONCHAIN_CLIENT_ARGS_MAX_RETRIES:int:3}
-      backoff_factor: ${SKILL_SIMPLE_FSM_MODELS_LOOKONCHAIN_CLIENT_ARGS_BACKOFF_FACTOR:float:0.5}
+      base_url: ${SKILL_DYOR_APP_MODELS_LOOKONCHAIN_CLIENT_ARGS_BASE_URL:str:http://localhost:8000}
+      search_endpoint: ${SKILL_DYOR_APP_MODELS_LOOKONCHAIN_CLIENT_ARGS_SEARCH_ENDPOINT:str:http://localhost:8000}
+      timeout: ${SKILL_DYOR_APP_MODELS_LOOKONCHAIN_CLIENT_ARGS_TIMEOUT:int:15}
+      max_retries: ${SKILL_DYOR_APP_MODELS_LOOKONCHAIN_CLIENT_ARGS_MAX_RETRIES:int:3}
+      backoff_factor: ${SKILL_DYOR_APP_MODELS_LOOKONCHAIN_CLIENT_ARGS_BACKOFF_FACTOR:float:0.5}
   researchagent_client:
     args:
-      base_url: ${SKILL_SIMPLE_FSM_MODELS_RESEARCHAGENT_CLIENT_ARGS_BASE_URL:str:http://localhost:8000}
-      api_key: ${SKILL_SIMPLE_FSM_MODELS_RESEARCHAGENT_CLIENT_ARGS_API_KEY:str:key}
+      base_url: ${SKILL_DYOR_APP_MODELS_RESEARCHAGENT_CLIENT_ARGS_BASE_URL:str:http://localhost:8000}
+      api_key: ${SKILL_DYOR_APP_MODELS_RESEARCHAGENT_CLIENT_ARGS_API_KEY:str:key}
   treeofalpha_client:
     args:
-      base_url: ${SKILL_SIMPLE_FSM_MODELS_TREEOFALPHA_CLIENT_ARGS_BASE_URL:str:http://localhost:8000}
-      news_endpoint: ${SKILL_SIMPLE_FSM_MODELS_TREEOFALPHA_CLIENT_ARGS_NEWS_ENDPOINT:str:news}
-      cache_ttl: ${SKILL_SIMPLE_FSM_MODELS_TREEOFALPHA_CLIENT_ARGS_CACHE_TTL:int:3600}
-      max_retries: ${SKILL_SIMPLE_FSM_MODELS_TREEOFALPHA_CLIENT_ARGS_MAX_RETRIES:int:3}
-      backoff_factor: ${SKILL_SIMPLE_FSM_MODELS_TREEOFALPHA_CLIENT_ARGS_BACKOFF_FACTOR:float:0.5}
+      base_url: ${SKILL_DYOR_APP_MODELS_TREEOFALPHA_CLIENT_ARGS_BASE_URL:str:http://localhost:8000}
+      news_endpoint: ${SKILL_DYOR_APP_MODELS_TREEOFALPHA_CLIENT_ARGS_NEWS_ENDPOINT:str:news}
+      cache_ttl: ${SKILL_DYOR_APP_MODELS_TREEOFALPHA_CLIENT_ARGS_CACHE_TTL:int:3600}
+      max_retries: ${SKILL_DYOR_APP_MODELS_TREEOFALPHA_CLIENT_ARGS_MAX_RETRIES:int:3}
+      backoff_factor: ${SKILL_DYOR_APP_MODELS_TREEOFALPHA_CLIENT_ARGS_BACKOFF_FACTOR:float:0.5}
   trendmoon_client:
     args:
-      base_url: ${SKILL_SIMPLE_FSM_MODELS_TRENDMOON_CLIENT_ARGS_BASE_URL:str:http://localhost:8000}
-      insights_url: ${SKILL_SIMPLE_FSM_MODELS_TRENDMOON_CLIENT_ARGS_INSIGHTS_URL:str:http://localhost:8000/insights}
-      api_key: ${SKILL_SIMPLE_FSM_MODELS_TRENDMOON_CLIENT_ARGS_API_KEY:str:key}
-      max_retries: ${SKILL_SIMPLE_FSM_MODELS_TRENDMOON_CLIENT_ARGS_MAX_RETRIES:int:3}
-      backoff_factor: ${SKILL_SIMPLE_FSM_MODELS_TRENDMOON_CLIENT_ARGS_BACKOFF_FACTOR:float:0.5}
-      timeout: ${SKILL_SIMPLE_FSM_MODELS_TRENDMOON_CLIENT_ARGS_TIMEOUT:int:15}
+      base_url: ${SKILL_DYOR_APP_MODELS_TRENDMOON_CLIENT_ARGS_BASE_URL:str:http://localhost:8000}
+      insights_url: ${SKILL_DYOR_APP_MODELS_TRENDMOON_CLIENT_ARGS_INSIGHTS_URL:str:http://localhost:8000/insights}
+      api_key: ${SKILL_DYOR_APP_MODELS_TRENDMOON_CLIENT_ARGS_API_KEY:str:key}
+      max_retries: ${SKILL_DYOR_APP_MODELS_TRENDMOON_CLIENT_ARGS_MAX_RETRIES:int:3}
+      backoff_factor: ${SKILL_DYOR_APP_MODELS_TRENDMOON_CLIENT_ARGS_BACKOFF_FACTOR:float:0.5}
+      timeout: ${SKILL_DYOR_APP_MODELS_TRENDMOON_CLIENT_ARGS_TIMEOUT:int:15}
   unlocks_client:
     args:
-      base_url: ${SKILL_SIMPLE_FSM_MODELS_UNLOCKS_CLIENT_ARGS_BASE_URL:str:http://localhost:8000}
-      timeout: ${SKILL_SIMPLE_FSM_MODELS_UNLOCKS_CLIENT_ARGS_TIMEOUT:int:15}
-      max_retries: ${SKILL_SIMPLE_FSM_MODELS_UNLOCKS_CLIENT_ARGS_MAX_RETRIES:int:3}
-      backoff_factor: ${SKILL_SIMPLE_FSM_MODELS_UNLOCKS_CLIENT_ARGS_BACKOFF_FACTOR:float:0.5}
+      base_url: ${SKILL_DYOR_APP_MODELS_UNLOCKS_CLIENT_ARGS_BASE_URL:str:http://localhost:8000}
+      timeout: ${SKILL_DYOR_APP_MODELS_UNLOCKS_CLIENT_ARGS_TIMEOUT:int:15}
+      max_retries: ${SKILL_DYOR_APP_MODELS_UNLOCKS_CLIENT_ARGS_MAX_RETRIES:int:3}
+      backoff_factor: ${SKILL_DYOR_APP_MODELS_UNLOCKS_CLIENT_ARGS_BACKOFF_FACTOR:float:0.5}

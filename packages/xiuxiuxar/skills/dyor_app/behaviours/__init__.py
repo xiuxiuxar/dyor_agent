@@ -1,7 +1,6 @@
 # ------------------------------------------------------------------------------
 #
-#   Copyright 2022 Valory AG
-#   Copyright 2018-2021 Fetch.AI Limited
+#   Copyright 2025 xiuxiuxar
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -17,9 +16,4 @@
 #
 # ------------------------------------------------------------------------------
 
-"""This module contains the implementation of the http echo skill."""
-
-from aea.configurations.base import PublicId
-
-
-PUBLIC_ID = PublicId.from_str("xiuxiuxar/simple_fsm:0.1.0")
+"""This module contains the implementation of the behaviours of DYOR App skill."""

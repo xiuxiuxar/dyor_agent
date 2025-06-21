@@ -25,8 +25,8 @@ from datetime import UTC, datetime, timedelta
 from bs4 import BeautifulSoup
 from aea.skills.base import Model
 
-from packages.xiuxiuxar.skills.simple_fsm.models import ScrapedDataItem
-from packages.xiuxiuxar.skills.simple_fsm.base_client import BaseClient, BaseAPIError
+from packages.xiuxiuxar.skills.dyor_app.models import ScrapedDataItem
+from packages.xiuxiuxar.skills.dyor_app.base_client import BaseClient, BaseAPIError
 
 
 STATUS_FORCELIST = (429, 500, 502, 503, 504)

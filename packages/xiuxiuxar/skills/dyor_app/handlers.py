@@ -16,7 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 
-"""This module contains the handler for the 'metrics' skill."""
+"""This module contains the handler for the DYOR App skill."""
 
 import json
 import secrets
@@ -28,10 +28,10 @@ from urllib.parse import urlparse
 from aea.skills.base import Handler
 from aea.protocols.base import Message
 
-from packages.xiuxiuxar.skills.simple_fsm import PUBLIC_ID
+from packages.xiuxiuxar.skills.dyor_app import PUBLIC_ID
 from packages.eightballer.protocols.default import DefaultMessage
 from packages.eightballer.protocols.http.message import HttpMessage
-from packages.xiuxiuxar.skills.simple_fsm.dialogues import (
+from packages.xiuxiuxar.skills.dyor_app.dialogues import (
     HttpDialogue,
     HttpDialogues,
     DefaultDialogues,
@@ -42,7 +42,7 @@ from packages.eightballer.protocols.websockets.message import WebsocketsMessage
 
 
 if TYPE_CHECKING:
-    from packages.xiuxiuxar.skills.simple_fsm.models import APIClientStrategy
+    from packages.xiuxiuxar.skills.dyor_app.models import APIClientStrategy
 
 
 def _parse_headers(header_str: str) -> dict[str, str]:

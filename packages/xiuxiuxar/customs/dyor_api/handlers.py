@@ -29,7 +29,7 @@ from sqlalchemy.orm import Session, aliased
 from aea.skills.base import Handler
 
 from packages.eightballer.protocols.http.message import HttpMessage as ApiHttpMessage
-from packages.xiuxiuxar.skills.simple_fsm.handlers import WebsocketHandler
+from packages.xiuxiuxar.skills.dyor_app.handlers import WebsocketHandler
 from packages.eightballer.protocols.websockets.message import WebsocketsMessage as ApiWebsocketsMessage
 
 from . import db, api

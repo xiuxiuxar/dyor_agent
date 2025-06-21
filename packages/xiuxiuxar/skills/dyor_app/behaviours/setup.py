@@ -16,7 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 
-"""This module contains the implementation of the behaviours of 'simple_fsm' skill."""
+"""This module contains the implementation of the behaviours of DYOR App skill."""
 
 import sys
 from typing import TYPE_CHECKING, Any, cast
@@ -27,7 +27,7 @@ import yaml
 import requests
 import sqlalchemy
 
-from packages.xiuxiuxar.skills.simple_fsm.behaviours.base import (
+from packages.xiuxiuxar.skills.dyor_app.behaviours.base import (
     PROTOCOL_HANDLER_MAP,
     BaseState,
     DyorabciappEvents,
@@ -37,7 +37,7 @@ from packages.xiuxiuxar.skills.simple_fsm.behaviours.base import (
 
 
 if TYPE_CHECKING:
-    from packages.xiuxiuxar.skills.simple_fsm.models import APIClientStrategy
+    from packages.xiuxiuxar.skills.dyor_app.models import APIClientStrategy
 
 
 class SetupDYORRound(BaseState):

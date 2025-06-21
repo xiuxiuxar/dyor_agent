@@ -33,7 +33,7 @@ import sys  # noqa: E402
 sys.path.insert(0, str(ROOT_DIR))
 
 try:
-    from packages.xiuxiuxar.skills.simple_fsm.researchagent_client import ResearchAgentClient, ResearchAgentAPIError
+    from packages.xiuxiuxar.skills.dyor_app.researchagent_client import ResearchAgentClient, ResearchAgentAPIError
 except ImportError as e:
     msg = (
         f"Could not import ResearchAgentClient or ResearchAgentAPIError. "

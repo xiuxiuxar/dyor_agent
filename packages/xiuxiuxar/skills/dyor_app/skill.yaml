@@ -1,44 +1,44 @@
-name: simple_fsm
+name: dyor_app
 author: xiuxiuxar
 version: 0.1.0
 type: skill
-description: The DYOR Simple FSM skill.
+description: The DYOR App skill.
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  README.md: bafybeifmctcmcdtae5b3qin4fdveytwcduleekax3mgqbmfwudwcay2dny
-  __init__.py: bafybeigocf4h7sv7lkbfbnpelwm6xzwv3hg7pwac2mbamholdxykzq6wiq
+  README.md: bafybeigzconp2wwwebx3kxzjsvhkvrx64hvmow6fiezlyzvfh6zyptkt6u
+  __init__.py: bafybeifdv7ipgktpnyu6qzt6fsybtzcfwwotjq7rcoyjtx4znfwagjzy34
   base_client.py: bafybeiewhdwg2juqwcqgqibky7yzyuba2mbi52ybmg5qs7nbpimuepznxa
-  behaviours/__init__.py: bafybeibmb2b4jtocnqspfyhux7goarvvdge3tk73enehsttt2nxqv7dkwm
-  behaviours/base.py: bafybeiatwxmio52po2orquqf5lu3ueibu4y6aobpkdp5pbnmmm3p7j2x4m
-  behaviours/deliver.py: bafybeif6rygp2bkcvbfaudcorjhukvzntcshbr4skpfv6fjmhia3zlrfby
-  behaviours/error.py: bafybeiasatkpmxznwxalfdzkyts3zf2gy3rcpj4ktm3lx26rc7w2bixwlu
-  behaviours/generate.py: bafybeih4ipzu7grto7pfc7qv3qftppwklng4julns6gvdki7urwocmwgsa
-  behaviours/ingest.py: bafybeig4ubwtp46ao4z5w6pwb524qb3t54vrposllrl3xietqkeyzd2y5e
-  behaviours/process.py: bafybeia26ucifknie7265v3x6ktanf7tjl4wy7oygo5cvunuiykrqmuhoy
-  behaviours/round_behaviour.py: bafybeihfqzelahfgxypsyngk4t4mb4dxojxqubhxbevvgfi4gw4eah6csi
-  behaviours/setup.py: bafybeifamgiqqavruqfxfl3lndjjqkhbvvyo4qzhczq6cfjubcca7vhvdm
-  behaviours/trigger.py: bafybeif23pwapqjtdog2ucpsx2o6f7jhqig73opmntmymh4pcoh3kecr24
-  behaviours/watching.py: bafybeidpwvsgughoyyidkivrwz3qfqg2y5o3yu6rh7a2xjn7fgt5rpgb2m
-  data_models.py: bafybeibc7etglt3r5yqp2enqclosyus7rmq4fgp6up4lvplntsodoukviq
-  data_sources.py: bafybeidf2lnz7w3lv7gpuy6kfdfusft4b2sx2zbaqm62yqsprhr5nkhbli
+  behaviours/__init__.py: bafybeieu3vou7p6waf5ikgm3ov5d4gzuj2zyz575vm2fiappwszppkpmwu
+  behaviours/base.py: bafybeic2yrai6muqreh772ksvuvrb6rjfqhu2egzos73gmffgbqdcf6aqm
+  behaviours/deliver.py: bafybeiaeo4wjubegka23zre4b7njwjq53tgk23bz7ac3psgnyol6nuaepm
+  behaviours/error.py: bafybeie6mkywanzqdvnaon2q2xlxwgztnshglhrcgdcww75k5sqpx5j62a
+  behaviours/generate.py: bafybeiaqtafpcqg64o2m3m5bypyxhovkpwginfqdpnfkataoez5xwxcyhq
+  behaviours/ingest.py: bafybeibqzxnargjozb7rz2olh657bonveb7n5puiviw53czyz3xperp7su
+  behaviours/process.py: bafybeifoqo5y7tn5t422djfzapbxiexpcj7ey7k3rwdjlxcvym7rvhsloy
+  behaviours/round_behaviour.py: bafybeibz6vmnh62qef72xxfbvt5hzg27g4t64no5n27jfxftnm3m4apssa
+  behaviours/setup.py: bafybeifl56j2c5wpyhpzktagvunurtdrnpccrq2jhkmxossmjkhudvcgli
+  behaviours/trigger.py: bafybeih3j56qe74ayl4cpzqherjeok36kxrykp6wdkdnkkv4rpbexevcxy
+  behaviours/watching.py: bafybeig73dn2nkbpnbtwbrti4gmuyhdt6ue4xbis3oovi7cwlfi53xuf6i
+  data_models.py: bafybeicdrrxox6jumt5tsbbqoacg5lxrr4wdb5hkqhbjhyll3wco6tycn4
+  data_sources.py: bafybeianugusuaqsfl6zbhsahez3qaypjodzmdcu2bcetzh7tgg2ylfhvm
   dialogues.py: bafybeidr23gipmyw5t6o6jf52y4j733adbt4pnasjxrzfohsgpwt7ex6ea
-  handlers.py: bafybeiddn2f45l4ucdhpk77o5teatlqhre2newx6uf5ogdqcs27hrj5kem
-  lookonchain_client.py: bafybeifiyujzuoyxfhmeenxliitk23nhtxc77uwzhpqjg4xbyvydaztarq
+  handlers.py: bafybeid3uiul7ikn6rinj7rmzsviczfaeont4rh2534f5duvxy7o4iuod4
+  lookonchain_client.py: bafybeiefy7tv55o6xl5bai4eh6mhztviriphx27a26x7c6b7nhuft5qcfy
   models.py: bafybeihnoquzcwqu3jblhvn7euvs7e77ufqhjbpds7n3myaewn7pppdhwm
-  prompt.py: bafybeiabqzblbtlkngkpz5gfjo66ryngiatzfmjgx4bq3i4fpqodkitiqa
+  prompt.py: bafybeifvcghu3l7mjeeevqu27u2ahcxz7agtfjir3chxgi5kirueyt3h5m
   prompt_template.jinja: bafybeic7drcgnkvhcyviaewgevk6ha4hgzo5unayg6vc56ftwnp2nc37qa
-  researchagent_client.py: bafybeiblaexoh4fcpwtidif3dyaiu4bkjy2jm5nj2jg4igev5nwmfjvy64
+  researchagent_client.py: bafybeifabeb4qiuh4u25t7f4y6itjijbtxmlmja27bctfy3bmmdmayhxry
   strategy.py: bafybeighe2emfcjlvw6jninea3td3czbvvohuwo2xmmp45tdosy2z3gmm4
-  tests/__init__.py: bafybeigb2ji4vkcap3hokcedggjwsrah7te2nxjhkorwf3ibwgyaa2glma
+  tests/__init__.py: bafybeigepfdik4xeolw6pyd5fd2xihltmwqacs7vvcl3mxefydkhlwbthm
   tests/conftest.py: bafybeicvznjlmanmoghlq6y3atuuh62ke6wdfxkgwfmh5zrvjvmclatrl4
-  tests/test_lookonchain_client.py: bafybeiccskccyexlqc566vmmz6ian44r2kezo43h7vb2ujk7f5hri6rica
-  tests/test_researchagent_client.py: bafybeig4qilffvnvpgzcjhwltwuvexds5jsg2a4b4sy3bho3lc2nmserue
-  tests/test_treeofalpha_client.py: bafybeifyodn43khydkneupvz5artadgtfgpvpegfcxec24bc6d5c27wspi
-  tests/test_trendmoon_client.py: bafybeihbokv5vllizbht336j4kcrrkjif3vrkyisatdgageazw7kmdkn6q
-  treeofalpha_client.py: bafybeif5c7l3k4ns5tv2tcryhksg5xpz6ak2wpyethbsuc7durfblm4aou
-  trendmoon_client.py: bafybeia3dsxnpiqutwa5atl6bn6hocmg4fm33yuz2aibimqss3ymeikry4
-  unlocks_client.py: bafybeiglxe4ub4cxwstkwlhihu7vjotzfxyde35vdtgyriozlo4ybp2w3a
+  tests/test_lookonchain_client.py: bafybeigxyslv3yt4yya5wgudihaaoxbkw2uib5uvogavnc57t2lh2fh3ki
+  tests/test_researchagent_client.py: bafybeiakaem3ecobndbmzl35nzsj5adwiwirb7zal24nw3vpb2bdq66zhi
+  tests/test_treeofalpha_client.py: bafybeia63uzwyrz753esny7kfidoodw4n6sfin6aht37m4qlmkg6esaoqy
+  tests/test_trendmoon_client.py: bafybeib5pjacih6jletedyz47ce6txn3yjuzn6n5crh6u2ignetyl247ge
+  treeofalpha_client.py: bafybeie7hq5rdqmqzwvhpkpj2po42bo5vfq2x5swzkduaccajfyevkhche
+  trendmoon_client.py: bafybeibbuvtkqnrusi4ies35kaa7mdrasqdwlcobmynfqeee2dizmsjuvq
+  unlocks_client.py: bafybeieldimzv746jzjxb6oo3iirrqejch2iq2e4c5v6voyxwa63gn5dxq
 fingerprint_ignore_patterns: []
 connections: []
 contracts: []

@@ -36,8 +36,8 @@ import sys  # noqa: E402
 sys.path.insert(0, str(ROOT_DIR))
 
 try:
-    from packages.xiuxiuxar.skills.simple_fsm.base_client import BaseClient
-    from packages.xiuxiuxar.skills.simple_fsm.treeofalpha_client import (
+    from packages.xiuxiuxar.skills.dyor_app.base_client import BaseClient
+    from packages.xiuxiuxar.skills.dyor_app.treeofalpha_client import (
         TreeOfAlphaClient,
         TreeOfAlphaAPIError,
     )
@@ -49,8 +49,8 @@ except ImportError as e:
     raise ImportError(msg) from None
 
 # --- Constants for Testing ---
-BASE_URL = os.getenv("SKILL_SIMPLE_FSM_MODELS_TREEOFALPHA_CLIENT_ARGS_BASE_URL")
-NEWS_ENDPOINT = os.getenv("SKILL_SIMPLE_FSM_MODELS_TREEOFALPHA_CLIENT_ARGS_NEWS_ENDPOINT")
+BASE_URL = os.getenv("SKILL_DYOR_APP_MODELS_TREEOFALPHA_CLIENT_ARGS_BASE_URL")
+NEWS_ENDPOINT = os.getenv("SKILL_DYOR_APP_MODELS_TREEOFALPHA_CLIENT_ARGS_NEWS_ENDPOINT")
 TEST_LIMIT = 100
 TEST_QUERY = "bitcoin"
 TEST_SYMBOL = "BTC"

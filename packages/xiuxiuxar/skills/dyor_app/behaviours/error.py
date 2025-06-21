@@ -16,7 +16,7 @@
 #
 # ------------------------------------------------------------------------------
 
-"""This module contains the implementation of the behaviours of 'simple_fsm' skill."""
+"""This module contains the implementation of the behaviours of DYOR App skill."""
 
 import json
 import time
@@ -28,7 +28,7 @@ import requests
 import sqlalchemy
 from sqlalchemy import text
 
-from packages.xiuxiuxar.skills.simple_fsm.behaviours.base import BaseState, DyorabciappEvents, DyorabciappStates
+from packages.xiuxiuxar.skills.dyor_app.behaviours.base import BaseState, DyorabciappEvents, DyorabciappStates
 
 
 class HandleErrorRound(BaseState):
@@ -183,4 +183,7 @@ class HandleErrorRound(BaseState):
                 error_message = error_context.get("error_message", "Unknown error")
                 self._update_trigger_status_error(trigger_id, error_message)
             self._event = DyorabciappEvents.DONE
+
+        # Clear error context to prevent state leakage to subsequent triggers
+        self.context.error_context = None
         self._is_done = True

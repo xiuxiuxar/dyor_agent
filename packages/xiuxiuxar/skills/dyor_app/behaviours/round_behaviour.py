@@ -16,22 +16,22 @@
 #
 # ------------------------------------------------------------------------------
 
-"""This module contains the implementation of the behaviours of 'simple_fsm' skill."""
+"""This module contains the implementation of the behaviours of DYOR App skill."""
 
 import os
 from typing import Any
 
 from aea.skills.behaviours import FSMBehaviour
 
-from packages.xiuxiuxar.skills.simple_fsm.behaviours.base import DyorabciappEvents, DyorabciappStates
-from packages.xiuxiuxar.skills.simple_fsm.behaviours.error import HandleErrorRound
-from packages.xiuxiuxar.skills.simple_fsm.behaviours.setup import SetupDYORRound
-from packages.xiuxiuxar.skills.simple_fsm.behaviours.ingest import IngestDataRound
-from packages.xiuxiuxar.skills.simple_fsm.behaviours.deliver import DeliverReportRound
-from packages.xiuxiuxar.skills.simple_fsm.behaviours.process import ProcessDataRound
-from packages.xiuxiuxar.skills.simple_fsm.behaviours.trigger import TriggerRound
-from packages.xiuxiuxar.skills.simple_fsm.behaviours.generate import GenerateReportRound
-from packages.xiuxiuxar.skills.simple_fsm.behaviours.watching import WatchingRound
+from packages.xiuxiuxar.skills.dyor_app.behaviours.base import DyorabciappEvents, DyorabciappStates
+from packages.xiuxiuxar.skills.dyor_app.behaviours.error import HandleErrorRound
+from packages.xiuxiuxar.skills.dyor_app.behaviours.setup import SetupDYORRound
+from packages.xiuxiuxar.skills.dyor_app.behaviours.ingest import IngestDataRound
+from packages.xiuxiuxar.skills.dyor_app.behaviours.deliver import DeliverReportRound
+from packages.xiuxiuxar.skills.dyor_app.behaviours.process import ProcessDataRound
+from packages.xiuxiuxar.skills.dyor_app.behaviours.trigger import TriggerRound
+from packages.xiuxiuxar.skills.dyor_app.behaviours.generate import GenerateReportRound
+from packages.xiuxiuxar.skills.dyor_app.behaviours.watching import WatchingRound
 
 
 class DyorabciappFsmBehaviour(FSMBehaviour):
