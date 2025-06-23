@@ -2,7 +2,9 @@ agent_name: dyor_agent
 author: xiuxiuxar
 version: 0.1.0
 license: Apache-2.0
-description: ''
+description: DYOR Agent is a specialized autonomous research agent that generates
+  timely and concise research reports for crypto assets, leveraging Trendmoon APIs
+  and associated data sources.
 aea_version: '>=1.55.0, <2.0.0'
 fingerprint:
   tests/__init__.py: bafybeibk76alseqt3ufreyev7rnz5zuk6dcftt7c2ob54gmhpt6xrhkg2y
