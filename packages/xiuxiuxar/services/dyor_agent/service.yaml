@@ -1,7 +1,8 @@
 name: dyor_agent
 author: xiuxiuxar
 version: 0.1.0
-description: A new service, scaffolded by the Adev cli from xiuxiuxar/dyor_agent:0.1.0
+description: An agent service for DYOR agent, providing timely and concise research
+  reports for crypto assets, leveraging Trendmoon APIs and associated data sources.
 aea_version: '>=1.0.0, <2.0.0'
 license: apache-2.0
 fingerprint:
@@ -9,7 +10,7 @@ fingerprint:
   tests/__init__.py: bafybeiausykbndof27hjfgwqg6nnmk7zw7lyytwzekih3gszwdypbtxjka
   tests/test_service.py: bafybeicplirjoql5q3l5zjl5xrgamnoxuj3year7u2vrtfnzzllzeyutuy
 fingerprint_ignore_patterns: []
-agent: xiuxiuxar/dyor_agent:0.1.0:bafybeidin7kfmsamostn2swg53tgwy7cfxt75kg22hlrjhw77mnw6augta
+agent: xiuxiuxar/dyor_agent:0.1.0:bafybeiasp56typyhdgh7ozt6n6l26udombrtfjzhevn6p2b7nulhkmcjiu
 number_of_agents: 1
 deployment:
   agent:
