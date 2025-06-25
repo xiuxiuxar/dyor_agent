@@ -493,15 +493,19 @@ class LLMService(Model):
         self.presence_penalty = kwargs.pop("LLM_PRESENCE_PENALTY", 0.0)
         self.client = OpenAI(api_key=self.api_key, base_url=self.base_url)
 
-    def _clean_model_output(self, content: str, model: str) -> str:
-        """Clean model-specific artifacts from output."""
-        # Handle Qwen models that output <think> reasoning tokens
-        if "qwen" in model.lower():
-            # Remove <think>...</think> blocks completely
-            content = re.sub(r"<think>.*?</think>", "", content, flags=re.DOTALL)
-            content = content.strip()
+    def _clean_model_output(self, content: str) -> str:
+        """Clean model output artifacts to ensure consistent formatting."""
+        # Remove <think>...</think> blocks (various models may use reasoning tokens)
+        content = re.sub(r"<think>.*?</think>", "", content, flags=re.DOTALL)
 
-        return content
+        # Remove markdown code block wrapper (```markdown\n ... \n```)
+        content = re.sub(r"^```\w*\s*\n", "", content, flags=re.MULTILINE)
+        content = re.sub(r"\n```\s*$", "", content, flags=re.MULTILINE)
+
+        # Remove main title header (# Title) so ## Overview becomes the first header
+        content = re.sub(r"^#\s+[^\n]+\s*\n\s*", "", content, flags=re.MULTILINE)
+
+        return content.strip()
 
     def generate_summary(self, prompt: str, model_config: dict | None = None) -> dict:
         """Generate a summary using the configured LLM backend.
@@ -545,7 +549,7 @@ class LLMService(Model):
                 generation_time_ms = int(latency * 1000)
 
                 content = response.choices[0].message.content.strip()
-                content = self._clean_model_output(content, model)
+                content = self._clean_model_output(content)
                 usage = getattr(response, "usage", None)
                 token_usage = {
                     "prompt_tokens": getattr(usage, "prompt_tokens", None),
