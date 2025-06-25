@@ -1,4 +1,4 @@
-name: dyor_agent
+name: dyor_service
 author: xiuxiuxar
 version: 0.1.0
 description: An agent service for DYOR agent, providing timely and concise research
