@@ -1,0 +1,48 @@
+{
+  "asset_id": 35,
+  "trigger_id": 65,
+  "report_content_markdown": "Sample existing report content...",
+  "report_data_json": {
+    "asset_info": {
+      "name": "ReNeW",
+      "symbol": "RENEW",
+      "coin_id": "renew",
+      "category": "Energy",
+      "market_cap": 5000000,
+      "market_cap_rank": 1500,
+      "contract_address": "0xe3fdd286e810a838da30e5872e841fe80729d101"
+    },
+    "key_metrics": {
+      "mindshare": 2.5,
+      "mindshare_24h": 5.2,
+      "price_change_24h": 8.7,
+      "volume_change_24h": 15.3
+    },
+    "social_summary": {
+      "sentiment_score": 88.0,
+      "mention_change_24h": 75.0
+    },
+    "topic_summary": {
+      "overview": "RENEW appears to be a multifaceted initiative focused on renewal and transformation across technology, energy, and community engagement sectors."
+    },
+    "unlocks_recent": [],
+    "unlocks_upcoming": [],
+    "unlocks_data": null,
+    "recent_news": [],
+    "official_updates": [
+      {
+        "title": "ReNeW Partnership Announcement",
+        "source": "Official Blog",
+        "snippet": "ReNeW announces strategic partnership with major energy company to accelerate renewable energy adoption...",
+        "timestamp": "2025-06-19T16:00:00"
+      }
+    ],
+    "onchain_highlights": [],
+    "project_summary": {
+      "summary": "ReNew is an innovative initiative aimed at promoting sustainable practices through AI-powered recycling technology and renewable energy solutions."
+    }
+  },
+  "llm_model_used": "Meta-Llama-3-3-70B-Instruct",
+  "report_id": 49,
+  "created_at": "2025-06-21T01:45:21.057430+00:00"
+}
