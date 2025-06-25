@@ -18,6 +18,7 @@
 
 """This package contains a scaffold of a model."""
 
+import re
 import time
 import functools
 from typing import Any
@@ -485,9 +486,24 @@ class LLMService(Model):
         self.max_retries = kwargs.pop("LLM_MAX_RETRIES", 4)
         self.backoff_factor = kwargs.pop("LLM_BACKOFF_FACTOR", 1.5)
         self.timeout = kwargs.pop("LLM_TIMEOUT", 60)
+        self.temperature = kwargs.pop("LLM_TEMPERATURE", 0.7)
+        self.max_tokens = kwargs.pop("LLM_MAX_TOKENS", 1024)
+        self.top_p = kwargs.pop("LLM_TOP_P", 1.0)
+        self.frequency_penalty = kwargs.pop("LLM_FREQUENCY_PENALTY", 0.0)
+        self.presence_penalty = kwargs.pop("LLM_PRESENCE_PENALTY", 0.0)
         self.client = OpenAI(api_key=self.api_key, base_url=self.base_url)
 
-    def generate_summary(self, prompt: str, model_config: dict) -> dict:
+    def _clean_model_output(self, content: str, model: str) -> str:
+        """Clean model-specific artifacts from output."""
+        # Handle Qwen models that output <think> reasoning tokens
+        if "qwen" in model.lower():
+            # Remove <think>...</think> blocks completely
+            content = re.sub(r"<think>.*?</think>", "", content, flags=re.DOTALL)
+            content = content.strip()
+
+        return content
+
+    def generate_summary(self, prompt: str, model_config: dict | None = None) -> dict:
         """Generate a summary using the configured LLM backend.
         Returns dict: {
             "content": str,
@@ -503,7 +519,7 @@ class LLMService(Model):
         last_exception = None
         for model in models_to_try:
             try:
-                return self._call_llm(prompt, model, model_config)
+                return self._call_llm(prompt, model, model_config or {})
             except (LLMRateLimitError, LLMAPIError, LLMContentFilterError, LLMInvalidResponseError) as e:
                 self.context.logger.warning(f"LLM call failed for model '{model}': {e}")
                 last_exception = e
@@ -518,17 +534,18 @@ class LLMService(Model):
                 response = self.client.chat.completions.create(
                     model=model,
                     messages=[{"role": "user", "content": prompt}],
-                    temperature=model_config.get("temperature", 0.7),
-                    max_tokens=model_config.get("max_tokens", 512),
-                    top_p=model_config.get("top_p", 1.0),
-                    frequency_penalty=model_config.get("frequency_penalty", 0.0),
-                    presence_penalty=model_config.get("presence_penalty", 0.0),
+                    temperature=model_config.get("temperature", self.temperature),
+                    max_tokens=model_config.get("max_tokens", self.max_tokens),
+                    top_p=model_config.get("top_p", self.top_p),
+                    frequency_penalty=model_config.get("frequency_penalty", self.frequency_penalty),
+                    presence_penalty=model_config.get("presence_penalty", self.presence_penalty),
                     timeout=self.timeout,
                 )
                 latency = time.monotonic() - start_time
                 generation_time_ms = int(latency * 1000)
 
                 content = response.choices[0].message.content.strip()
+                content = self._clean_model_output(content, model)
                 usage = getattr(response, "usage", None)
                 token_usage = {
                     "prompt_tokens": getattr(usage, "prompt_tokens", None),

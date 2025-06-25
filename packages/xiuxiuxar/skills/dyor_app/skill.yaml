@@ -13,7 +13,7 @@ fingerprint:
   behaviours/base.py: bafybeic2yrai6muqreh772ksvuvrb6rjfqhu2egzos73gmffgbqdcf6aqm
   behaviours/deliver.py: bafybeiaeo4wjubegka23zre4b7njwjq53tgk23bz7ac3psgnyol6nuaepm
   behaviours/error.py: bafybeie6mkywanzqdvnaon2q2xlxwgztnshglhrcgdcww75k5sqpx5j62a
-  behaviours/generate.py: bafybeiaqtafpcqg64o2m3m5bypyxhovkpwginfqdpnfkataoez5xwxcyhq
+  behaviours/generate.py: bafybeihtyaklny5xghiohjqyo34waaygpmwdr5gu77yxdeegoaefj5ahsa
   behaviours/ingest.py: bafybeibqzxnargjozb7rz2olh657bonveb7n5puiviw53czyz3xperp7su
   behaviours/process.py: bafybeifoqo5y7tn5t422djfzapbxiexpcj7ey7k3rwdjlxcvym7rvhsloy
   behaviours/round_behaviour.py: bafybeibz6vmnh62qef72xxfbvt5hzg27g4t64no5n27jfxftnm3m4apssa
@@ -25,7 +25,7 @@ fingerprint:
   dialogues.py: bafybeidr23gipmyw5t6o6jf52y4j733adbt4pnasjxrzfohsgpwt7ex6ea
   handlers.py: bafybeid3uiul7ikn6rinj7rmzsviczfaeont4rh2534f5duvxy7o4iuod4
   lookonchain_client.py: bafybeiefy7tv55o6xl5bai4eh6mhztviriphx27a26x7c6b7nhuft5qcfy
-  models.py: bafybeihnoquzcwqu3jblhvn7euvs7e77ufqhjbpds7n3myaewn7pppdhwm
+  models.py: bafybeiddy2g5zz36xv76bkkz3qorymcsyv4nycskqgtznvwtzu7f27ggdi
   prompt.py: bafybeifvcghu3l7mjeeevqu27u2ahcxz7agtfjir3chxgi5kirueyt3h5m
   prompt_template.jinja: bafybeic7drcgnkvhcyviaewgevk6ha4hgzo5unayg6vc56ftwnp2nc37qa
   researchagent_client.py: bafybeifabeb4qiuh4u25t7f4y6itjijbtxmlmja27bctfy3bmmdmayhxry
@@ -103,6 +103,11 @@ models:
       LLM_MAX_RETRIES: 4
       LLM_BACKOFF_FACTOR: 1.5
       LLM_TIMEOUT: 60
+      LLM_MAX_TOKENS: 1024
+      LLM_TEMPERATURE: 0.7
+      LLM_TOP_P: 1.0
+      LLM_FREQUENCY_PENALTY: 0.0
+      LLM_PRESENCE_PENALTY: 0.0
   researchagent_client:
     class_name: ResearchAgentClient
     args:
