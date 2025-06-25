@@ -10,7 +10,7 @@ fingerprint:
   tests/__init__.py: bafybeiausykbndof27hjfgwqg6nnmk7zw7lyytwzekih3gszwdypbtxjka
   tests/test_service.py: bafybeicplirjoql5q3l5zjl5xrgamnoxuj3year7u2vrtfnzzllzeyutuy
 fingerprint_ignore_patterns: []
-agent: xiuxiuxar/dyor_agent:0.1.0:bafybeiasp56typyhdgh7ozt6n6l26udombrtfjzhevn6p2b7nulhkmcjiu
+agent: xiuxiuxar/dyor_agent:0.1.0:bafybeicwuocppkxqmkebqpqug42r5nvmcgq3zwpxndnlalnjt6w7i42tdy
 number_of_agents: 1
 deployment:
   agent:
@@ -57,6 +57,11 @@ type: skill
         LLM_MAX_RETRIES: ${SKILL_DYOR_APP_MODELS_LLM_SERVICE_ARGS_LLM_MAX_RETRIES:int:4}
         LLM_BACKOFF_FACTOR: ${SKILL_DYOR_APP_MODELS_LLM_SERVICE_ARGS_LLM_BACKOFF_FACTOR:float:1.5}
         LLM_TIMEOUT: ${SKILL_DYOR_APP_MODELS_LLM_SERVICE_ARGS_LLM_TIMEOUT:int:60}
+        LLM_MAX_TOKENS: ${SKILL_DYOR_APP_MODELS_LLM_SERVICE_ARGS_LLM_MAX_TOKENS:int:1024}
+        LLM_TEMPERATURE: ${SKILL_DYOR_APP_MODELS_LLM_SERVICE_ARGS_LLM_TEMPERATURE:float:0.7}
+        LLM_TOP_P: ${SKILL_DYOR_APP_MODELS_LLM_SERVICE_ARGS_LLM_TOP_P:float:1.0}
+        LLM_FREQUENCY_PENALTY: ${SKILL_DYOR_APP_MODELS_LLM_SERVICE_ARGS_LLM_FREQUENCY_PENALTY:float:0.0}
+        LLM_PRESENCE_PENALTY: ${SKILL_DYOR_APP_MODELS_LLM_SERVICE_ARGS_LLM_PRESENCE_PENALTY:float:0.0}
     lookonchain_client:
       args:
         base_url: ${SKILL_DYOR_APP_MODELS_LOOKONCHAIN_CLIENT_ARGS_BASE_URL:str:http://localhost:8000}

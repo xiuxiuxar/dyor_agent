@@ -20,6 +20,7 @@
 
 import re
 from typing import Any
+from datetime import UTC, datetime
 from concurrent.futures import ThreadPoolExecutor
 
 import markdown
@@ -39,14 +40,6 @@ class GenerateReportRound(BaseState):
         "Analysis",
         "Conclusion",
     ]
-
-    MODEL_CONFIG = {
-        "temperature": 0.7,
-        "max_tokens": 1024,
-        "top_p": 1.0,
-        "frequency_penalty": 0.0,
-        "presence_penalty": 0.0,
-    }
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -82,8 +75,7 @@ class GenerateReportRound(BaseState):
         """Return a list of missing required section headers."""
         missing = []
         for section in self.REQUIRED_SECTIONS:
-            # Look for a Markdown header (### Section)
-            if not re.search(rf"^###\s*{re.escape(section)}", text, re.MULTILINE | re.IGNORECASE):
+            if not re.search(rf"^#{{2,3}}\s*{re.escape(section)}", text, re.MULTILINE | re.IGNORECASE):
                 missing.append(section)
         return missing
 
@@ -107,10 +99,25 @@ class GenerateReportRound(BaseState):
         self.context.logger.debug(f"Prompt: {self._prompt}")
         return True
 
-    def _submit_llm_request(self) -> None:
+    def _build_retry_prompt(self, missing_sections: list[str]) -> str:
+        """Build a modified prompt for the LLM to retry the report generation."""
+        retry_suffix = f"""
+
+        RETRY ATTEMPT {self._attempt}: The previous response was missing these required sections:
+        {', '.join(missing_sections)}.
+        Please ensure your response includes **ALL** required sections, especially:
+        {chr(10).join(f'- {section}' for section in missing_sections)}
+
+        Current timestamp: {datetime.now(tz=UTC).isoformat()}
+
+        """
+        return self._prompt + retry_suffix
+
+    def _submit_llm_request(self, missing_sections: list[str] | None = None) -> None:
         """Submit a request to the LLM service."""
         self.context.logger.info(f"Submitting LLM request (attempt {self._attempt}/{self._max_retries})")
-        self._future = self._executor.submit(self.context.llm_service.generate_summary, self._prompt, self.MODEL_CONFIG)
+        prompt = self._build_retry_prompt(missing_sections) if missing_sections and self._attempt > 1 else self._prompt
+        self._future = self._executor.submit(self.context.llm_service.generate_summary, prompt)
 
     def _process_llm_result_and_store(self, llm_result: dict) -> None:
         """Process, validate, and store the LLM result."""
@@ -205,7 +212,13 @@ class GenerateReportRound(BaseState):
                 self._handle_max_retries_exceeded()
                 self._finish_run(success=True)  # Finished with critical error, but "done" per original logic
             else:
-                self._submit_llm_request()  # Retry
+                missing_sections = None
+                if isinstance(e, ValueError) and "missing required sections" in str(e):
+                    error_msg = str(e)
+                    if "missing required sections:" in error_msg:
+                        sections_part = error_msg.split("missing required sections:")[1].split("(attempt")[0].strip()
+                        missing_sections = [s.strip() for s in sections_part.split(",")]
+                self._submit_llm_request(missing_sections)  # Retry with missing sections
         except Exception as e:
             self.context.logger.exception(f"Unexpected error in GenerateReportRound: {e}")
             self.context.error_context = self._create_error_context("report_generation_error", str(e))

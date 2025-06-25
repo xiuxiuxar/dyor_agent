@@ -24,7 +24,7 @@ protocols:
 - open_aea/signing:1.0.0:bafybeig2d36zxy65vd7fwhs7scotuktydcarm74aprmrb5nioiymr3yixm
 skills:
 - eightballer/prometheus:0.1.0:bafybeicl5i7e467aowfarke4bbyixo2dggar276njmvyuwbsby5pxshhtu
-- xiuxiuxar/dyor_app:0.1.0:bafybeifaithfsuxi3fklbl6dd6z4f6rctmijbaal2s4grkkqqhengk5owe
+- xiuxiuxar/dyor_app:0.1.0:bafybeibbk34i7xxoswe64u3jq4j42wn7y4cuqwumbz6anl6ni7v64wunvu
 customs:
 - xiuxiuxar/dyor_api:0.1.0:bafybeic2ngukvyual4mrwm4rp2zbqnzbn3op2p3e22e4si3kuwp4vee4je
 default_ledger: ethereum
@@ -111,6 +111,11 @@ models:
       LLM_MAX_RETRIES: ${SKILL_DYOR_APP_MODELS_LLM_SERVICE_ARGS_LLM_MAX_RETRIES:int:4}
       LLM_BACKOFF_FACTOR: ${SKILL_DYOR_APP_MODELS_LLM_SERVICE_ARGS_LLM_BACKOFF_FACTOR:float:1.5}
       LLM_TIMEOUT: ${SKILL_DYOR_APP_MODELS_LLM_SERVICE_ARGS_LLM_TIMEOUT:int:60}
+      LLM_MAX_TOKENS: ${SKILL_DYOR_APP_MODELS_LLM_SERVICE_ARGS_LLM_MAX_TOKENS:int:1024}
+      LLM_TEMPERATURE: ${SKILL_DYOR_APP_MODELS_LLM_SERVICE_ARGS_LLM_TEMPERATURE:float:0.7}
+      LLM_TOP_P: ${SKILL_DYOR_APP_MODELS_LLM_SERVICE_ARGS_LLM_TOP_P:float:1.0}
+      LLM_FREQUENCY_PENALTY: ${SKILL_DYOR_APP_MODELS_LLM_SERVICE_ARGS_LLM_FREQUENCY_PENALTY:float:0.0}
+      LLM_PRESENCE_PENALTY: ${SKILL_DYOR_APP_MODELS_LLM_SERVICE_ARGS_LLM_PRESENCE_PENALTY:float:0.0}
   lookonchain_client:
     args:
       base_url: ${SKILL_DYOR_APP_MODELS_LOOKONCHAIN_CLIENT_ARGS_BASE_URL:str:http://localhost:8000}
