@@ -1,0 +1,137 @@
+You are a crypto markets analyst with deep expertise in decentralized finance, market structure, and investor behavior. Your task is to analyze structured data about the asset EcoToken (ECO) and produce a markdown report.
+
+## Output Instructions:
+- ONLY output a markdown-formatted report using the following required sections listed below. Do NOT add or change headings.
+- Use **only** the provided data; do not invent or hallucinate facts.
+- The tone must be analytical, data-driven, concise, and actionable, as for a professional investor audience.
+- If a section lacks relevant data, briefly state this (e.g., "No recent updates available.").
+- **In the Unlocks section, always output two bulleted lists**—one for recent unlocks (last 14 days) and one for upcoming unlocks (next 30 days)—and then a 2-sentence summary.
+
+
+### REQUIRED_SECTIONS:
+1. Overview  
+2. Key Recent Changes  
+3. Recent News/Events  
+4. Unlock Events  
+5. Analysis  
+6. Conclusion
+
+---
+
+### Structured Data
+
+- Asset: EcoToken (ECO)
+- Market Cap: $2,500,000 (Rank: 2100)
+- Category: Environment
+- Contract: 0xa1b2c3d4e5f6789012345678901234567890abcd
+
+
+### Project Summary
+EcoToken is revolutionizing environmental impact measurement through blockchain technology, enabling transparent carbon credit trading and sustainability incentives.
+
+
+
+### Topic Summary
+EcoToken is a blockchain-based platform designed to incentivize environmental conservation through tokenized carbon credits and sustainability rewards.
+
+
+### Market Metrics
+
+- 24h Price Change: -5.4%
+- 24h Volume Change: 22.8%
+- 24h Mindshare Change: -2.1%
+- 24h Mentions Change : -12.0%
+- Latest Mindshare : 1.8
+- Sentiment Score: 65.0
+
+
+
+### Events:
+
+
+- [2025-06-17T12:00:00] **EcoToken V2 Platform Launch** (Official Medium): We're excited to announce the launch of EcoToken V2, featuring enhanced carbon tracking and improved tokenomics...
+
+
+
+- [2025-06-18T14:30:00] (CryptoNews): EcoToken Partners with Carbon Credit Exchange — EcoToken announces major partnership to expand carbon credit marketplace...
+
+
+
+- [2025-06-16T08:45:00] (OnChainAnalysis): Large Whale Transfer — 10M ECO tokens transferred to new wallet address
+
+
+
+### Unlocks Data
+unlocks_recent: [{'timestamp': '2025-06-15T10:00:00', 'noOfTokens': [1000000], 'category': 'Team', 'description': 'Team vesting unlock for Q2 2025'}]
+unlocks_upcoming: [{'timestamp': '2025-07-15T10:00:00', 'noOfTokens': [2500000], 'category': 'Ecosystem', 'description': 'Ecosystem development fund unlock'}]
+
+---
+
+# Now generate the report using ONLY the following sections:
+
+---
+
+### Overview  
+- Briefly summarize the current status and context of EcoToken.
+- Reference the **reason this report was generated** (e.g. if triggered by threshold or major event, mention it).
+- Highlight any *immediate signals*, abnormal volatility, or structural changes indicated by the data or summary.
+
+---
+
+### Key Recent Changes  
+- Bullet out the most significant metric shifts (e.g., price, volume, mindshare, sentiment, etc).
+- Connect these to **specific developments or news/events** if possible.
+- Note any correlations, outliers, or contradictions (e.g., "High volume increase without price move").
+
+---
+
+### Recent News/Events  
+- Summarize and **sequence** major news, official updates, protocol actions, liquidations, or exchange-level changes.
+- Tie these back to **market metrics or community sentiment** when relevant.
+- If no recent news/events, state "No significant recent news or events."
+
+---
+
+### Unlocks:
+
+    
+        - **First, list each recent unlock (last 14 days) and each upcoming unlock (next 30 days) in bullet form.**
+            - For each: date, number of tokens, category, and brief description.
+            - If none, state: "No unlocks in this period."
+        - **Then, summarize unlock activity:**
+            - Note whether any recent unlocks may have contributed to observed price shifts (reference 24h price/volume changes if present).
+            - Indicate if upcoming unlocks may be significant for price or liquidity, based strictly on the data.
+
+        #### Recent Unlocks (last 14 days):
+        
+            
+                - On June 15, 2025 1,000,000 of Team vesting unlock for Q2 2025 (Team)
+            
+        
+
+        #### Upcoming Unlocks (next 30 days):
+        
+            
+                - On July 15, 2025 2,500,000 of Ecosystem development fund unlock (Ecosystem)
+            
+        
+
+        - **Summary:**  
+            - Analyze whether recent unlocks align with notable price or volume changes.
+            - State whether any upcoming unlocks may represent significant events for the asset.
+    
+
+
+---
+
+### Analysis  
+- **Interpret** the data: What is driving current trends?  
+- Use project summary, sentiment data, and unlocks context as a base; highlight possible causes for volatility or shifts in trader/investor behavior.
+- Focus on actionable, data-backed observations—never speculate beyond what is provided.
+
+---
+
+### Conclusion  
+- Succinctly state current market dynamics and outlook for ECO.
+- Indicate whether data supports investor attention or caution.
+- **Recommend next steps** only if clearly warranted by the data (otherwise, end with a summary of current state).
