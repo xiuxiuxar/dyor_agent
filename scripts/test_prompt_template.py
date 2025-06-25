@@ -82,6 +82,7 @@ from typing import Dict, List, Optional, Tuple
 import time
 from dataclasses import dataclass
 import logging
+from dotenv import load_dotenv
 
 # Configuration
 def get_config():
@@ -123,6 +124,8 @@ class ProcessingResult:
 
 class DYORComparison:
     def __init__(self):
+        # Load .env file from project root
+        load_dotenv()
         self.setup_logging()
         self.api_key = self.get_api_key()
         
@@ -139,20 +142,10 @@ class DYORComparison:
         self.logger = logging.getLogger(__name__)
 
     def get_api_key(self) -> Optional[str]:
-        """Get OpenRouter API key from environment or .env file"""
-        # Try environment variable first
+        """Get OpenRouter API key from environment variables"""
         api_key = os.getenv('OPENROUTER_API_KEY')
-        if api_key:
+        if api_key and api_key not in ['placeholder', 'your_key_here', 'sk-or-your_key_here', 'your_actual_key_here']:
             return api_key
-            
-        # Try .env file
-        env_file = Path('.env')
-        if env_file.exists():
-            with open(env_file, 'r') as f:
-                for line in f:
-                    if line.startswith('OPENROUTER_API_KEY='):
-                        return line.split('=', 1)[1].strip()
-        
         return None
 
     def timestamp_to_date(self, timestamp_str):
