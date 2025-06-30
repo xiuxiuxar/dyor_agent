@@ -88,11 +88,68 @@ class IngestDataRound(BaseState):
                     data = row[0]
                     if isinstance(data, str):
                         data = json.loads(data)
+
+                    # Validate cached data structure
+                    if not self._validate_cached_unlocks_data(data):
+                        self.context.logger.warning("Cached unlock data failed validation, will fetch fresh data")
+                        return None
+
                     return data
                 return None
         except sqlalchemy.exc.SQLAlchemyError as e:
             self.context.logger.warning(f"Error checking for existing full unlocks data: {e}")
             return None
+
+    def _extract_all_projects_from_cache(self, data: dict) -> list | None:
+        """Extract all_projects list from cached data structure."""
+        if "metadata" in data and isinstance(data["metadata"], dict):
+            return data["metadata"].get("all_projects")
+        if "all_projects" in data:
+            return data["all_projects"]
+        return None
+
+    def _validate_projects_structure(self, all_projects: list) -> list[str]:
+        """Validate the structure of all_projects list and return any errors."""
+        errors = []
+        if not isinstance(all_projects, list):
+            errors.append(f"all_projects is not a list: {type(all_projects)}")
+        elif len(all_projects) == 0:
+            errors.append("all_projects list is empty")
+        else:
+            first_project = all_projects[0]
+            if not isinstance(first_project, dict):
+                errors.append(f"First project is not a dict: {type(first_project)}")
+            else:
+                expected_fields = ["name", "events"]
+                missing_fields = [field for field in expected_fields if field not in first_project]
+                if missing_fields:
+                    errors.append(f"First project missing fields: {missing_fields}")
+        return errors
+
+    def _validate_cached_unlocks_data(self, data) -> bool:
+        """Validate that cached unlock data has the expected structure."""
+        try:
+            if not isinstance(data, dict):
+                self.context.logger.warning(f"Cached data is not a dict: {type(data)}")
+                return False
+
+            all_projects = self._extract_all_projects_from_cache(data)
+            if all_projects is None:
+                self.context.logger.warning(f"No all_projects found in cached data. Keys: {list(data.keys())}")
+                return False
+
+            validation_errors = self._validate_projects_structure(all_projects)
+            if validation_errors:
+                for error in validation_errors:
+                    self.context.logger.warning(error)
+                return False
+
+            self.context.logger.info(f"Cached unlock data validation passed: {len(all_projects)} projects")
+            return True
+
+        except (KeyError, TypeError, AttributeError, ValueError) as e:
+            self.context.logger.warning(f"Error validating cached unlock data: {e}")
+            return False
 
     def _update_asset_name_if_needed(self, asset_symbol, asset_name):
         """Update asset name in DB and trigger_context if needed, return the resolved asset_name."""
@@ -144,12 +201,39 @@ class IngestDataRound(BaseState):
             else:
                 self.context.logger.info("Using cached full unlocks data from DB.")
             # Always store the all_projects list in raw_data['unlocks']
+            all_projects = []
+
+            # Handle ScrapedDataItem objects (fresh fetch)
             if hasattr(full_unlocks_item, "metadata"):
-                self.context.raw_data["unlocks"] = full_unlocks_item.metadata.get("all_projects", [])
+                all_projects = full_unlocks_item.metadata.get("all_projects", [])
+                self.context.logger.info(f"Extracted {len(all_projects)} projects from ScrapedDataItem metadata")
+
+            # Handle dict objects (cached data)
             elif isinstance(full_unlocks_item, dict):
-                self.context.raw_data["unlocks"] = full_unlocks_item.get("metadata", {}).get("all_projects", [])
+                # Try multiple possible structures for cached data
+                if "metadata" in full_unlocks_item:
+                    all_projects = full_unlocks_item["metadata"].get("all_projects", [])
+                    self.context.logger.info(f"Extracted {len(all_projects)} projects from cached dict metadata")
+                elif "all_projects" in full_unlocks_item:
+                    all_projects = full_unlocks_item["all_projects"]
+                    self.context.logger.info(f"Extracted {len(all_projects)} projects from cached dict all_projects")
+                else:
+                    self.context.logger.warning(
+                        f"Cached unlock data has unexpected structure: {list(full_unlocks_item.keys())}"
+                    )
+
+            # Handle unexpected data types
             else:
-                self.context.raw_data["unlocks"] = []
+                self.context.logger.error(f"Unexpected unlock data type: {type(full_unlocks_item)}")
+
+            # Validate the extracted data
+            if not isinstance(all_projects, list):
+                self.context.logger.error(f"all_projects is not a list: {type(all_projects)}")
+                all_projects = []
+
+            self.context.raw_data["unlocks"] = all_projects
+            self.context.logger.info(f"Final unlock data: {len(all_projects)} projects loaded for processing")
+            return all_projects
         except (sqlalchemy.exc.SQLAlchemyError, TypeError, ValueError) as e:
             self.context.logger.warning(f"Error fetching or storing unlocks data: {e}")
             self.context.raw_data["unlocks"] = []
