@@ -9,8 +9,8 @@ asset {{ asset_info.name }} ({{ asset_info.symbol }}) and produce a markdown rep
 - Use **only** the data provided; do not invent or hallucinate facts.
 - Tone: analytical, data-driven, concise, and actionable – written for a professional
   investor audience.
-- If a section lacks relevant data, briefly state this (e.g., “No recent updates
-  available.”).
+- If a section lacks relevant data, briefly state this (e.g., "No recent updates
+  available.").
 - **In the Unlock Events section, always output two bulleted lists**—one for recent
   unlocks (last 14 days) and one for upcoming unlocks (next 30 days)—and then a
   two-sentence summary.
@@ -91,7 +91,7 @@ upcoming = {{ unlocks_upcoming | default([]) }}
   etc.).  
 - Connect these moves to specific developments from **Recent News/Events** wherever
   possible.  
-- Flag any anomalies (e.g., “Volume ↑ without corresponding price move”).
+- Flag any anomalies (e.g., "Volume ↑ without corresponding price move").
 
 ---
 
@@ -100,8 +100,12 @@ upcoming = {{ unlocks_upcoming | default([]) }}
   (protocol upgrades, listings, governance votes, institutional flows, exploits,
   etc.).  
 - Keep to 4-6 concise bullets; include **dates and why each matters**.  
-- If no relevant asset-specific news ⇒ “No asset-specific news; macro flows
-  dominate.”
+- For each event, specify: **Date → Event → Why it matters for price → Expected timeline for impact**.
+- Flag any events that could trigger: listings, institutional flows, retail FOMO, or selling pressure.
+- If multiple catalysts align, highlight the **confluence** effect.
+- **Prioritize events by potential market impact** (high/medium/low).
+- If no relevant asset-specific news ⇒ "No asset-specific news; macro flows
+  dominate."
 
 ---
 
@@ -113,7 +117,7 @@ upcoming = {{ unlocks_upcoming | default([]) }}
   2. Consensus-shifting influencer takes or rumours.  
   3. Unusual spikes in sentiment/mentions that align (or clash) with price action.  
 - Avoid duplicate or near-identical points; collapse them where possible.  
-- If chatter is negligible, state “Limited notable social activity.”
+- If chatter is negligible, state "Limited notable social activity."
 ---
 
 ### Unlock Events  
@@ -142,6 +146,7 @@ upcoming = {{ unlocks_upcoming | default([]) }}
 
 ### Analysis  
 - **Interpret** the data: What is driving current trends?  
+- **Identify the primary price catalyst** from the available data and assess its likely duration.
 - Knit together metrics, **Recent News/Events**, **Community Chatter**, and **Unlocks**
   to explain what is driving current market behaviour.  
 - Focus on actionable, data-backed insights; avoid speculation beyond the supplied
