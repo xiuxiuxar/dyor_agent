@@ -37,7 +37,7 @@ def trendmoon_social(context, symbol, **_):
         backoff_factor=cfg.get("backoff_factor", 0.5),
         timeout=cfg.get("timeout", 15),
         skill_context=context,
-    ).get_social_trend(symbol=symbol, time_interval="1d", date_interval=3)
+    ).get_social_trend(symbol=symbol, time_interval="1d", date_interval=15)  # Increased from 3 to 15 days
 
 
 def trendmoon_coin_details(context, symbol, **_):
