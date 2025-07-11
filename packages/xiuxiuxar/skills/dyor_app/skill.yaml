@@ -15,17 +15,23 @@ fingerprint:
   behaviours/error.py: bafybeie6mkywanzqdvnaon2q2xlxwgztnshglhrcgdcww75k5sqpx5j62a
   behaviours/generate.py: bafybeiaqtafpcqg64o2m3m5bypyxhovkpwginfqdpnfkataoez5xwxcyhq
   behaviours/ingest.py: bafybeieo4bqmz6ap4lc2ek3dmhexyr5hszwcqnp24uxyhqkhknuqdgnirm
-  behaviours/process.py: bafybeiamaq5fw4cbpziu2d3msw4xihzgcgs6d36xo5u7j6uaerf237kc44
+  behaviours/process.py: bafybeiejdfuguzhurd6cnhwchnghtgu5ol2kfk4utx7dkhlpdmcc3vcv3a
   behaviours/round_behaviour.py: bafybeibz6vmnh62qef72xxfbvt5hzg27g4t64no5n27jfxftnm3m4apssa
   behaviours/setup.py: bafybeifl56j2c5wpyhpzktagvunurtdrnpccrq2jhkmxossmjkhudvcgli
   behaviours/trigger.py: bafybeih3j56qe74ayl4cpzqherjeok36kxrykp6wdkdnkkv4rpbexevcxy
   behaviours/watching.py: bafybeig73dn2nkbpnbtwbrti4gmuyhdt6ue4xbis3oovi7cwlfi53xuf6i
-  data_models.py: bafybeicdrrxox6jumt5tsbbqoacg5lxrr4wdb5hkqhbjhyll3wco6tycn4
-  data_sources.py: bafybeianugusuaqsfl6zbhsahez3qaypjodzmdcu2bcetzh7tgg2ylfhvm
+  constants.py: bafybeids5jw4drecro5fevz7gknrvh33exhscetugchvfq4f5umgk4lq2e
+  data_models.py: bafybeiedw3ibf7brbb5rzu2keamicszoagqdcoorjbql2w66x5evqld7iy
+  data_sources.py: bafybeiaep7muaixbotosovlzgv5omouyv2ngl6mznyeml4z45gznil4mrm
   dialogues.py: bafybeidr23gipmyw5t6o6jf52y4j733adbt4pnasjxrzfohsgpwt7ex6ea
   handlers.py: bafybeid3uiul7ikn6rinj7rmzsviczfaeont4rh2534f5duvxy7o4iuod4
   lookonchain_client.py: bafybeiefy7tv55o6xl5bai4eh6mhztviriphx27a26x7c6b7nhuft5qcfy
   models.py: bafybeihnoquzcwqu3jblhvn7euvs7e77ufqhjbpds7n3myaewn7pppdhwm
+  processors/__init__.py: bafybeiawrl4lqstp3nalvtfke2wxuabikehkytrse6yahrmdzzbgf76lgm
+  processors/data_processor.py: bafybeiashhhxnvmvrdlubmsplhcuskcwehvfgr33l7srjncvlo5pvacefa
+  processors/metrics_calculator.py: bafybeighbu5ldmmgypqisxyfgnjfuyw6qax2p2a3igkuntjbwnsfcn6fb4
+  processors/payload_builder.py: bafybeig7p5jnkb7nqln44gjeomxh5wmjmfkityoqy4hfh5us23zmd7fvoa
+  processors/unlock_processor.py: bafybeictxlyvx7bdhpvrkxs5llbaishjnncimwem73x7e63e5y4bnnmtta
   prompt.py: bafybeifvcghu3l7mjeeevqu27u2ahcxz7agtfjir3chxgi5kirueyt3h5m
   prompt_template.jinja: bafybeic7drcgnkvhcyviaewgevk6ha4hgzo5unayg6vc56ftwnp2nc37qa
   researchagent_client.py: bafybeifabeb4qiuh4u25t7f4y6itjijbtxmlmja27bctfy3bmmdmayhxry
@@ -39,6 +45,7 @@ fingerprint:
   treeofalpha_client.py: bafybeie7hq5rdqmqzwvhpkpj2po42bo5vfq2x5swzkduaccajfyevkhche
   trendmoon_client.py: bafybeibbuvtkqnrusi4ies35kaa7mdrasqdwlcobmynfqeee2dizmsjuvq
   unlocks_client.py: bafybeieldimzv746jzjxb6oo3iirrqejch2iq2e4c5v6voyxwa63gn5dxq
+  utils.py: bafybeifv62uga7n42gd2jv2wigngmmhinztgbqphhntyc7xeqjgl6qtzuu
 fingerprint_ignore_patterns: []
 connections: []
 contracts: []
