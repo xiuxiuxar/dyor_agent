@@ -163,3 +163,42 @@ upcoming = {{ unlocks_upcoming | default([]) }}
 - Indicate whether the balance of data suggests investor attention or caution.  
 - Recommend next analytical checkpoints *only* if clearly warranted by the data.
 
+---
+
+{# ============================================================================ #}
+## REPORT SCORING
+After completing the report above, provide a JSON score object with the following structure:
+{# ============================================================================ #}
+
+```json
+{
+  "relevance_score": 85,
+  "completeness_score": 78,
+  "usefulness_score": 82,
+  "data_quality_score": 75,
+  "actionability_score": 80,
+  "composite_score": 80,
+  "score_breakdown": {
+    "relevance": "High relevance to current market conditions and asset-specific events",
+    "completeness": "Covers all major data points but missing some recent social metrics",
+    "usefulness": "Provides actionable insights for traders and clear market context",
+    "data_quality": "Good data coverage but some metrics show limited recent activity",
+    "actionability": "Clear recommendations and next steps for monitoring"
+  },
+  "improvement_suggestions": [
+    "Include more recent social sentiment data",
+    "Add specific price targets or support/resistance levels",
+    "Expand on institutional flow analysis"
+  ]
+}
+```
+
+**Scoring Guidelines:**
+- **Relevance (0-100)**: How relevant is this report to current market conditions and the specific asset?
+- **Completeness (0-100)**: How thoroughly does the report cover all available data sources?
+- **Usefulness (0-100)**: How valuable is this report for traders/investors making decisions?
+- **Data Quality (0-100)**: How reliable and comprehensive is the underlying data?
+- **Actionability (0-100)**: How clear and actionable are the insights and recommendations?
+- **Composite Score**: Weighted average (relevance 25%, completeness 20%, usefulness 25%, data_quality 15%, actionability 15%)
+
+Provide specific, constructive feedback in the breakdown and suggestions.

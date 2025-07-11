@@ -42,6 +42,7 @@ AssetResponse = api.AssetResponse
 TriggerCreate = api.TriggerCreate
 ReportResponse = api.ReportResponse
 TriggerResponse = api.TriggerResponse
+ReportScore = api.ReportScore
 
 
 def handle_exception(handler_func):
@@ -81,7 +82,7 @@ def handle_exception(handler_func):
     return wrapper
 
 
-class DyorApiHandler(Handler):
+class DyorApiHandler(Handler):  # noqa: PLR0904
     """Implements the API HTTP handler."""
 
     SUPPORTED_PROTOCOL = ApiHttpMessage.protocol_id
@@ -250,15 +251,48 @@ class DyorApiHandler(Handler):
         """Execute a database query and convert results to response model."""
         if is_list:
             results = session.execute(query).scalars().all()
-            data = [model_class.model_validate(item).model_dump() for item in results]
+            data = [self._convert_to_response_model(item, model_class) for item in results]
             return data, 200, "OK"
 
         result = session.execute(query).scalar_one_or_none()
         if result is None and not_found_msg:
             return None, 404, not_found_msg.format(id=not_found_id)
 
-        data = model_class.model_validate(result).model_dump()
+        data = self._convert_to_response_model(result, model_class)
         return data, 200, "OK"
+
+    def _convert_to_response_model(self, db_item, model_class):
+        """Convert database item to response model with proper score serialization."""
+        if model_class == ReportResponse:
+            # Handle ReportResponse specifically to construct ReportScore
+            data = model_class.model_validate(db_item).model_dump()
+
+            # Construct ReportScore object from individual columns if they exist
+            if hasattr(db_item, "relevance_score") and any(
+                [
+                    db_item.relevance_score is not None,
+                    db_item.completeness_score is not None,
+                    db_item.usefulness_score is not None,
+                    db_item.data_quality_score is not None,
+                    db_item.actionability_score is not None,
+                    db_item.composite_score is not None,
+                ]
+            ):
+                report_score = ReportScore(
+                    relevance_score=db_item.relevance_score,
+                    completeness_score=db_item.completeness_score,
+                    usefulness_score=db_item.usefulness_score,
+                    data_quality_score=db_item.data_quality_score,
+                    actionability_score=db_item.actionability_score,
+                    composite_score=db_item.composite_score,
+                    score_breakdown=db_item.score_breakdown,
+                    improvement_suggestions=db_item.improvement_suggestions,
+                )
+                data["report_score"] = report_score.model_dump()
+
+            return data
+        # Default conversion for other models
+        return model_class.model_validate(db_item).model_dump()
 
     def _parse_query_params(self, message: ApiHttpMessage) -> dict:
         """Parse and validate query parameters from the request."""
@@ -278,7 +312,7 @@ class DyorApiHandler(Handler):
     def _parse_common_params(self, query_dict: dict) -> dict:
         """Parse common pagination parameters."""
         params = {}
-        for param in ["limit", "offset"]:
+        for param in ["limit", "offset", "threshold"]:
             if param in query_dict:
                 try:
                     value = int(query_dict[param])
@@ -287,6 +321,9 @@ class DyorApiHandler(Handler):
                         raise ValueError(msg)
                     if param == "offset" and value < 0:
                         msg = "offset must be non-negative"
+                        raise ValueError(msg)
+                    if param == "threshold" and (value < 0 or value > 100):
+                        msg = "threshold must be between 0 and 100"
                         raise ValueError(msg)
                     params[param] = value
                 except ValueError as e:
@@ -604,6 +641,108 @@ class DyorApiHandler(Handler):
     def handle_get_api_assets_by_asset_id(self, message: ApiHttpMessage, asset_id: str) -> ApiHttpMessage:
         """Handle GET request for /api/assets/asset_id."""
         return self._ROUTE_MAP["GET"]["/api/assets/asset_id"](self, message, asset_id)
+
+    @handle_exception
+    def handle_get_api_reports_scores_low(self, message: ApiHttpMessage) -> ApiHttpMessage:
+        """Handle GET /api/reports/scores/low - Get low scoring reports for analysis."""
+        try:
+            params = self._parse_query_params(message)
+            threshold = int(params.get("threshold", 70))
+            limit = int(params.get("limit", 50))
+
+            if threshold < 0 or threshold > 100:
+                return self.error_response(
+                    message=message,
+                    error_msg="threshold must be between 0 and 100",
+                    status_code=400,
+                    error_code="BAD_REQUEST",
+                )
+
+            if limit < 1 or limit > 100:
+                return self.error_response(
+                    message=message,
+                    error_msg="limit must be between 1 and 100",
+                    status_code=400,
+                    error_code="BAD_REQUEST",
+                )
+
+            low_scoring_reports = self._db_model.get_low_scoring_reports(threshold=threshold, limit=limit)
+
+            return self.success_response(
+                message=message,
+                data={"low_scoring_reports": low_scoring_reports, "threshold": threshold},
+                status_code=200,
+                status_text="OK",
+            )
+
+        except ValueError as e:
+            return self.error_response(
+                message=message,
+                error_msg=str(e),
+                status_code=400,
+                error_code="BAD_REQUEST",
+            )
+
+    @handle_exception
+    def handle_get_api_reports_scores_statistics(self, message: ApiHttpMessage) -> ApiHttpMessage:
+        """Handle GET /api/reports/scores/statistics - Get score statistics."""
+        try:
+            params = self._parse_query_params(message)
+            days = int(params.get("days", 30))
+
+            if days < 1 or days > 365:
+                return self.error_response(
+                    message=message,
+                    error_msg="days must be between 1 and 365",
+                    status_code=400,
+                    error_code="BAD_REQUEST",
+                )
+
+            statistics = self._db_model.get_score_statistics(days=days)
+
+            return self.success_response(
+                message=message, data={"statistics": statistics, "period_days": days}, status_code=200, status_text="OK"
+            )
+
+        except ValueError as e:
+            return self.error_response(
+                message=message,
+                error_msg=str(e),
+                status_code=400,
+                error_code="BAD_REQUEST",
+            )
+
+    @handle_exception
+    def handle_get_api_reports_scores_models(self, message: ApiHttpMessage) -> ApiHttpMessage:
+        """Handle GET /api/reports/scores/models - Compare model performance."""
+        try:
+            params = self._parse_query_params(message)
+            days = int(params.get("days", 30))
+
+            if days < 1 or days > 365:
+                return self.error_response(
+                    message=message,
+                    error_msg="days must be between 1 and 365",
+                    status_code=400,
+                    error_code="BAD_REQUEST",
+                )
+
+            model_performance = self._db_model.get_model_performance_comparison(days=days)
+
+            return self.success_response(
+                message=message,
+                data={"model_performance": model_performance, "period_days": days},
+                status_code=200,
+                status_text="OK",
+            )
+
+        except ValueError as e:
+            return self.error_response(
+                message=message,
+                error_msg=str(e),
+                status_code=400,
+                error_code="BAD_REQUEST",
+            )
 
     def handle_unexpected_message(self, message):
         """Handler for unexpected messages."""

@@ -19,6 +19,7 @@
 """This module contains the implementation of the behaviours of DYOR App skill."""
 
 import re
+import json
 from typing import Any
 from concurrent.futures import ThreadPoolExecutor
 
@@ -44,7 +45,7 @@ class GenerateReportRound(BaseState):
 
     MODEL_CONFIG = {
         "temperature": 0.7,
-        "max_tokens": 1024,
+        "max_tokens": 2048,
         "top_p": 1.0,
         "frequency_penalty": 0.0,
         "presence_penalty": 0.0,
@@ -114,16 +115,81 @@ class GenerateReportRound(BaseState):
         self.context.logger.info(f"Submitting LLM request (attempt {self._attempt}/{self._max_retries})")
         self._future = self._executor.submit(self.context.llm_service.generate_summary, self._prompt, self.MODEL_CONFIG)
 
+    def _parse_llm_output(self, llm_output: str) -> tuple[str, dict | None]:
+        """Parse LLM output to extract report content and score."""
+        # Try to split on the scoring section marker first
+        parts = llm_output.split("## REPORT SCORING")
+
+        if len(parts) == 2:
+            # Expected format with scoring section header
+            report_content = parts[0].strip()
+            scoring_section = parts[1].strip()
+            self.context.logger.debug(f"Found scoring section with header: {scoring_section[:100]}...")
+        else:
+            # No scoring section header found, try to extract JSON from the end
+            # Look for ```json marker (with or without closing backticks)
+            json_start_pos = llm_output.rfind("```json")
+            if json_start_pos != -1:
+                # Found JSON marker, split the content
+                report_content = llm_output[:json_start_pos].strip()
+                scoring_section = llm_output[json_start_pos:].strip()
+                self.context.logger.warning(f"Found JSON block at end without header: {scoring_section[:100]}...")
+            else:
+                # Try to find any JSON-like structure at the end
+                json_match = re.search(r'\{[^}]*"relevance_score"[^}]*\}', llm_output, re.DOTALL)
+                if json_match:
+                    json_start = json_match.start()
+                    report_content = llm_output[:json_start].strip()
+                    scoring_section = llm_output[json_start:].strip()
+                    self.context.logger.warning(f"Found JSON-like structure: {scoring_section[:100]}...")
+                else:
+                    # No JSON found, return everything as report content
+                    self.context.logger.warning("No scoring section or JSON block found")
+                    return llm_output.strip(), None
+
+        # Extract JSON from the scoring section
+        try:
+            # First try: Find JSON block between ```json and ``` (complete)
+            json_match = re.search(r"```json\s*(.*?)\s*```", scoring_section, re.DOTALL)
+            if json_match:
+                score_json = json.loads(json_match.group(1))
+                return report_content, score_json
+
+            # Second try: Find JSON after ```json without closing backticks (incomplete)
+            json_match = re.search(r"```json\s*(.*)", scoring_section, re.DOTALL)
+            if json_match:
+                json_content = json_match.group(1).strip()
+                self.context.logger.warning(f"JSON match (incomplete): {json_content[:200]}...")
+                # Try to find the JSON object within the content
+                json_obj_match = re.search(r"\{.*\}", json_content, re.DOTALL)
+                if json_obj_match:
+                    score_json = json.loads(json_obj_match.group(0))
+                    return report_content, score_json
+
+            # Third try: Find JSON without markdown formatting
+            json_match = re.search(r"\{.*\}", scoring_section, re.DOTALL)
+            if json_match:
+                self.context.logger.warning(f"JSON match (no markdown): {json_match.group(0)[:200]}...")
+                score_json = json.loads(json_match.group(0))
+                return report_content, score_json
+
+        except (json.JSONDecodeError, AttributeError) as e:
+            self.context.logger.warning(f"Failed to parse score JSON: {e}")
+
+        return report_content, None
+
     def _process_llm_result_and_store(self, llm_result: dict) -> None:
         """Process, validate, and store the LLM result."""
         llm_output = llm_result["content"]
-        self.context.logger.info(f"LLM output (attempt {self._attempt}): {llm_output[:500]}...")
+        self.context.logger.debug(f"LLM output (attempt {self._attempt}): {llm_output[:500]}...")
 
-        if not self._validate_markdown(llm_output):
+        report_content, score_json = self._parse_llm_output(llm_output)
+
+        if not self._validate_markdown(report_content):
             msg = f"LLM output is not valid Markdown (attempt {self._attempt})."
             raise ValueError(msg)
 
-        missing_sections = self._check_required_sections(llm_output)
+        missing_sections = self._check_required_sections(report_content)
         if missing_sections:
             msg = f"LLM output missing required sections: {', '.join(missing_sections)} (attempt {self._attempt})"
             raise ValueError(msg)
@@ -131,16 +197,18 @@ class GenerateReportRound(BaseState):
         report_id = self.context.db_model.store_report(
             trigger_id=self.context.trigger_context.get("trigger_id"),
             asset_id=self.context.trigger_context.get("asset_id"),
-            report_content_markdown=llm_output,
+            report_content_markdown=report_content,
             report_data_json=self._payload,
             llm_model_used=llm_result["llm_model_used"],
             generation_time_ms=llm_result["generation_time_ms"],
             token_usage=llm_result["token_usage"],
+            report_score=score_json,
         )
 
         if not hasattr(self.context, "report_context"):
             self.context.report_context = {}
         self.context.report_context["report_id"] = report_id
+        self.context.report_context["report_score"] = score_json
         self.context.strategy.record_report_generated()
         self.context.logger.info(f"Stored report with ID {report_id}.")
 

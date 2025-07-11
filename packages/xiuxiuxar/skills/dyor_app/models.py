@@ -21,6 +21,7 @@
 import time
 import functools
 from typing import Any
+from decimal import Decimal
 from datetime import UTC, datetime
 
 from openai import OpenAI, OpenAIError, APIStatusError, RateLimitError, APITimeoutError, APIConnectionError
@@ -303,6 +304,7 @@ class DatabaseModel(Model):
         llm_model_used: str,
         generation_time_ms: int,
         token_usage: dict,
+        report_score: dict | None = None,
     ) -> int:
         """Store a generated report in the reports table.
 
@@ -315,6 +317,7 @@ class DatabaseModel(Model):
             llm_model_used: The LLM model used for generation
             generation_time_ms: Time taken to generate the report (ms)
             token_usage: Token usage statistics (as dict)
+            report_score: Report scoring data (as dict)
 
         Returns:
         -------
@@ -335,6 +338,14 @@ class DatabaseModel(Model):
                     llm_model_used,
                     generation_time_ms,
                     token_usage,
+                    relevance_score,
+                    completeness_score,
+                    usefulness_score,
+                    data_quality_score,
+                    actionability_score,
+                    composite_score,
+                    score_breakdown,
+                    improvement_suggestions,
                     created_at
                 ) VALUES (
                     :trigger_id,
@@ -344,10 +355,37 @@ class DatabaseModel(Model):
                     :llm_model_used,
                     :generation_time_ms,
                     :token_usage,
+                    :relevance_score,
+                    :completeness_score,
+                    :usefulness_score,
+                    :data_quality_score,
+                    :actionability_score,
+                    :composite_score,
+                    :score_breakdown,
+                    :improvement_suggestions,
                     NOW()
                 )
                 RETURNING report_id
             """)
+
+            score_data = {
+                "relevance_score": report_score.get("relevance_score") if report_score else None,
+                "completeness_score": report_score.get("completeness_score") if report_score else None,
+                "usefulness_score": report_score.get("usefulness_score") if report_score else None,
+                "data_quality_score": report_score.get("data_quality_score") if report_score else None,
+                "actionability_score": report_score.get("actionability_score") if report_score else None,
+                "composite_score": report_score.get("composite_score") if report_score else None,
+                "score_breakdown": Json(report_score.get("score_breakdown")) if report_score else None,
+                "improvement_suggestions": Json(report_score.get("improvement_suggestions")) if report_score else None,
+            }
+
+            # Debug logging for score data
+            if report_score:
+                self.context.logger.info(f"Storing report score data: {report_score}")
+                self.context.logger.info(f"Score data for DB: {score_data}")
+            else:
+                self.context.logger.warning("No report score data to store")
+
             with self._engine.connect() as conn:
                 result = conn.execute(
                     query,
@@ -359,6 +397,7 @@ class DatabaseModel(Model):
                         "llm_model_used": llm_model_used,
                         "generation_time_ms": generation_time_ms,
                         "token_usage": Json(token_usage),
+                        **score_data,
                     },
                 )
                 report_id = result.scalar_one()
@@ -451,6 +490,131 @@ class DatabaseModel(Model):
         except Exception as e:
             self.context.logger.exception(f"Failed to update trigger {trigger_id} with report_id={report_id}: {e!s}")
             raise
+
+    @retry_on_operational_error()
+    def get_low_scoring_reports(self, threshold: int = 70, limit: int = 50) -> list[dict]:
+        """Get reports with composite scores below threshold for analysis."""
+        if not self._engine:
+            msg = "Database engine not initialized. Call setup() first."
+            raise RuntimeError(msg)
+
+        try:
+            query = text("""
+                SELECT
+                    r.report_id,
+                    r.trigger_id,
+                    r.asset_id,
+                    r.llm_model_used,
+                    r.composite_score,
+                    r.relevance_score,
+                    r.completeness_score,
+                    r.usefulness_score,
+                    r.data_quality_score,
+                    r.actionability_score,
+                    r.score_breakdown,
+                    r.improvement_suggestions,
+                    r.created_at,
+                    a.symbol,
+                    a.name
+                FROM reports r
+                JOIN assets a ON r.asset_id = a.asset_id
+                WHERE r.composite_score < :threshold
+                ORDER BY r.composite_score ASC, r.created_at DESC
+                LIMIT :limit
+            """)
+
+            with self._engine.connect() as conn:
+                result = conn.execute(query, {"threshold": threshold, "limit": limit})
+                return [dict(row) for row in result]
+        except Exception as e:
+            self.context.logger.exception(f"Failed to get low scoring reports: {e!s}")
+            raise
+
+    @retry_on_operational_error()
+    def get_score_statistics(self, days: int = 30) -> dict:
+        """Get score statistics for the last N days."""
+        if not self._engine:
+            msg = "Database engine not initialized. Call setup() first."
+            raise RuntimeError(msg)
+
+        try:
+            query = text("""
+                SELECT
+                    COUNT(*) as total_reports,
+                    AVG(composite_score) as avg_composite_score,
+                    AVG(relevance_score) as avg_relevance_score,
+                    AVG(completeness_score) as avg_completeness_score,
+                    AVG(usefulness_score) as avg_usefulness_score,
+                    AVG(data_quality_score) as avg_data_quality_score,
+                    AVG(actionability_score) as avg_actionability_score,
+                    MIN(composite_score) as min_composite_score,
+                    MAX(composite_score) as max_composite_score,
+                    COUNT(CASE WHEN composite_score < 70 THEN 1 END) as low_score_count,
+                    COUNT(CASE WHEN composite_score >= 80 THEN 1 END) as high_score_count
+                FROM reports
+                WHERE created_at >= NOW() - INTERVAL ':days days'
+                AND composite_score IS NOT NULL
+            """)
+
+            with self._engine.connect() as conn:
+                result = conn.execute(query, {"days": days}).fetchone()
+                if result:
+                    d = dict(result)
+                    # Convert Decimal to float for all float fields
+                    return self._convert_decimal_to_float(d)
+                return {}
+        except Exception as e:
+            self.context.logger.exception(f"Failed to get score statistics: {e!s}")
+            raise
+
+    @retry_on_operational_error()
+    def get_model_performance_comparison(self, days: int = 30) -> list[dict]:
+        """Compare performance of different LLM models."""
+        if not self._engine:
+            msg = "Database engine not initialized. Call setup() first."
+            raise RuntimeError(msg)
+
+        try:
+            query = text("""
+                SELECT
+                    llm_model_used,
+                    COUNT(*) as report_count,
+                    AVG(composite_score) as avg_composite_score,
+                    AVG(relevance_score) as avg_relevance_score,
+                    AVG(completeness_score) as avg_completeness_score,
+                    AVG(usefulness_score) as avg_usefulness_score,
+                    AVG(data_quality_score) as avg_data_quality_score,
+                    AVG(actionability_score) as avg_actionability_score,
+                    AVG(generation_time_ms) as avg_generation_time_ms
+                FROM reports
+                WHERE created_at >= NOW() - INTERVAL ':days days'
+                AND composite_score IS NOT NULL
+                GROUP BY llm_model_used
+                ORDER BY avg_composite_score DESC
+            """)
+
+            with self._engine.connect() as conn:
+                result = conn.execute(query, {"days": days})
+                rows = []
+                for row in result:
+                    d = dict(row)
+                    # Convert Decimal to float for all float fields
+                    converted_d = self._convert_decimal_to_float(d)
+                    rows.append(converted_d)
+                return rows
+        except Exception as e:
+            self.context.logger.exception(f"Failed to get model performance comparison: {e!s}")
+            raise
+
+    def _convert_decimal_to_float(self, data: dict) -> dict:
+        """Convert Decimal values to float in a dictionary."""
+        converted = {}
+        for key, value in data.items():
+            if isinstance(value, Decimal):
+                converted[key] = float(value)
+            else:
+                converted[key] = value
+        return converted
 
 
 class LLMServiceError(Exception):

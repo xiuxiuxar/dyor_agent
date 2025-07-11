@@ -174,6 +174,19 @@ class UnlockEvent(BaseModel):
             return self.description
 
 
+class ReportScore(BaseModel):
+    """Report score."""
+
+    relevance_score: int = Field(..., ge=0, le=100, description="Relevance to current market conditions")
+    completeness_score: int = Field(..., ge=0, le=100, description="Coverage of available data sources")
+    usefulness_score: int = Field(..., ge=0, le=100, description="Value for traders/investors")
+    data_quality_score: int = Field(..., ge=0, le=100, description="Reliability of underlying data")
+    actionability_score: int = Field(..., ge=0, le=100, description="Clarity of insights and recommendations")
+    composite_score: int = Field(..., ge=0, le=100, description="Weighted average of all scores")
+    score_breakdown: dict[str, str] = Field(..., description="Detailed explanation of each score")
+    improvement_suggestions: list[str] = Field(default_factory=list, description="Suggestions for improvement")
+
+
 class StructuredPayload(BaseModel):
     """Structured payload."""
 

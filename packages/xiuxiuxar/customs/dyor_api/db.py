@@ -81,6 +81,19 @@ class Report(Base):
     llm_model_used = Column(String(128))
     generation_time_ms = Column(Integer)
     token_usage = Column(JSONB)
+    relevance_score = Column(Integer)
+    completeness_score = Column(Integer)
+    usefulness_score = Column(Integer)
+    data_quality_score = Column(Integer)
+    actionability_score = Column(Integer)
+    composite_score = Column(Integer)
+    score_breakdown = Column(JSONB)
+    improvement_suggestions = Column(JSONB)
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=func.now())
 
-    __table_args__ = (Index("idx_reports_asset_id_created_at", "asset_id", "created_at", postgresql_using="btree"),)
+    __table_args__ = (
+        Index("idx_reports_asset_id_created_at", "asset_id", "created_at", postgresql_using="btree"),
+        Index("idx_reports_composite_score", "composite_score", postgresql_using="btree"),
+        Index("idx_reports_low_scores", "composite_score", "created_at", postgresql_using="btree"),
+        Index("idx_reports_model_scores", "llm_model_used", "composite_score", postgresql_using="btree"),
+    )

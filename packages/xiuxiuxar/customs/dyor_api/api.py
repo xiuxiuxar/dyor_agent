@@ -49,6 +49,19 @@ class AssetResponse(AssetBase):
         from_attributes = True
 
 
+class ReportScore(BaseModel):
+    """Report score model."""
+
+    relevance_score: int | None = Field(None, ge=0, le=100)
+    completeness_score: int | None = Field(None, ge=0, le=100)
+    usefulness_score: int | None = Field(None, ge=0, le=100)
+    data_quality_score: int | None = Field(None, ge=0, le=100)
+    actionability_score: int | None = Field(None, ge=0, le=100)
+    composite_score: int | None = Field(None, ge=0, le=100)
+    score_breakdown: dict[str, str] | None = None
+    improvement_suggestions: list[str] | None = None
+
+
 class ReportBase(BaseModel):
     """Base report model."""
 
@@ -59,6 +72,7 @@ class ReportBase(BaseModel):
     llm_model_used: str | None = Field(None, max_length=128)
     generation_time_ms: int | None = None
     token_usage: dict[str, Any] | None = None
+    report_score: ReportScore | None = None
 
 
 class ReportCreate(ReportBase):
@@ -75,6 +89,36 @@ class ReportResponse(ReportBase):
         """Config for the report response model."""
 
         from_attributes = True
+
+
+class ScoreStatistics(BaseModel):
+    """Score statistics model."""
+
+    total_reports: int
+    avg_composite_score: float | None
+    avg_relevance_score: float | None
+    avg_completeness_score: float | None
+    avg_usefulness_score: float | None
+    avg_data_quality_score: float | None
+    avg_actionability_score: float | None
+    min_composite_score: int | None
+    max_composite_score: int | None
+    low_score_count: int
+    high_score_count: int
+
+
+class ModelPerformance(BaseModel):
+    """Model performance comparison model."""
+
+    llm_model_used: str
+    report_count: int
+    avg_composite_score: float | None
+    avg_relevance_score: float | None
+    avg_completeness_score: float | None
+    avg_usefulness_score: float | None
+    avg_data_quality_score: float | None
+    avg_actionability_score: float | None
+    avg_generation_time_ms: float | None
 
 
 class TriggerBase(BaseModel):

@@ -291,6 +291,152 @@ paths:
       security:
         - ApiKeyAuth: []
 
+  /api/reports/scores/low:
+    get:
+      summary: Get low scoring reports for analysis
+      description: Retrieve reports with composite scores below a threshold for quality improvement analysis
+      parameters:
+        - name: threshold
+          in: query
+          description: Score threshold (default 70)
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 100
+            default: 70
+        - name: limit
+          in: query
+          description: Maximum number of reports to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+      responses:
+        '200':
+          description: Low scoring reports retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  low_scoring_reports:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        report_id:
+                          type: integer
+                        trigger_id:
+                          type: integer
+                        asset_id:
+                          type: integer
+                        llm_model_used:
+                          type: string
+                        composite_score:
+                          type: integer
+                        relevance_score:
+                          type: integer
+                        completeness_score:
+                          type: integer
+                        usefulness_score:
+                          type: integer
+                        data_quality_score:
+                          type: integer
+                        actionability_score:
+                          type: integer
+                        score_breakdown:
+                          type: object
+                        improvement_suggestions:
+                          type: array
+                          items:
+                            type: string
+                        created_at:
+                          type: string
+                          format: date-time
+                        symbol:
+                          type: string
+                        name:
+                          type: string
+                  threshold:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - ApiKeyAuth: []
+
+  /api/reports/scores/statistics:
+    get:
+      summary: Get score statistics
+      description: Retrieve aggregated score statistics for quality monitoring
+      parameters:
+        - name: days
+          in: query
+          description: Number of days to analyze (default 30)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 365
+            default: 30
+      responses:
+        '200':
+          description: Score statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statistics:
+                    $ref: '#/components/schemas/ScoreStatistics'
+                  period_days:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - ApiKeyAuth: []
+
+  /api/reports/scores/models:
+    get:
+      summary: Compare model performance
+      description: Compare performance metrics across different LLM models
+      parameters:
+        - name: days
+          in: query
+          description: Number of days to analyze (default 30)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 365
+            default: 30
+      responses:
+        '200':
+          description: Model performance comparison retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  model_performance:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ModelPerformance'
+                  period_days:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - ApiKeyAuth: []
+
 components:
   schemas:
     ReportSummary:
@@ -320,11 +466,57 @@ components:
           type: string
           description: Brief summary of the report (preview)
 
+    ReportScore:
+      type: object
+      properties:
+        relevance_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Relevance to current market conditions
+        completeness_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Coverage of available data sources
+        usefulness_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Value for traders/investors
+        data_quality_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Reliability of underlying data
+        actionability_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Clarity of insights and recommendations
+        composite_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Weighted average of all scores
+        score_breakdown:
+          type: object
+          additionalProperties:
+            type: string
+          description: Detailed explanation of each score
+        improvement_suggestions:
+          type: array
+          items:
+            type: string
+          description: Suggestions for improving the report
+
     ReportDetail:
       allOf:
         - $ref: '#/components/schemas/ReportSummary'
         - type: object
           properties:
+            report_score:
+              $ref: '#/components/schemas/ReportScore'
             content:
               type: object
               properties:
@@ -387,6 +579,87 @@ components:
                   url:
                     type: string
                     format: uri
+
+    ScoreStatistics:
+      type: object
+      properties:
+        total_reports:
+          type: integer
+          description: Total number of reports in the period
+        avg_composite_score:
+          type: number
+          format: float
+          description: Average composite score
+        avg_relevance_score:
+          type: number
+          format: float
+          description: Average relevance score
+        avg_completeness_score:
+          type: number
+          format: float
+          description: Average completeness score
+        avg_usefulness_score:
+          type: number
+          format: float
+          description: Average usefulness score
+        avg_data_quality_score:
+          type: number
+          format: float
+          description: Average data quality score
+        avg_actionability_score:
+          type: number
+          format: float
+          description: Average actionability score
+        min_composite_score:
+          type: integer
+          description: Minimum composite score
+        max_composite_score:
+          type: integer
+          description: Maximum composite score
+        low_score_count:
+          type: integer
+          description: Number of reports with composite score < 70
+        high_score_count:
+          type: integer
+          description: Number of reports with composite score >= 80
+
+    ModelPerformance:
+      type: object
+      properties:
+        llm_model_used:
+          type: string
+          description: Name of the LLM model
+        report_count:
+          type: integer
+          description: Number of reports generated with this model
+        avg_composite_score:
+          type: number
+          format: float
+          description: Average composite score for this model
+        avg_relevance_score:
+          type: number
+          format: float
+          description: Average relevance score for this model
+        avg_completeness_score:
+          type: number
+          format: float
+          description: Average completeness score for this model
+        avg_usefulness_score:
+          type: number
+          format: float
+          description: Average usefulness score for this model
+        avg_data_quality_score:
+          type: number
+          format: float
+          description: Average data quality score for this model
+        avg_actionability_score:
+          type: number
+          format: float
+          description: Average actionability score for this model
+        avg_generation_time_ms:
+          type: number
+          format: float
+          description: Average generation time in milliseconds
 
     Asset:
       type: object
