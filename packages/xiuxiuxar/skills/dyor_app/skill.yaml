@@ -15,7 +15,7 @@ fingerprint:
   behaviours/error.py: bafybeie6mkywanzqdvnaon2q2xlxwgztnshglhrcgdcww75k5sqpx5j62a
   behaviours/generate.py: bafybeiaqtafpcqg64o2m3m5bypyxhovkpwginfqdpnfkataoez5xwxcyhq
   behaviours/ingest.py: bafybeieo4bqmz6ap4lc2ek3dmhexyr5hszwcqnp24uxyhqkhknuqdgnirm
-  behaviours/process.py: bafybeifoqo5y7tn5t422djfzapbxiexpcj7ey7k3rwdjlxcvym7rvhsloy
+  behaviours/process.py: bafybeiamaq5fw4cbpziu2d3msw4xihzgcgs6d36xo5u7j6uaerf237kc44
   behaviours/round_behaviour.py: bafybeibz6vmnh62qef72xxfbvt5hzg27g4t64no5n27jfxftnm3m4apssa
   behaviours/setup.py: bafybeifl56j2c5wpyhpzktagvunurtdrnpccrq2jhkmxossmjkhudvcgli
   behaviours/trigger.py: bafybeih3j56qe74ayl4cpzqherjeok36kxrykp6wdkdnkkv4rpbexevcxy
