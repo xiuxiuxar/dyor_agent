@@ -547,7 +547,59 @@ class ProcessDataRound(BaseState):
         filtered.sort(key=lambda x: datetime.fromisoformat(x["date"]), reverse=True)
         return filtered[:count]
 
+    def _calculate_weekly_average(
+        self, data_points: list, start_idx: int, end_idx: int, key: str | None = None
+    ) -> float:
+        """Calculate average value for a week period."""
+        if not data_points or len(data_points) <= max(start_idx, end_idx):
+            return 0.0
+
+        week_data = data_points[start_idx : end_idx + 1]
+        if not week_data:
+            return 0.0
+
+        try:
+            # Get the key dynamically from the first item if not provided
+            if key is None:
+                sample_item = week_data[0]
+                for possible_key in ["total_volume", "lc_social_dominance", "social_mentions", "lc_sentiment"]:
+                    if possible_key in sample_item:
+                        key = possible_key
+                        break
+
+            if not key:
+                return 0.0
+
+            values = [float(item[key]) for item in week_data if key in item and item[key] is not None]
+            return sum(values) / len(values) if values else 0.0
+        except (ValueError, TypeError, KeyError):
+            return 0.0
+
+    def _calculate_weekly_change(self, trend_data: list, key: str, use_percentage: bool = True) -> float | None:
+        """Calculate weekly change."""
+        data_points = self._get_latest_trend_values(trend_data, key, 14)
+        if len(data_points) < 14:
+            self.context.logger.warning(
+                f"Insufficient data points (got {len(data_points)}) "
+                f"for weekly change calculation of '{key}'. Returning None."
+            )
+            return None
+        result = None
+        try:
+            # True week-over-week averages (14+ days)
+            current_avg = self._calculate_weekly_average(data_points, 0, 6, key)
+            previous_avg = self._calculate_weekly_average(data_points, 7, 13, key)
+            if use_percentage and previous_avg > 0:
+                result = calculate_percentage_change(current_avg, previous_avg)
+            elif not use_percentage:
+                result = round(current_avg - previous_avg, 2)
+        except (ValueError, TypeError, KeyError) as e:
+            self.context.logger.warning(f"Failed to calculate {key} weekly change: {e}")
+        return result
+
     def _build_key_metrics(self, trend_market_data):
+        self.context.logger.info(f"Building key metrics with {len(trend_market_data)} data points")
+
         # Price change 24h
         price_points = self._get_latest_trend_values(trend_market_data, "price")
         price_change_24h = (
@@ -556,25 +608,37 @@ class ProcessDataRound(BaseState):
             else 0.0
         )
 
-        # Volume change 24h
-        volume_points = self._get_latest_trend_values(trend_market_data, "total_volume")
+        # Volume changes (24h and 7d)
+        volume_points_24h = self._get_latest_trend_values(trend_market_data, "total_volume")
         volume_change_24h = (
             calculate_percentage_change(
-                float(volume_points[0]["total_volume"]), float(volume_points[1]["total_volume"])
+                float(volume_points_24h[0]["total_volume"]), float(volume_points_24h[1]["total_volume"])
             )
-            if len(volume_points) == 2
+            if len(volume_points_24h) == 2
             else 0.0
         )
+        volume_change_7d = self._calculate_weekly_change(trend_market_data, "total_volume")
 
-        # Mindshare (latest non-null lc_social_dominance)
-        mindshare_points = self._get_latest_trend_values(trend_market_data, "lc_social_dominance", 1)
-        latest_mindshare = float(mindshare_points[0]["lc_social_dominance"]) if mindshare_points else 0.0
-        mindshare_24h = round(latest_mindshare, 1)
+        # Mindshare current value and changes (24h and 7d)
+        mindshare_points_24h = self._get_latest_trend_values(trend_market_data, "lc_social_dominance")
+        latest_mindshare = float(mindshare_points_24h[0]["lc_social_dominance"]) if mindshare_points_24h else 0.0
+
+        mindshare_change_24h = (
+            calculate_percentage_change(
+                float(mindshare_points_24h[0]["lc_social_dominance"]),
+                float(mindshare_points_24h[1]["lc_social_dominance"]),
+            )
+            if len(mindshare_points_24h) == 2
+            else 0.0
+        )
+        mindshare_change_7d = self._calculate_weekly_change(trend_market_data, "lc_social_dominance")
 
         return KeyMetrics(
             mindshare=latest_mindshare,
-            mindshare_24h=mindshare_24h,
+            mindshare_24h=mindshare_change_24h,
+            mindshare_7d=mindshare_change_7d,
             volume_change_24h=volume_change_24h,
+            volume_change_7d=volume_change_7d,
             price_change_24h=price_change_24h,
         )
 
@@ -583,16 +647,19 @@ class ProcessDataRound(BaseState):
             social_data = {}
         trend_market_data = social_data.get("trend_market_data", [])
 
-        # Get latest sentiment
+        # Latest sentiment
         latest_sentiment = 0.0
         sentiment_points = self._get_latest_trend_values(trend_market_data, "lc_sentiment", 1)
         if sentiment_points:
             latest_sentiment = sentiment_points[0]["lc_sentiment"]
 
-        # Get mention change (skip most recent if zero)
+        # Sentiment weekly change (use absolute change, not percentage for sentiment scores)
+        sentiment_change_7d = self._calculate_weekly_change(trend_market_data, "lc_sentiment", use_percentage=False)
+
+        # Mention changes (24h and 7d) - handle zero values carefully
         mention_points = self._get_latest_trend_values(trend_market_data, "social_mentions")
         if len(mention_points) >= 2 and mention_points[0]["social_mentions"] == 0:
-            # If most recent is 0, get next two points
+            # Skip zero values by getting next two points
             all_mentions = self._get_latest_trend_values(trend_market_data, "social_mentions", 3)
             mention_points = all_mentions[1:3] if len(all_mentions) >= 3 else mention_points
 
@@ -603,12 +670,16 @@ class ProcessDataRound(BaseState):
                 previous_mentions = float(mention_points[1]["social_mentions"])
                 mention_change_24h = calculate_percentage_change(latest_mentions, previous_mentions)
             except (ValueError, TypeError) as e:
-                self.context.logger.warning(f"Failed to parse social mentions: {e}")
+                self.context.logger.warning(f"Failed to parse social mentions for 24h change: {e}")
+
+        mention_change_7d = self._calculate_weekly_change(trend_market_data, "social_mentions")
 
         return SocialSummary(
             sentiment_score=latest_sentiment,
             top_keywords=social_data.get("symbols", []),
             mention_change_24h=mention_change_24h,
+            mention_change_7d=mention_change_7d,
+            sentiment_change_7d=sentiment_change_7d,
         )
 
     def _build_asset_info(self, coin_details, social_data, context):

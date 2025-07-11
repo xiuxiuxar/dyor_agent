@@ -85,10 +85,22 @@ class KeyMetrics(BaseModel):
         None,
         description="24h mindshare change in %",
     )
+
+    mindshare_7d: float | None = Field(
+        None,
+        description="7d mindshare change in %",
+    )
+
     volume_change_24h: float | None = Field(
         None,
         description="24h trading volume change in %",
     )
+
+    volume_change_7d: float | None = Field(
+        None,
+        description="7d trading volume change in %",
+    )
+
     price_change_24h: float | None = Field(
         None,
         description="24h price change in %",
@@ -99,7 +111,10 @@ class SocialSummary(BaseModel):
     """Social summary."""
 
     sentiment_score: float | None = Field(None, description="Aggregated sentiment score (e.g. -1 to +1)")
+    top_keywords: list[str] | None = Field(None, description="List of top keywords/symbols")
     mention_change_24h: float | None = Field(None, description="24h change in social mentions in %")
+    mention_change_7d: float | None = Field(None, description="7d change in social mentions in %")
+    sentiment_change_7d: float | None = Field(None, description="7d change in sentiment score")
 
 
 class NewsItem(BaseModel):
