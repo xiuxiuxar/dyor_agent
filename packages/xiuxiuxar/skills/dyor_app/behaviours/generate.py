@@ -36,6 +36,8 @@ class GenerateReportRound(BaseState):
         "Overview",
         "Key Recent Changes",
         "Recent News/Events",
+        "Community & Social Chatter",
+        "Unlock Events",
         "Analysis",
         "Conclusion",
     ]
