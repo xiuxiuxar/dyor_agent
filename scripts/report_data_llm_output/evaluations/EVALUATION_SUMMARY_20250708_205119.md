@@ -1,0 +1,3283 @@
+# DYOR Template Evaluation Summary
+Generated: 2025-07-08 20:51:19
+Evaluator Model: openai/gpt-4o
+
+## 🏆 Template Comparison Results
+
+**Total Comparisons:** 170
+**High Confidence Evaluations:** 164/170 (96.5%)
+
+### Winner Breakdown:
+- **OLD Template:** 3/170 (1.8%)
+- **NEW Template:** 166/170 (97.6%)
+- **TIE Template:** 1/170 (0.6%)
+
+### Detailed Comparisons:
+
+#### BANANA - google_gemma_2_9b_it
+**Winner:** OLD (Confidence: Medium)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 6 |
+| Actionability | 7 | 5 |
+| Structure | 7 | 4 |
+| Data Integration | 6 | 5 |
+| Unique Insights | 7 | 4 |
+
+**Key Differences:**
+- The old template provides a more comprehensive overview with specific recent events and social media activity.
+- The new template is cluttered with excessive disclaimers, disrupting the flow and readability of the report.
+- The old template gives a better sense of market sentiment with quantitative data on mentions and mindshare changes.
+
+**Reasoning:** The old template wins because it offers a more detailed and structured analysis of the cryptocurrency, highlighting specific events and changes in social media metrics that could influence investor behavior. It presents data in a clearer, more organized manner, making it easier for readers to extract actionable insights. In contrast, the new template is disrupted by an overwhelming number of disclaimers, lacks depth in its analysis, and does not effectively synthesize the available data.
+
+#### SUI - microsoft_wizardlm_2_8x22b
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 9 | 8 |
+| Data Integration | 8 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it offers a more comprehensive view of market catalysts, effectively highlighting events like the acquisition of 'sui.eth', the xBTC liquidity pool launch, and the involvement of a publicly-traded company, which positions Sui as a potential attractive investment. It also presents the information in a structured manner that integrates social sentiment and community engagement, providing a more nuanced understanding of potential market movements. Although the old template has a more detailed risk assessment, particularly regarding upcoming unlocks, the new template's ability to integrate data and provide unique insights about market dynamics and community sentiment gives it the edge.
+
+#### BUNKER - qwen_qwen_2.5_72b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- New template integrates social sentiment more effectively
+- Old template has a more comprehensive historical context section
+
+**Reasoning:** The new template wins because it offers a clearer identification and explanation of market catalysts, enhanced integration of social sentiment, and provides more actionable insights for investors. The structure is well-organized, making it easy to follow, and it synthesizes data effectively to offer unique insights into market dynamics. While the old template is strong in providing historical context and broader analysis, the new template's focus on immediate market catalysts and investor sentiment makes it more valuable for informed decision-making.
+
+#### BANANA - google_gemini_2.5_flash_lite_preview_06_17
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides a clearer market catalyst timeline with specific events and impacts.
+- Old template has a more detailed risk assessment section, focusing on sentiment and mention decrease.
+- New template integrates social sentiment and community chatter more effectively, providing a balanced view of bullish and bearish indicators.
+
+**Reasoning:** The new template wins because it offers a more structured and detailed view of market catalysts, with specific events highlighted and their impacts categorized as high, medium, or low. This provides clearer insights into potential price-moving events. Additionally, it integrates social sentiment analysis more effectively, presenting a balanced view of both bullish and bearish indicators, which enhances the actionability of the report. The structure and flow of the new template are also superior, making the information easier to follow and more comprehensive in synthesizing available data.
+
+#### LSD - meta_llama_llama_3.2_90b_vision_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 9 | 8 |
+| Data Integration | 8 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it offers a more comprehensive market catalyst focus, providing specific timelines and reasons why each event matters. This aids investors in understanding the immediate and future impacts on the market. Additionally, it integrates social sentiment analysis, offering a broader perspective on community and influencer sentiment, which is crucial in the crypto space. Despite the old template offering a solid structure and risk assessment, the new template's integration of data and unique insights make it more actionable and valuable for investors.
+
+#### DRV - meta_llama_llama_3.1_70b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 5 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has a more comprehensive assessment of stability factors
+- New template integrates social sentiment and potential risks more effectively
+
+**Reasoning:** The new template wins because it not only identifies key market catalysts like the proposed acquisition by Synthetix, but it also gives a clear timeline for its potential impact. It integrates community and social chatter more effectively, providing insights into both bullish and bearish sentiments that could affect investor decisions. Additionally, the structure of the new template is organized with distinct sections that are easy to follow, enhancing the flow of information. While the old template provides a solid overview and risk assessment, the new template offers more actionable insights and a comprehensive view of the factors affecting the market, making it more useful for investors seeking detailed analysis.
+
+#### HYPE - anthropic_claude_3_5_sonnet_20241022
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 6 | 7 |
+| Actionability | 5 | 6 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 8 |
+| Unique Insights | 5 | 7 |
+
+**Key Differences:**
+- New template provides a more comprehensive overview of the limits in data availability, which helps frame the analysis better.
+- New template emphasizes the absence of market drivers and potential macro influences, offering a broader context.
+- Old template focuses more on the lack of activity without attempting to provide additional context or potential macro influences.
+
+**Reasoning:** The new template wins because it offers a slightly broader context by highlighting the absence of market drivers and considering macro influences. Although both reports face limitations due to the lack of data, the new template provides a clearer structure and integrates available information more effectively to present a coherent baseline assessment. It also discusses the absence of price-moving events more explicitly, which could help investors understand the lack of activity better. The old template, while well-structured, does not provide as much context regarding the broader market environment or potential macro factors.
+
+#### HYPE - microsoft_wizardlm_2_8x22b
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 5 | 8 |
+
+**Key Differences:**
+- New template provides more detailed analysis of potential macro influences and lack of specific news.
+- New template offers a clearer structure and flow, making it easier to identify key points and action items.
+- New template includes a section on community and social chatter, adding depth to the understanding of sentiment.
+
+**Reasoning:** The new template wins because it provides a more comprehensive and detailed analysis of the market situation for Hyperliquid (HYPE). It effectively highlights the lack of specific market catalysts while also considering broader macroeconomic influences. The structure of the report is logically organized, making it easier for investors to follow and draw actionable insights. Additionally, the inclusion of community and social chatter offers unique insights into the sentiment that could affect the asset, which the old template lacks. These enhancements make the new template more effective for investors seeking to understand the current market dynamics and potential future developments.
+
+#### QUA - deepseek_deepseek_chat
+**Winner:** NEW (Confidence: Medium)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 8 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides a clearer breakdown of bullish and bearish signals, enhancing the understanding of market catalysts.
+- Old template offers a comprehensive ecosystem focus, but lacks clarity in translating this into actionable insights.
+- New template integrates social sentiment more effectively, highlighting both positive and negative community signals.
+
+**Reasoning:** The new template wins because it provides a more comprehensive analysis of market catalysts by clearly identifying both bullish and bearish signals, which helps in understanding potential price-moving events. Additionally, the new template offers better actionability through a structured presentation of community and social chatter, enabling investors to grasp the sentiments driving market dynamics. While both templates synthesize data well, the new report stands out by offering unique insights into community sentiment and potential market movements. However, the confidence is medium due to the old template's stronger risk assessment section, which could be beneficial for cautious investors.
+
+#### LSD - openai_gpt_4o
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline and connects news events more directly to potential market impacts.
+- Old template includes a more detailed risk assessment, highlighting potential speculative behavior and cautioning investors.
+- New template integrates social sentiment more effectively by discussing the lack of social media chatter despite high sentiment scores.
+
+**Reasoning:** The new template wins because it offers a more detailed and clear identification of market catalysts, making it easier for investors to understand what is driving price movements. The structure is also more coherent, allowing for better readability and flow of information. Additionally, the new template uniquely analyzes the disconnect between social sentiment and social media activity, providing a more nuanced view of community engagement and investor behavior. While the old template has a strong risk assessment section, the new template's overall integration of data and clarity in presenting actionable insights make it the superior choice.
+
+#### RENEW - microsoft_wizardlm_2_8x22b
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides a more comprehensive analysis of external market events and their potential impact on ReNeW.
+- Old template focuses more on internal project updates without connecting them to broader market trends.
+- New template effectively integrates social sentiment and external factors, providing a holistic view of market dynamics.
+
+**Reasoning:** The new template wins because it offers a more detailed and comprehensive analysis of market catalysts by incorporating broader macroeconomic events and potential legislative impacts. It also provides clearer investment implications by linking these external factors to ReNeW's market position. Additionally, the new template's integration of social sentiment and market trends provides a well-rounded perspective that is more actionable for investors. The structure and flow of the new template make it easier to follow, while the old template lacks depth in connecting project updates to market movements.
+
+#### MEOW - meta_llama_llama_3.1_70b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 6 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 7 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 5 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- New template integrates recent news and events directly into analysis
+- New template emphasizes community sentiment and engagement effectively
+
+**Reasoning:** The new template wins because it provides a more comprehensive analysis of market catalysts, effectively integrating recent news and events with potential impacts on MEOW's price. It offers more actionable insights by connecting these catalysts to potential market movements. Additionally, the new template's focus on community sentiment and engagement adds a unique dimension to the analysis, which is crucial for evaluating decentralized finance projects. The structure is logical and easy to follow, with a clear narrative connecting the data to the analysis, making it more informative and valuable to investors looking for specific implications.
+
+#### QUA - meta_llama_llama_4_maverick_17b_128e_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline and potential impacts.
+- Old template lacks detailed analysis on external market events and their indirect implications.
+- New template integrates broader market developments and social sentiment more effectively.
+
+**Reasoning:** The new template wins because it provides a more comprehensive analysis by integrating external market events, potential impacts on Quasacoin, and a clearer timeline of upcoming catalysts. It offers better actionability with specific insights into how broader market trends might indirectly affect Quasacoin's market dynamics. Additionally, the new template synthesizes social sentiment data more effectively, highlighting the bullish and bearish aspects, which adds depth to the analysis. The old template, while structured well, falls short in connecting Quasacoin's developments with broader market dynamics and lacks specificity in its investment implications. Overall, the new template offers a more insightful and actionable report.
+
+#### ECO - meta_llama_llama_4_maverick_17b_128e_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline and contextual impact assessment.
+- Old template offers a more explicit risk assessment related to token unlocks.
+- New template integrates social sentiment analysis, providing a balanced view of community perspectives.
+
+**Reasoning:** The new template wins because it provides a more comprehensive and nuanced analysis of market catalysts and their potential impact on ECO's price. The inclusion of social sentiment and community chatter offers deeper insights into market perceptions, while the structured timeline of events helps investors understand the sequence and potential impact of recent news. Additionally, the new template offers clearer and more actionable insights by directly linking news events to potential market behaviors. Overall, the new template's enhanced detail and integration of various data points make it more informative and useful for investors.
+
+#### SUIAGENT - qwen_qwen_2.5_72b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 9 | 8 |
+| Data Integration | 8 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it provides a clearer focus on market catalysts and their expected timelines, which is crucial for investors looking to understand the potential impact of upcoming events. It also does a better job of integrating social sentiment and providing unique insights, offering a more comprehensive view of the market dynamics. While the old template has a more structured flow and a better risk assessment section, the new template's strengths in actionability and data integration make it more valuable for investors seeking actionable intelligence.
+
+#### HYPE - google_gemini_2.5_flash_lite_preview_06_17
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 6 | 8 |
+| Actionability | 6 | 7 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 5 | 7 |
+
+**Key Differences:**
+- New template provides a clearer structure and explicitly addresses the absence of market catalysts.
+- New template integrates and highlights the lack of social sentiment and community engagement more effectively.
+- Old template lacks depth in explaining the implications of the data, whereas the new template is more explicit about the absence of activity.
+
+**Reasoning:** The new template wins because it provides a clearer explanation of the market's inactivity and its implications. It effectively integrates data on social sentiment and community engagement, offering a more comprehensive view of the current market status. Additionally, the new template's structure is more logical and flows better, making it easier to follow. Despite both templates reporting similar data, the new template's ability to synthesize this information and present it in a more actionable and insightful manner gives it the edge.
+
+#### DRV - openai_gpt_4o
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline with the inclusion of the Synthetix acquisition proposal.
+- Old template lacks specific actionable insights related to potential market-moving events.
+- New template integrates social sentiment and community engagement more effectively, providing a balanced view of bullish and bearish sentiments.
+
+**Reasoning:** The new template wins because it identifies a significant market catalyst in the form of the Synthetix acquisition proposal, which is not mentioned in the old template. This provides a clearer potential market-moving event that investors can watch. Additionally, the new template offers more actionable insights by explicitly mentioning the potential impact of the acquisition proposal and providing a balanced analysis of social sentiment. The structure and flow of the new template are also superior, as it organizes information in a more logical sequence that is easy to follow, making it more comprehensive and insightful for investors.
+
+#### XDB - qwen_qwen_2.5_72b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline with specific upcoming events highlighted.
+- Old template lacks detailed risk assessment and does not address potential negative market impacts.
+- New template integrates social sentiment analysis more effectively, presenting both bullish and bearish sentiments.
+
+**Reasoning:** The new template wins because it provides a more comprehensive analysis of market catalysts and potential risks, which is crucial for making informed investment decisions. It offers a better structure by clearly outlining both positive and negative sentiments, giving a balanced view of the market. Additionally, the new report synthesizes the available data more effectively, linking recent developments with market reactions. This makes it more actionable for investors looking to understand both immediate opportunities and potential risks.
+
+#### ECO - qwen_qwen_2.5_72b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 9 | 8 |
+| Data Integration | 8 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it more effectively highlights the key market catalysts and provides a clearer timeline for their impact, making it more actionable for investors. It also incorporates social sentiment analysis more effectively, offering unique insights into community reactions that could influence market dynamics. While the old template features a more detailed risk assessment section, the overall organization and integration of data in the new template make it superior for investors seeking clear and specific guidance. The new template's structured approach to recent news/events and its focus on actionable insights make it more useful for investment decision-making.
+
+#### ECO - meta_llama_llama_3.2_90b_vision_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 9 | 8 |
+| Data Integration | 8 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it offers a clearer focus on market catalysts by providing specific timelines for potential impacts, which is especially useful for traders and investors looking for actionable insights. The structured analysis of social chatter adds an additional layer of sentiment understanding that can be crucial for assessing market dynamics. While the old template is stronger in risk assessment with its focus on upcoming unlocks, the new template's integration of data and insights into potential catalysts makes it more valuable overall.
+
+#### AERO - deepseek_deepseek_chat
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 9 | 8 |
+| Data Integration | 8 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it provides a clearer and more detailed account of market catalysts and their impacts, which is crucial for understanding price movements. It also offers more actionable insights by effectively integrating community and social sentiment, giving a more rounded view of investor sentiment and potential market movements. While the old template has a more structured risk assessment section, the new template's overall integration and synthesis of data, including sentiment analysis, make it superior for investors seeking actionable insights. The new template's unique insights and better organization of catalyst information provide a more comprehensive analysis, which is essential for making informed investment decisions.
+
+#### QUA - anthropic_claude_3_5_sonnet_20241022
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline and implications for potential investors.
+- Old template focuses more on the risk assessment of current strategies but lacks depth in analysis of potential catalysts.
+- New template integrates social sentiment more effectively, offering insights into bullish and bearish signals impacting market perception.
+
+**Reasoning:** The new template wins because it offers a more detailed analysis of market catalysts and potential investment actions. It effectively synthesizes available data, including social sentiment, to present a more comprehensive view of the market impact and potential future developments. The structure is logical and easy to follow, guiding the reader through the analysis with clear sections and transitions. The new report also provides unique insights into community sentiment and the potential implications of recent developments, making it more actionable for investors.
+
+#### REI - meta_llama_llama_3.2_90b_vision_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has a more straightforward analysis of sentiment without tying it to external events
+- New template integrates geopolitical and regulatory factors more effectively
+
+**Reasoning:** The new template wins because it better identifies and discusses market catalysts such as geopolitical tensions and regulatory events, providing a clearer context for the price movements of Rei (rei). It offers more actionable insights by linking these external factors to potential investor behavior, thereby enhancing the usefulness of the report for decision-making. The structure of the new report is well-organized, making it easier to follow and comprehend the connections between events and asset performance. Furthermore, the new template effectively integrates and synthesizes available data, including social sentiment and community activities, to provide a more comprehensive analysis. These elements combined make the new report more insightful and valuable for investors seeking to understand the dynamics affecting Rei.
+
+#### MEOW - meta_llama_llama_4_maverick_17b_128e_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 5 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has a better risk assessment section
+- New template integrates social sentiment more effectively with mentions of bullish and bearish factors
+
+**Reasoning:** The new template wins because it provides a more thorough and nuanced analysis of the market catalysts, specifically detailing the timeline and potential impact of each event. It also offers better integration of social sentiment analysis, acknowledging both bullish and bearish perspectives, which adds depth to the report. Furthermore, the new template's clear mention of the absence of unlock events and their implications for price stability is a significant actionable insight. While the old template has a better risk assessment, it lacks the depth in catalyst focus and actionable insights that the new template provides.
+
+#### ECO - openai_gpt_4o
+**Winner:** TIE (Confidence: Medium)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 8 |
+| Actionability | 7 | 8 |
+| Structure | 9 | 8 |
+| Data Integration | 8 | 8 |
+| Unique Insights | 6 | 7 |
+
+**Key Differences:**
+- The new template provides a more streamlined overview of market catalysts, focusing on price and volume changes clearly.
+- The old template offers a more comprehensive risk assessment, particularly with its detailed analysis of token unlocks and their potential impacts.
+- The old template integrates news and events effectively within the context of market sentiment and trading volume changes.
+
+**Reasoning:** Both templates have their strengths and weaknesses, making this a tie. The old template excels in providing detailed context and risk assessment, especially concerning token unlocks and potential market impacts. It also organizes information clearly, offering a comprehensive view of recent events and their implications. However, the new template focuses more on direct market catalysts and actionability, delivering clear and specific investment implications. It integrates social sentiment effectively but lacks some depth in risk analysis compared to the old template. Overall, both reports synthesize the available data well but cater to slightly different analytical focuses.
+
+#### DRV - deepseek_deepseek_chat
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 9 | 8 |
+| Data Integration | 8 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it offers a more comprehensive and actionable analysis of the market catalyst, detailing the potential timeline for impact (short to medium term) and suggesting institutional interest and retail FOMO as possible outcomes. This provides investors with clearer guidance on what to watch for. Additionally, the new template integrates social sentiment more effectively, providing insights into both bullish and bearish community sentiments, which enhances the understanding of market dynamics. While the old template has a stronger risk assessment section, the new template's overall integration of data, structure, and unique insights makes it a more useful tool for investors looking to make informed decisions.
+
+#### ECO - google_gemini_2.5_flash_lite_preview_06_17
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- New template integrates social sentiment more effectively
+- Old template offers a more detailed risk assessment section
+
+**Reasoning:** The new template wins because it provides a more comprehensive and organized view of the market catalysts and events affecting EcoToken (ECO). It effectively highlights the potential impacts of recent and upcoming events, integrating them with social sentiment data to offer a clearer picture of market dynamics. This allows for better actionable insights for investors. While the old template includes a detailed risk assessment, the new template's structure and focus on catalysts provide a clearer narrative flow that enhances understanding, making it more useful for decision-making.
+
+#### ECO - deepseek_deepseek_chat
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 9 | 8 |
+| Data Integration | 8 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it provides a more comprehensive and clearer analysis of market catalysts, with a specific emphasis on the timeline of events such as the V2 launch and partnership announcement. It also integrates social sentiment and community engagement more effectively, offering a nuanced view on public interest and potential market impact. Additionally, the new template's structure, while slightly less organized than the old, offers actionable insights that are better aligned with real-time market conditions, making it more practical for investors seeking to make informed decisions.
+
+#### CHILLHOUSE - meta_llama_llama_3.2_90b_vision_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 5 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- New template includes a dedicated section for community and social chatter, enhancing insight into investor sentiment.
+- New template integrates social sentiment more effectively by breaking it down into bullish and bearish factors, providing a more nuanced view.
+
+**Reasoning:** The new template wins because it offers a more comprehensive and detailed analysis of market catalysts, particularly emphasizing social media and community engagement as key drivers. It also provides a structured breakdown of bullish and bearish sentiments, aiding investors in understanding potential risks and opportunities. The integration of data is more effective, resulting in unique insights that are actionable for investors. Overall, the new template is better organized, with clearer sections and a more detailed narrative that enhances readability and utility for investors.
+
+#### LSD - google_gemma_2_9b_it
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- New template integrates social sentiment more effectively
+- Old template offers a more detailed analysis of potential institutional interest
+
+**Reasoning:** The new template wins because it provides a more comprehensive and organized analysis of the market dynamics surrounding LSDx Finance. It excels in identifying the lack of asset-specific news and the potential for market manipulation, which are critical insights for investors. The structure and flow of the new report are superior, making the information more accessible and actionable. Furthermore, it effectively highlights the absence of community engagement, which is crucial for understanding the sustainability of the price surge. The old template, while providing some valuable insights into potential institutional interest, lacks the depth and clarity found in the new template's analysis.
+
+#### BANANA - microsoft_wizardlm_2_8x22b
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline, identifying specific dates and events that impact the asset.
+- Old template lacks a dedicated section on community and social chatter, which the new template includes effectively, offering more insights into market sentiment.
+- New template offers a more direct actionability perspective by discussing potential impacts of upcoming developments and external influences like the Binance listing.
+
+**Reasoning:** The new template wins because it provides a more comprehensive analysis of market catalysts by including specific dates and events that could influence the asset's price. This makes it easier for investors to understand the potential impact of these events. Additionally, the new template integrates social sentiment data more effectively, offering a distinct section on community and social chatter that provides valuable insights into current market sentiment. This is complemented by a clearer actionability perspective, highlighting the potential impacts of ongoing developments and external factors more directly than the old template. Overall, the new template offers a more structured and insightful report with actionable insights for investors.
+
+#### LSD - deepseek_deepseek_chat
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline with specific events and dates.
+- Old template has a more straightforward risk assessment section, cautioning investors directly.
+- New template integrates social sentiment and community engagement data more effectively, highlighting discrepancies.
+
+**Reasoning:** The new template wins because it offers a more comprehensive and detailed analysis of market catalysts, with specific dates and events that provide better context for the observed price movements. It also integrates social sentiment data more effectively, offering unique insights into the disconnect between price action and community engagement. While the old template provides a straightforward cautionary note, the new template's structured approach to highlighting potential speculative activity and the lack of fundamental drivers makes it more actionable and insightful for investors. Additionally, the new template's structure allows for easier navigation and understanding of the report's findings.
+
+#### CHILLHOUSE - meta_llama_llama_4_maverick_17b_128e_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 5 | 8 |
+
+**Key Differences:**
+- New template provides a more comprehensive analysis of market catalysts by including community and social chatter, offering insights into both bullish and bearish aspects.
+- The new template gives more actionable insights by discussing speculative nature and potential instability, which can guide investors in understanding risk factors.
+- The new template effectively integrates data on social sentiment and community engagement, providing a nuanced view that is better tailored to the dynamics of meme-based cryptocurrencies.
+
+**Reasoning:** The new template wins because it provides a more thorough analysis of market catalysts, integrating social sentiment and community insights effectively. This approach offers a deeper understanding of the factors driving Chill House's volatility and potential price movements. The inclusion of both bullish and bearish perspectives gives a balanced view, which is crucial for investors in speculative assets. Additionally, the new template offers clearer actionability by highlighting the speculative and volatile nature of the asset, which can aid investors in making informed decisions. Overall, the new template synthesizes data more effectively and provides unique insights, making it a superior report.
+
+#### RENEW - meta_llama_llama_3.1_70b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 4 | 7 |
+| Actionability | 3 | 6 |
+| Structure | 6 | 8 |
+| Data Integration | 4 | 7 |
+| Unique Insights | 3 | 7 |
+
+**Key Differences:**
+- The new template provides a comprehensive overview of market catalysts, including specific recent news and events.
+- The old template lacks actionability, offering no specific investment implications, while the new template suggests areas of investor caution and potential focus.
+- The new template effectively integrates and synthesizes social sentiment and recent developments, offering more unique insights into ReNeW's market dynamics.
+
+**Reasoning:** The new template wins because it offers a more detailed and structured analysis, highlighting specific market catalysts and integrating social sentiment into its evaluation. It provides more actionable insights by discussing recent developments and their potential impact, which the old template lacks. Additionally, the new report is better organized, making it easier for investors to follow and understand the implications of various events and sentiments.
+
+#### SUI - meta_llama_llama_3.2_90b_vision_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has a more detailed risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it does a superior job of identifying and articulating market catalysts and their potential impact on Sui. It provides a more detailed timeline for when these events might influence the market, which aids investors in making informed decisions. The new template also effectively integrates social sentiment analysis, which is crucial in the crypto market given its volatility and reliance on community engagement. Additionally, while both templates offer a comprehensive overview, the new template's structure allows for a clearer understanding of the interaction between various factors affecting market dynamics. Although the old template provides a solid risk assessment, the new template's actionability and data integration make it more valuable for investors looking to make strategic decisions.
+
+#### REI - microsoft_wizardlm_2_8x22b
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline with specific dates and detailed events.
+- Old template offers a more detailed risk assessment section with macroeconomic context.
+- New template integrates social sentiment more effectively by highlighting community engagement through specific events and participation numbers.
+
+**Reasoning:** The new template wins because it provides a more comprehensive understanding of market catalysts by detailing specific events and their implications. It enhances actionability by linking community engagement directly to market actions, providing clearer investment implications. Additionally, the structure and flow of the new template allow for easier digestion of information, with a chronological event listing and focused community insights. This approach better equips investors to understand the dynamics at play and make informed decisions based on a synthesis of regulatory, geopolitical, and network-specific developments.
+
+#### SEI - google_gemini_2.5_flash_lite_preview_06_17
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 7 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has a more detailed risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it provides a clearer focus on market catalysts, making it easier for investors to understand the immediate and medium-term impacts of various events. It synthesizes data more effectively, leading to a more concise and actionable report. Additionally, the integration of social sentiment data is handled more effectively, offering a richer context for the price action. The old template, while structured well, focuses more on generic insights and lacks the same level of clarity and actionability found in the new template.
+
+#### SEI - meta_llama_llama_3.2_90b_vision_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has a more straightforward overview section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it offers a more comprehensive and organized analysis of market catalysts, providing a timeline for expected impacts and highlighting the significance of each event. It integrates social sentiment analysis effectively, offering insights into community perceptions, which adds depth to the market analysis. Furthermore, the new template's structure is more coherent, presenting the information in a logical flow that enhances readability and understanding. While the old template has strengths in its straightforward overview, it lacks the depth and actionable insights provided by the new template.
+
+#### XDB - google_gemini_2.5_flash_lite_preview_06_17
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 9 | 8 |
+| Data Integration | 8 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it provides a more comprehensive and actionable analysis of the market catalysts, with a clear timeline for expected impacts. It also effectively integrates social sentiment data, offering a more nuanced view of potential market reactions. While the old template has a well-structured flow and includes a useful risk assessment, the new template's insights are more novel and tailored to current market dynamics, making it more actionable for investors.
+
+#### AERO - google_gemma_2_9b_it
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 7 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 5 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline with specific dates and impacts.
+- Old template lacks detailed social sentiment analysis, which is better covered in the new template.
+- New template offers a more comprehensive integration of data, leading to more insightful conclusions.
+
+**Reasoning:** The new template wins because it offers a more detailed and structured analysis of market catalysts, including specific dates and potential impacts. This makes the report more actionable and insightful. Additionally, the integration of social sentiment data in the new template provides a more comprehensive understanding of market dynamics. The old template, while structured, lacks depth in certain areas like social sentiment and detailed catalyst analysis, making the new template the superior choice for investors seeking actionable insights.
+
+#### USELESS - microsoft_wizardlm_2_8x22b
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has a more detailed risk assessment section
+- New template integrates social sentiment and community chatter more effectively
+
+**Reasoning:** The new template wins because it offers a more comprehensive and clear analysis of market catalysts, making it easier for investors to understand key events that could impact the price of USELESS. It also integrates social sentiment and community chatter more effectively, providing a richer context for market dynamics. The structure and flow of the information are slightly more organized, making it easier to follow and derive actionable insights. The new template's ability to synthesize available data into unique insights is superior, offering a more nuanced understanding of the factors influencing USELESS's market performance.
+
+#### DRV - anthropic_claude_3_5_sonnet_20241022
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 9 | 8 |
+| Data Integration | 8 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it offers a more comprehensive and actionable analysis by effectively synthesizing data to highlight the Synthetix acquisition as a clear market catalyst. It provides a clearer timeline and potential impacts of the acquisition, which is crucial for investor decision-making. Additionally, the new template integrates community feedback and sentiment analysis more effectively, offering insights into bullish and bearish signals, which can aid in assessing the market environment. While the old template excels in structure and risk assessment, the new template's ability to draw actionable insights and provide a more nuanced analysis of market dynamics makes it the superior choice.
+
+#### HYPE - openai_gpt_4o
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 6 | 8 |
+| Actionability | 5 | 7 |
+| Structure | 7 | 8 |
+| Data Integration | 6 | 8 |
+| Unique Insights | 5 | 7 |
+
+**Key Differences:**
+- The new template provides a more detailed breakdown of community and social chatter, enhancing its market catalyst focus.
+- The new template offers a clearer presentation of unlock events, aiding in data integration and actionability.
+- The overall structure and flow of the new template is more organized, making it easier to follow and understand.
+
+**Reasoning:** The new template wins because it offers a more comprehensive and organized analysis of the Hyperliquid (HYPE) market conditions. It effectively integrates social sentiment and community activity, which could serve as potential market catalysts. Additionally, the new template's presentation of unlock events is clearer and more actionable, providing better investment implications. Its structure is more logical and easy to follow, making the report more accessible to investors seeking clear insights.
+
+#### LSD - google_gemini_2.5_flash_lite_preview_06_17
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 7 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- New template integrates social sentiment more effectively
+- New template offers a more comprehensive overview of related market events
+
+**Reasoning:** The new template wins because it provides a more detailed and structured analysis of potential market catalysts, such as exchange listings and institutional movements, offering a clearer timeline and context for these events. It also effectively integrates social sentiment analysis, highlighting discrepancies between social mentions and sentiment scores, which enhances understanding of market dynamics. Furthermore, it offers a broader perspective by connecting LSDx Finance's market activity to broader trends in the Liquid Staking Derivatives sector. Overall, the new template's comprehensive approach and clear presentation make it more actionable and insightful for potential investors.
+
+#### SUIAGENT - meta_llama_llama_3.1_70b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 5 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline by identifying specific events like the BitMart listing and campaign as potential catalysts for price movement.
+- New template integrates social sentiment more effectively by providing detailed community chatter insights, contributing to a better understanding of market sentiment.
+- The old template lacks detailed actionable advice compared to the new template, which suggests monitoring specific events for potential buying opportunities.
+
+**Reasoning:** The new template wins because it offers a clearer and more structured analysis of market catalysts and potential price-moving events. It integrates social sentiment more effectively, providing a comprehensive view of community attitudes that can influence market dynamics. Additionally, it offers more actionable insights by highlighting specific future checkpoints for investors, making it a more practical tool for decision-making.
+
+#### AERO - qwen_qwen_2.5_72b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 9 | 8 |
+| Data Integration | 8 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it offers a more comprehensive analysis of market catalysts, providing clearer timelines and implications for investors. It effectively integrates social sentiment, which adds a layer of depth to the analysis by considering community engagement and its potential impact on market dynamics. The new template also provides more actionable insights by linking market events directly to investment implications, making it more useful for investors looking to make informed decisions. Despite the old template's better organization and detailed risk assessment, the new template's strengths in data synthesis and unique insights make it the superior choice.
+
+#### CHILLHOUSE - openai_gpt_4o
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides a more detailed analysis of social sentiment and its potential impact on market behavior.
+- Old template lacks a dedicated section on bullish and bearish perspectives, which the new template provides effectively.
+- New template offers a clearer structure in terms of market catalysts and upcoming events, making it easier to digest and actionable.
+
+**Reasoning:** The new template wins because it offers a clearer and more comprehensive analysis of market catalysts, specifically highlighting social sentiment changes and their potential impact. It also provides a balanced view of bullish and bearish perspectives, which enhances its actionability. The structured presentation of information, along with effective data integration, makes it easier for investors to understand current market dynamics and potential future movements. Although both reports cover similar data, the new template synthesizes this information into actionable insights more effectively, resulting in a more informative and practical report.
+
+#### DRV - google_gemma_2_9b_it
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline through specific dates and analysis of potential impacts.
+- Old template has a better risk assessment section, highlighting potential artificial inflation and market skepticism.
+- New template integrates social sentiment more effectively by discussing community and social chatter.
+
+**Reasoning:** The new template wins because it more effectively highlights the key market catalyst, the proposed Synthetix acquisition, with a clear timeline and potential impacts. It offers better data integration by weaving in social sentiment and community chatter, providing a more comprehensive view of market dynamics. While the old template offers a stronger risk assessment, the new template's insights are more actionable and timely, making it more valuable for investment decision-making.
+
+#### RENEW - anthropic_claude_3_5_sonnet_20241022
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides a more detailed analysis of social mentions and their potential impact on price movement.
+- Old template includes a more comprehensive overview of recent news and events, but lacks specific asset-related insights.
+- New template presents a clearer synthesis of social sentiment and market dynamics, indicating potential early-stage accumulation.
+
+**Reasoning:** The new template wins because it offers a more focused analysis on social sentiment as a market catalyst, which is critical for understanding emerging projects like ReNeW. It provides actionable insights by highlighting potential early-stage accumulation indicated by increased social mentions. Additionally, the new template effectively integrates the data to offer unique insights into the project's current phase and potential future developments. While the old template provides a structured overview, it lacks the depth and specificity in identifying market catalysts and actionable investment implications found in the new report.
+
+#### RENEW - meta_llama_llama_4_maverick_17b_128e_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline, identifying increases in mentions as potential precursors to market activity.
+- New template integrates social sentiment more effectively, offering a nuanced view of bullish and bearish sentiments and their possible implications.
+- Old template offers a more straightforward narrative but lacks the depth in analyzing the catalyst impact and community interactions.
+
+**Reasoning:** The new template wins because it offers a more detailed and actionable analysis of market catalysts, particularly through its emphasis on the marked increase in mentions and sentiment score. It provides a clearer structure for understanding potential market movements, and synthesizes data effectively to present a coherent view of both project-specific and broader market influences. While the old template has a solid structure and decent data integration, it doesn't delve as deeply into the implications of social sentiment and lacks the robust analysis of potential market catalysts found in the new report.
+
+#### SEI - deepseek_deepseek_chat
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 5 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- New template integrates social sentiment more effectively
+- Old template is less detailed in actionable investment implications
+
+**Reasoning:** The new template wins because it offers a more detailed and clear identification of market catalysts, particularly with timelines that help frame the impact of events. It also effectively integrates social sentiment analysis, providing a broader perspective on market perception. Furthermore, the new template offers better actionability by discussing potential concerns like OTC scams, which provides investors with more nuanced insights. Overall, it delivers a more comprehensive analysis that is better structured for investment decision-making.
+
+#### AERO - google_gemini_2.5_flash_lite_preview_06_17
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides a clearer market catalyst timeline, linking specific events to market reactions more effectively.
+- Old template offers a more detailed risk assessment, but lacks specific actionability.
+- New template integrates social sentiment and market data more comprehensively, emphasizing the impact of social mentions on market perception.
+
+**Reasoning:** The new template wins because it more effectively identifies and communicates market catalysts, such as the Coinbase integration, as key drivers of recent price action. It provides clearer investment implications by tying specific market events to potential future outcomes, making it more actionable. Additionally, the new template synthesizes data more effectively, integrating both market and social sentiment insights to offer a more comprehensive view of AERO's market dynamics. While the old template has a more detailed risk section, the new template's focus on significant catalysts and actionable insights makes it superior for investors looking for clear guidance based on recent events.
+
+#### AERO - meta_llama_llama_3.1_70b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 7 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it offers a more comprehensive and actionable analysis by clearly linking the market catalysts to potential future impacts. It provides a structured timeline of events that affect the market, making it easier for investors to anticipate future movements. Additionally, the new template incorporates community sentiment, offering a broader perspective on market perceptions. While the old template highlights risks associated with the inflationary model, it lacks the depth and clarity found in the new template's integration of diverse data points and insights.
+
+#### SUI - meta_llama_llama_4_maverick_17b_128e_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline, explicitly connecting events to expected impacts.
+- New template integrates social sentiment more effectively, providing context with bullish and bearish signals.
+- Old template has a more traditional structure, but the new template offers more actionable insights and clearer guidance on potential impacts.
+
+**Reasoning:** The new template wins because it more effectively identifies and explains market catalysts by connecting specific events to their expected impacts on the Sui ecosystem. It offers actionable insights by detailing the implications of these events, such as the upcoming unlocks and partnerships, on price and investor sentiment. Furthermore, the new template integrates data more effectively by including social sentiment analysis, providing a more comprehensive view of market dynamics. The structure is slightly less organized than the old template, but the enhanced focus on unique insights and actionability makes it a more valuable resource for investors looking to understand and act on the presented data.
+
+#### SUIAGENT - deepseek_deepseek_chat
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 9 | 8 |
+| Data Integration | 8 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it offers a more detailed and specific timeline for market catalysts, which enhances the actionability of the report. It effectively synthesizes the data to provide novel insights, particularly in the social sentiment and community chatter section, which adds depth to the analysis. While the old template has a stronger risk assessment, the new template's overall organization and data integration make it more valuable for investors looking for actionable insights.
+
+#### CHILLHOUSE - microsoft_wizardlm_2_8x22b
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 8 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides a more detailed discussion on potential market catalysts, including macroeconomic factors.
+- New template offers clearer investment implications by discussing both bullish and bearish perspectives.
+- New template integrates social sentiment and community engagement metrics more effectively, offering a deeper insight into market dynamics.
+
+**Reasoning:** The new template wins because it provides a more comprehensive and actionable analysis. It clearly identifies potential market catalysts by considering broader market trends and investor sentiment. The structure is more coherent, with a well-defined flow that guides the reader through recent changes, community sentiment, and unlock events. Additionally, it offers a balanced view of both bullish and bearish scenarios, which enhances its actionability. The integration of social sentiment and community engagement is more thorough in the new template, providing unique insights into the potential drivers of market behavior. Overall, the new template offers a more nuanced and insightful analysis, making it more valuable for investors.
+
+#### XDB - meta_llama_llama_3.2_90b_vision_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 5 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline by mentioning specific events like the BBB #5 event and FIFO Order Matching system.
+- Old template has a more general risk assessment, suggesting caution due to lack of mindshare and news.
+- New template integrates social sentiment more effectively by discussing community sentiments and potential impact on market dynamics.
+
+**Reasoning:** The new template wins because it offers a more comprehensive view of the market catalysts and events that could affect XDB's price, such as the BBB #5 event and the FIFO Order Matching system. This provides investors with specific information on what to watch for in the near term. Additionally, the new template effectively integrates social sentiment, providing a richer context for understanding community perceptions and their potential impact. While both templates are well-structured, the new template excels in delivering actionable insights and unique analysis, making it more valuable for informed decision-making.
+
+#### SEI - openai_gpt_4o
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- New template integrates social sentiment more effectively
+- New template offers a more detailed analysis of recent news and events
+
+**Reasoning:** The new template wins because it provides a more comprehensive and detailed analysis of market catalysts and recent events impacting SEI. It effectively organizes information into clear sections, making it easier for investors to identify actionable insights. The integration of social sentiment data is more pronounced, offering a broader view of community and institutional perceptions. Additionally, the new template's emphasis on specific strategic developments and their potential impacts on market dynamics provides a clearer picture of SEI's future prospects, aiding in more informed investment decisions.
+
+#### SUI - deepseek_deepseek_chat
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline, focusing on the July 2 unlock event as a primary catalyst.
+- Old template has a more comprehensive risk assessment section, discussing potential selling pressure and broader market conditions.
+- New template integrates social sentiment more effectively, highlighting specific community concerns and bullish/bearish discussions.
+
+**Reasoning:** The new template wins because it provides a more focused and actionable analysis. It clearly identifies the primary market catalyst (the July 2 unlock event) and offers specific investment implications related to this event. Additionally, the integration of social sentiment and community chatter offers unique insights into market perception, which is crucial for understanding potential price movements. While the old template has a well-structured risk assessment, it lacks the detailed catalyst focus and actionable insights that the new template delivers. Overall, the new template's clarity and synthesis of data make it a more valuable tool for investors.
+
+#### QUA - microsoft_wizardlm_2_8x22b
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 6 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 7 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 5 | 8 |
+
+**Key Differences:**
+- New template provides explicit recent news and events that could impact Quasacoin indirectly, offering a clearer market catalyst focus.
+- New template offers a community and social chatter section that provides insights into market sentiment and potential future actions.
+- Old template lacks specific recent news/events and relies more on generic analysis without linking external factors to Quasacoin's market performance.
+
+**Reasoning:** The new template wins because it effectively identifies broader market events and developments that could indirectly impact Quasacoin, providing a more comprehensive view of potential market catalysts. It also includes a community and social chatter section that adds depth to the sentiment analysis, offering unique insights into market perceptions and potential drivers of investor behavior. The structure and flow of the new template are clear and organized, making it easier to navigate and extract actionable insights. Overall, the new template synthesizes the available data more effectively and offers a more nuanced analysis of Quasacoin's market position and potential future movements.
+
+#### MEOW - microsoft_wizardlm_2_8x22b
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline, effectively linking price changes to specific news and events.
+- Old template delivers a more comprehensive risk assessment, particularly in discussing potential security concerns and sentiment analysis.
+- New template integrates social sentiment more effectively, providing a concise summary of bullish and bearish community perspectives.
+
+**Reasoning:** The new template wins because it offers a clearer and more actionable analysis of market catalysts, effectively linking recent events to potential price movements. It also synthesizes data well, providing a comprehensive overview of the sentiment and upcoming developments that could influence MEOW's performance. The new template's structure and integration of social chatter make it easier for investors to grasp the potential impacts on the asset. While the old template has strengths in risk assessment, the new template's overall clarity and focus on market catalysts make it more useful for investors seeking specific actionable insights.
+
+#### REI - meta_llama_llama_4_maverick_17b_128e_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has a more structured risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it offers a clearer identification and explanation of market catalysts, such as the inclusion in Binance Traders League and the Node Staking Campaign, with specific timelines for their expected impact. This enhances the report's actionability by providing more specific investment implications and potential outcomes. Additionally, the new template integrates social sentiment and community engagement more thoroughly, offering a comprehensive view of investor sentiment and potential bullish or bearish indicators. While the old template provides a good structure and risk assessment, it lacks the depth of analysis and integration seen in the new template.
+
+#### SEI - google_gemma_2_9b_it
+**Winner:** OLD (Confidence: Medium)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 4 |
+| Actionability | 5 | 3 |
+| Structure | 6 | 3 |
+| Data Integration | 7 | 2 |
+| Unique Insights | 5 | 2 |
+
+**Key Differences:**
+- Old template provides a more comprehensive overview and analysis of market trends.
+- New template lacks detailed analysis and repeatedly requests more data.
+- Old template offers a clearer, albeit generic, conclusion on potential market influences.
+
+**Reasoning:** The old template wins because it provides a more complete and coherent analysis despite its generic conclusions. It successfully highlights key recent changes and attempts to integrate sentiment analysis, even if not entirely actionable. The new template largely consists of repeated requests for more data, lacks structure, and fails to deliver on providing market catalysts or unique insights.
+
+#### RENEW - deepseek_deepseek_chat
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides a clearer focus on potential market catalysts by discussing both macro trends and community sentiment.
+- The old template offers a more general and less actionable analysis, while the new template suggests specific investor actions, such as monitoring volume for liquidity signals.
+- The new template integrates social sentiment more effectively, highlighting the divergence between sentiment and market action.
+
+**Reasoning:** The new template wins because it offers a more detailed and actionable analysis of the market conditions surrounding ReNeW. It clearly identifies the significant uptick in social discussions as a potential catalyst, providing practical insights into what investors should monitor next. Additionally, it synthesizes data more effectively by correlating sentiment with potential speculative interest, offering novel insights into the project's current market position. The new template's structured approach to potential risks and opportunities gives investors a clearer pathway for decision-making.
+
+#### MEOW - meta_llama_llama_3.2_90b_vision_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 6 | 9 |
+| Actionability | 5 | 7 |
+| Structure | 8 | 9 |
+| Data Integration | 6 | 9 |
+| Unique Insights | 5 | 8 |
+
+**Key Differences:**
+- New template provides a detailed market catalyst focus, connecting recent news/events to price movements.
+- New template includes a social chatter section offering insights into community sentiment, enhancing data integration.
+- Old template lacks depth in identifying specific market-moving events, focusing more on general sentiment.
+
+**Reasoning:** The new template wins because it offers a more comprehensive analysis of market catalysts by directly linking recent news and events to the price movements of MEOW. It effectively integrates social sentiment, adding depth to the analysis, and provides a more structured overview of potential future developments impacting MEOW. The old template, while well-organized, lacks the detailed event linkage and social sentiment analysis that the new template provides, making the latter more actionable and insightful for investors.
+
+#### DRV - qwen_qwen_2.5_72b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 9 | 8 |
+| Data Integration | 8 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it provides a clearer focus on the market catalyst with a timeline for impact, which is crucial for investors looking to understand immediate vs medium-term implications. It also integrates social sentiment more effectively, giving a broader perspective on community and market reactions. While the old template has a stronger section on risk assessment related to token unlocks, the new template's overall synthesis of market data and novel insights gives it an edge in delivering actionable investment implications.
+
+#### SUI - openai_gpt_4o
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides a detailed timeline of recent events and links them to potential market impacts.
+- New template offers more specific investment implications by highlighting both bullish and bearish factors.
+- New template integrates recent news and community sentiment to provide a more nuanced view of market dynamics.
+
+**Reasoning:** The new template wins because it presents a more comprehensive analysis of market catalysts, with a clear linkage between recent events, social sentiment, and potential market impacts. It offers specific investment implications by detailing both bullish and bearish factors, which is crucial for making informed decisions. Additionally, the structure of the new template is more logical and easier to follow, with a clear breakdown of sections and integration of data, making it more actionable and insightful for investors.
+
+#### AERO - openai_gpt_4o
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has a more simplified and straightforward presentation of data
+- New template integrates social sentiment and user engagement more effectively
+
+**Reasoning:** The new template wins because it provides a more comprehensive analysis of market catalysts, clearly identifying recent events and their potential impacts on the asset. It also offers better integration of social sentiment and community engagement, which are crucial for understanding the dynamics within a decentralized finance ecosystem. The new report's structure is well-organized, guiding readers through the analysis seamlessly and making it more actionable, especially with its focus on the implications of the Coinbase integration. Although the old template is clear and concise, it lacks the depth and breadth of analysis that the new template provides, particularly in examining the effects of strategic developments and community factors.
+
+#### LSD - qwen_qwen_2.5_72b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 7 | 8 |
+
+**Key Differences:**
+- New template provides a clearer and more detailed market catalyst timeline, linking events directly to potential impacts on LSDx Finance.
+- Old template offers a more explicit risk assessment, addressing the potential implications of market changes on the Ethereum ecosystem and LSDx Finance.
+- New template integrates social sentiment analysis more effectively, acknowledging the lack of social media engagement as a bearish indicator.
+
+**Reasoning:** The new template wins because it provides a more comprehensive analysis of market catalysts, offering a clearer timeline of events and their potential impacts. It also presents a more structured approach to integrating data, including social sentiment, which is crucial for understanding market dynamics. While the old template provides a solid risk assessment, the new template's overall synthesis of information and unique insights make it more actionable and useful for investors.
+
+#### SUIAGENT - anthropic_claude_3_5_sonnet_20241022
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides a clearer timeline and explanation of market catalysts, such as the BitMart listing and staking initiatives, making it easier for investors to understand the potential impact on price and volume.
+- The new template offers more actionable insights by emphasizing the importance of monitoring specific developments, such as the BitMart listing and staking adoption metrics, which are key to assessing the project's momentum.
+- The new template integrates social sentiment analysis more effectively, with a dedicated section on community and social chatter, which adds depth to the overall assessment of market sentiment.
+
+**Reasoning:** The new template wins because it offers a more comprehensive and actionable analysis of the SUIAGENT market. It effectively highlights key market catalysts and provides a clearer understanding of their potential impact. Additionally, the new template better integrates social sentiment, offering unique insights into community dynamics that could influence market behavior. Its well-organized structure and clear focus on specific investment implications make it a more useful tool for investors looking to make informed decisions.
+
+#### CHILLHOUSE - google_gemma_2_9b_it
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer emphasis on market catalysts by linking price changes to public interest and investor behavior.
+- Old template lacks specific actionability, while the new template provides clearer investment implications by suggesting monitoring trends and sentiment.
+- New template integrates social sentiment and macro flows more effectively, providing a broader context for the price movements.
+
+**Reasoning:** The new template wins because it offers a more comprehensive analysis of market catalysts by directly connecting the surge in mentions to potential investor behavior and broader market trends. It provides clearer and more specific investment implications, suggesting that investors monitor market trends and community sentiment. Additionally, the new template effectively integrates social sentiment and macroeconomic factors, presenting a well-rounded view of the current market dynamics. The structure and flow of the new report also make it easy to follow and understand, leading to a more actionable and insightful analysis.
+
+#### QUA - google_gemini_2.5_flash_lite_preview_06_17
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides a more comprehensive view of market catalysts and their potential impact on Quasacoin.
+- New template offers a clearer and more actionable investment implication section.
+- New template integrates data more effectively, particularly with regard to social sentiment and its potential effects on price action.
+
+**Reasoning:** The new template wins because it provides a more thorough analysis of market catalysts, clearly identifies potential impacts on Quasacoin, and integrates social sentiment data more effectively. This results in a report that is not only more comprehensive but also more actionable, offering clearer investment implications. The structure and flow of the new template are also better organized, making the information easier to follow. Overall, the new template offers unique insights that can guide investment decisions more effectively than the old template.
+
+#### SEI - qwen_qwen_2.5_72b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 9 | 8 |
+| Data Integration | 8 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it provides a more comprehensive and detailed analysis of market catalysts, including a clear timeline of events that have impacted SEI's price and sentiment. It also integrates social sentiment analysis more effectively, providing insights into both bullish and bearish sentiments in the community. Although the old template offers a better risk assessment section, the new template's actionability and unique insights make it more valuable for investors seeking specific investment implications. Overall, the new template's strengths in data integration and market catalyst focus contribute to its superiority.
+
+#### QUA - google_gemma_2_9b_it
+**Winner:** NEW (Confidence: Medium)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 6 | 8 |
+| Actionability | 6 | 7 |
+| Structure | 7 | 8 |
+| Data Integration | 6 | 8 |
+| Unique Insights | 5 | 7 |
+
+**Key Differences:**
+- New template provides more detailed recent news/events that could influence market movements.
+- Old template lacks specific external factors, making it less actionable for investors.
+- New template includes external market conditions, which offers additional insights into Quasacoin's potential price drivers.
+
+**Reasoning:** The new template wins because it offers clearer identification of potential market catalysts through the inclusion of recent news and events, which are crucial for understanding possible price movements. While the old template is well-organized, it lacks depth in exploring external factors and potential implications for investors. The new template also integrates available data more effectively, providing a more comprehensive market analysis.
+
+#### CHILLHOUSE - anthropic_claude_3_5_sonnet_20241022
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it provides a more detailed analysis of market catalysts and integrates social sentiment more effectively, offering clearer insights into potential accumulation phases. It also better outlines the implications of current market dynamics on future price movement, making it more actionable for investors. While the old template offers a solid structure and some risk assessment, it lacks the depth and clarity found in the new template's analysis.
+
+#### USELESS - meta_llama_llama_3.1_70b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline, making it easier for readers to understand recent events and their impact.
+- Old template lacks a detailed section on community and social sentiment, which is crucial for evaluating a memecoin like USELESS.
+- New template integrates social sentiment and whale activity more effectively, offering a comprehensive view of market dynamics.
+
+**Reasoning:** The new template wins because it provides a more comprehensive and nuanced analysis. It effectively highlights the role of significant players like Unipcs and integrates social sentiment, which are crucial for understanding the dynamics of a memecoin. The new template's structure allows for a clearer narrative flow, making it easier to grasp the key drivers behind recent price movements. Additionally, the actionability of the new report is enhanced by its focus on whale activity and social sentiment, offering investors more specific implications for future price movements.
+
+#### MEOW - google_gemini_2.5_flash_lite_preview_06_17
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 5 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it provides a more comprehensive and detailed analysis of market catalysts, clearly connecting them to potential impacts on MEOW's price and sentiment. It offers a structured timeline of expected impacts from related ecosystem developments, which is crucial for investors looking for actionable insights. Additionally, the new template incorporates social sentiment data more effectively, giving a nuanced view of community perception and potential FOMO, which are key drivers in crypto markets. While the old template does a good job of outlining risks, it lacks the depth and specificity that the new template provides, particularly in linking broader ecosystem developments to MEOW's market dynamics.
+
+#### BANANA - anthropic_claude_3_5_sonnet_20241022
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides a clearer and more detailed market catalyst timeline, emphasizing significant events and their potential market impacts.
+- Old template includes a more explicit risk assessment, particularly focusing on community engagement challenges during transitions.
+- New template integrates social sentiment and community chatter more effectively, offering a balanced view of bullish and bearish sentiments.
+
+**Reasoning:** The new template wins because it offers a more comprehensive and detailed analysis of the market catalysts, particularly the launch of Banana Pro and its implications. It provides clearer investment implications by focusing on user adoption and trading volumes as key indicators. The structure is more cohesive, with a well-integrated synthesis of data points, and it provides unique insights into community sentiment and potential market reactions. Overall, the new template delivers a more actionable and insightful report.
+
+#### DRV - google_gemini_2.5_flash_lite_preview_06_17
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline and potential impacts.
+- Old template offers a more straightforward presentation but lacks depth in actionable insights.
+- New template integrates community sentiment and social chatter more effectively, offering richer context.
+
+**Reasoning:** The new template wins because it provides a more comprehensive and nuanced analysis of the market catalysts, particularly with respect to the proposed acquisition by Synthetix. It offers clearer timelines and anticipated impacts, which are crucial for investors looking to make informed decisions. Additionally, the integration of community sentiment and social media chatter adds depth to the analysis, allowing for a better understanding of market perceptions. While the old template is well-structured and presents the data clearly, it lacks the actionable insights and thorough integration of sentiment analysis that the new template delivers.
+
+#### CHILLHOUSE - google_gemini_2.5_flash_lite_preview_06_17
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer and more detailed analysis of market catalysts, particularly the speculative nature of trading and its impact.
+- New template offers more actionable insights by highlighting the speculative environment and the potential for future gains, while the old template is more generic.
+- New template effectively integrates social sentiment and community engagement metrics, offering a more comprehensive view of market dynamics.
+
+**Reasoning:** The new template wins because it provides a clearer identification of market catalysts with a stronger emphasis on the speculative nature of the trading environment. It also offers more actionable insights by explicitly discussing the potential for future gains and the speculative demand driving community engagement. Additionally, it effectively incorporates social sentiment metrics to provide a more nuanced analysis, making the report more comprehensive and useful for investors looking to understand the driving forces behind Chill House's market movements.
+
+#### XDB - google_gemma_2_9b_it
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 6 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 5 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline by mentioning the December 23rd launch and upcoming BBB #5 event.
+- Old template lacks specific events or catalysts, making it less actionable and insightful for investors.
+- New template integrates social sentiment and community activities effectively, providing a broader context for market movements.
+
+**Reasoning:** The new template wins because it effectively identifies and discusses specific market catalysts such as the platform's launch and upcoming events, which are likely influencing the price surge. This makes the report more actionable for investors. Additionally, the new template integrates social sentiment and community engagement, offering a more comprehensive understanding of investor behavior. While the old template is well-structured, it lacks the depth and specific insights required to identify the drivers behind the market trends, making it less useful for investment decision-making.
+
+#### REI - google_gemma_2_9b_it
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 6 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 7 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 5 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline with specific events that could influence price.
+- Old template lacks recent news/events section, making it difficult to identify immediate catalysts.
+- New template integrates social sentiment and community engagement more effectively, offering a broader perspective on market perception.
+
+**Reasoning:** The new template wins because it provides a more comprehensive analysis of market catalysts by listing specific recent events, such as REI's participation in Binance Traders League, which could impact visibility and user growth. It also offers better actionability by identifying these events as potential growth drivers, thus giving investors more specific implications. Additionally, the new template integrates social sentiment and community dynamics more effectively, which is crucial in understanding market perception. Overall, the new template delivers a more organized and insightful report, making it more valuable to investors.
+
+#### BUNKER - openai_gpt_4o
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline, linking events like the Builder Bunker program to potential impacts on BunkerCoin.
+- Old template has a better risk assessment section, explicitly mentioning concerns about volatility and project sustainability.
+- New template integrates social sentiment more effectively, with specific mentions of social media platforms and community engagement metrics.
+
+**Reasoning:** The new template wins because it offers a more comprehensive and structured analysis of the market catalysts affecting BunkerCoin. It effectively links specific events and community engagement to potential impacts on market behavior, providing investors with a clearer understanding of current trends and future outlooks. Additionally, the new template excels in synthesizing social sentiment data, giving a more nuanced view of investor perceptions. While the old template addresses risk factors better, the overall clarity and depth of the new template make it more actionable for investors.
+
+#### USELESS - deepseek_deepseek_chat
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 9 | 8 |
+| Data Integration | 8 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it better identifies and explains market catalysts, such as whale activity and its impact on price momentum. It provides a clearer timeline of events and their respective impacts, which enhances the report's actionability. Additionally, it effectively integrates social sentiment data, highlighting both bullish and bearish signals, which gives investors a more comprehensive view of current market dynamics. Although the old template has a slightly better structure and risk assessment, the new template's strengths in data integration and unique insights make it the superior option for investors seeking actionable insights.
+
+#### CHILLHOUSE - deepseek_deepseek_chat
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- New template integrates social sentiment more effectively
+- New template offers a more structured analysis with actionable insights
+
+**Reasoning:** The new template wins because it provides a clearer focus on market catalysts by highlighting specific recent activities and their implications. It synthesizes data more effectively, particularly integrating social sentiment and its impact on price movements, offering a more nuanced analysis. Additionally, the new template offers more actionable insights, guiding investors with specific considerations like monitoring volume trends and sentiment shifts.
+
+#### USELESS - meta_llama_llama_4_maverick_17b_128e_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline, enhancing understanding of potential impacts.
+- Old template has a more comprehensive risk assessment, providing a balanced view on potential supply shocks.
+- New template integrates social sentiment more effectively, offering insights into community and investor behavior.
+
+**Reasoning:** The new template wins because it offers a more detailed and nuanced understanding of market catalysts and their potential impacts on USELESS. It clearly outlines the timeline and reasons why certain events matter for the price, providing a clearer actionable insight for investors. Additionally, the integration of social sentiment and community insights in the new template adds depth to the analysis, making it more comprehensive and informative. While the old template does well in terms of risk assessment, the new template's focus on market catalysts and social chatter provides a more holistic view of the market dynamics.
+
+#### RENEW - google_gemini_2.5_flash_lite_preview_06_17
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 5 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- New template integrates external events that could affect market sentiment more effectively
+- New template synthesizes social sentiment and its potential impact better
+
+**Reasoning:** The new template wins because it provides a more comprehensive and actionable analysis by integrating external events and social sentiment more effectively. It offers a clearer timeline of potential market catalysts, such as upcoming developments and partnerships, and considers external macro events that could impact sentiment. This makes the report more actionable and useful for investors looking to understand the potential market dynamics around ReNeW. The structure is slightly less fluid than the old template, but the enhanced data integration and unique insights make it a superior choice for potential investors.
+
+#### DRV - meta_llama_llama_3.2_90b_vision_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline and why it matters for price.
+- Old template lacks specific details on market cap and ranking data, which the new template includes.
+- New template integrates social sentiment more effectively by mentioning limited notable social activity.
+
+**Reasoning:** The new template wins because it provides a more comprehensive and well-structured analysis of the market dynamics. The new template excels in identifying price-moving events with precision and offers clearer insights into the potential impact of the Synthetix acquisition proposal. It also includes specific details about market capitalization and ranking, which adds context to the analysis. Furthermore, the new template effectively synthesizes data on social sentiment and unlock events, making it easier for readers to understand the broader market implications. Overall, the new template offers more actionable insights and a more thorough integration of the available data.
+
+#### ECO - anthropic_claude_3_5_sonnet_20241022
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 9 | 8 |
+| Data Integration | 8 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it more effectively highlights the market catalysts by clearly labeling the impact of recent events (e.g., 'HIGH IMPACT', 'MEDIUM IMPACT'), which helps investors quickly identify what might drive future price movements. Additionally, the new template offers better actionability by suggesting potential institutional positioning and accumulation phases, providing investors with more specific insights into market behavior. The integration of social sentiment data is also more effectively tied into the main analysis, providing a more comprehensive overview of the market dynamics. While both templates are well-structured, the new template edges ahead by offering novel insights and a more holistic synthesis of available data.
+
+#### AERO - meta_llama_llama_4_maverick_17b_128e_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides a clearer market catalyst timeline, identifying specific events with short-term and medium-term impacts.
+- Old template lacks a detailed assessment of potential risks, which is covered better in the new template through community and social sentiment analysis.
+- New template integrates social sentiment more effectively, providing a balanced view of bullish and bearish sentiments.
+
+**Reasoning:** The new template wins because it offers a more comprehensive view of market catalysts, clearly identifies the impact of recent events, and includes a nuanced analysis of social and community sentiments. This results in a report that is more actionable and insightful, providing investors with a clearer understanding of the factors driving AERO's price movements. Additionally, the integration of social sentiment helps highlight potential risks and opportunities, which the old template does not cover as effectively.
+
+#### RENEW - meta_llama_llama_3.2_90b_vision_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 5 | 8 |
+
+**Key Differences:**
+- The new template provides a detailed overview of recent technological milestones and developments, offering clearer market catalysts.
+- The old template highlights positive sentiment but lacks depth in explaining what drives the sentiment, unlike the new template which connects sentiment to project milestones.
+- The new template more effectively integrates social sentiment analysis by discussing the increase in mentions and its potential market implications.
+
+**Reasoning:** The new template wins because it offers a more comprehensive analysis of market catalysts, linking project developments with market sentiment. It provides a clearer sense of actionability by connecting recent technological advancements to potential market interest, which is crucial for investors looking for specific investment implications. Additionally, the new template's structure and integration of data, especially in terms of social sentiment and mentions, result in a more nuanced and actionable report compared to the old template.
+
+#### BANANA - openai_gpt_4o
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline, offering more detailed insights into recent events like the launch of Banana Pro and its potential impacts.
+- Old template has a better risk assessment section with a focus on the absence of unlock events, providing a clearer picture of liquidity-related risks.
+- New template integrates social sentiment more effectively, linking the significant drop in mentions to potential impacts on community engagement and market sentiment.
+
+**Reasoning:** The new template wins because it offers a more comprehensive analysis of market catalysts and their potential impacts. It provides a clearer narrative around key events such as the launch of Banana Pro and the market cap milestone for BANANAS31, which are likely to drive investor interest. Additionally, the new template effectively incorporates social sentiment data to highlight potential risks related to community engagement. While the old template offers a solid risk assessment regarding unlock events, the new template's integration of multiple data points and insights into market dynamics makes it more informative and actionable for investors.
+
+#### REI - qwen_qwen_2.5_72b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline and expected impact of events.
+- Old template has a more comprehensive risk assessment regarding price and volume drops.
+- New template integrates social sentiment and community engagement more effectively into the analysis.
+
+**Reasoning:** The new template wins because it offers a more detailed and actionable analysis. It provides a clearer understanding of the market catalysts, including expected impacts and timelines, which enhances the report's actionability. The integration of social sentiment and community engagement is more thorough, offering unique insights into the potential future movements of the asset. Additionally, the new template's structure is more organized, making it easier to follow and understand the flow of information. While the old template does a good job of assessing risks, the new template's comprehensive analysis and synthesis of available data make it the superior choice.
+
+#### BUNKER - google_gemini_2.5_flash_lite_preview_06_17
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides a more detailed analysis of market catalysts and social sentiment, offering clearer insights into potential price-moving events.
+- Old template includes a section on recent news/events which gives context but lacks direct relevance to BunkerCoin, making the analysis less actionable.
+- The new template effectively synthesizes community sentiment and trading activity, providing a comprehensive view of the market dynamics influencing BunkerCoin.
+
+**Reasoning:** The new template wins because it offers a more focused analysis on market catalysts and effectively integrates social and community-driven data, providing a clearer view of the factors driving BunkerCoin's market performance. It presents a structured and organized approach, making the report more actionable for investors by highlighting specific speculative interest and potential risks. The old template, while informative, includes less relevant news and lacks the depth of sentiment analysis found in the new template.
+
+#### USELESS - meta_llama_llama_3.2_90b_vision_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 5 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline with specific impact timelines for each event.
+- Old template lacks a dedicated section for community and social chatter, which reduces its effectiveness in capturing sentiment.
+- New template offers a more structured breakdown of bullish and bearish factors, enhancing the clarity of investment implications.
+
+**Reasoning:** The new template wins because it provides a more comprehensive and detailed analysis of market catalysts, with clear timelines and implications for each event. It effectively integrates social sentiment analysis, adding depth to the investment insights. The structure is well-organized, making the report easier to follow and understand. Despite the old template's strong risk assessment, the new template's unique insights and data synthesis offer a superior overall evaluation.
+
+#### BANANA - qwen_qwen_2.5_72b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- New template offers more actionable insights with specific timelines for expected impacts
+- New template integrates social sentiment and community engagement more effectively
+
+**Reasoning:** The new template wins because it provides a more focused analysis of market catalysts, offering a timeline and expected impacts for each event, which enhances actionability for investors. It organizes information in a way that is easier to follow, making the report more accessible. Additionally, it synthesizes data on social sentiment and community engagement more effectively, providing deeper insights into market dynamics. In contrast, the old template lacks specificity in actionability and does not emphasize social metrics as significantly, which are crucial for understanding crypto market movements.
+
+#### HYPE - meta_llama_llama_4_maverick_17b_128e_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 6 | 8 |
+| Actionability | 5 | 7 |
+| Structure | 8 | 9 |
+| Data Integration | 6 | 8 |
+| Unique Insights | 5 | 7 |
+
+**Key Differences:**
+- New template provides a more comprehensive look at potential market catalysts by highlighting macro flows and the absence of specific news.
+- The new template includes a dedicated section for community and social chatter, integrating social sentiment which adds depth to the analysis.
+- The old template focuses more on stability and risk assessment but lacks in exploring potential catalysts or implications for investors.
+
+**Reasoning:** The new template wins because it offers a more detailed and holistic view of the market dynamics surrounding HYPE. It identifies potential catalysts more effectively by discussing macro flows and integrating social sentiment analysis, which are crucial for understanding market movements. The structure of the new template is also more organized, with clear sections that guide the reader through their analysis. While both templates indicate stability, the new template provides a slightly more actionable insight by identifying the absence of immediate supply shocks and the lack of current drivers. Overall, the new template's integration of broader context and social dynamics makes it a more valuable resource for investors.
+
+#### BUNKER - meta_llama_llama_3.1_70b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 5 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has a more straightforward presentation of key changes
+- New template integrates social sentiment and liquidity details more effectively
+
+**Reasoning:** The new template wins because it offers a more comprehensive analysis of market catalysts with a clearer timeline of events, providing investors with a better understanding of potential price movements. It also integrates social sentiment analysis and liquidity considerations, which are crucial for assessing the project's volatility and investor interest. The information is well-structured, making it easier to follow, and the unique insights provided are more actionable, helping investors make informed decisions. While the old template offers a concise risk assessment, the new template's in-depth analysis makes it a more valuable resource for investors.
+
+#### ECO - google_gemma_2_9b_it
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline and implications.
+- New template integrates sentiment analysis and community insights more effectively.
+- Old template emphasizes risk factors but lacks clarity on positive catalysts.
+
+**Reasoning:** The new template wins because it provides a more comprehensive and clear analysis of market catalysts and their potential impacts. It effectively integrates social sentiment and community chatter, offering unique insights into investor behavior and market perception. Additionally, the new template organizes information in a way that highlights both risks and opportunities, making it more actionable for investors. While the old template provides a decent structure and some risk assessment, it lacks the depth and clarity found in the new template.
+
+#### HYPE - qwen_qwen_2.5_72b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 6 | 8 |
+| Actionability | 5 | 7 |
+| Structure | 7 | 8 |
+| Data Integration | 6 | 8 |
+| Unique Insights | 5 | 7 |
+
+**Key Differences:**
+- New template provides clearer market catalyst focus by mentioning potential future catalysts like protocol upgrades and listings.
+- New template includes a section on community and social chatter, offering more comprehensive data integration.
+- New template offers a more explicit note on the absence of news, which helps in assessing the stability of the market contextually.
+
+**Reasoning:** The new template wins because it provides a more comprehensive and forward-looking analysis of potential market catalysts by explicitly mentioning areas that could drive future changes, such as protocol upgrades and listings. Additionally, the inclusion of community and social chatter data adds depth to the analysis and offers a clearer picture of the market sentiment. The structure is logically organized with a more explicit note on the absence of significant news, enhancing the report's actionability and relevance for investors looking for potential future movements. Overall, the new template offers a more integrated and insightful analysis.
+
+#### BUNKER - microsoft_wizardlm_2_8x22b
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- New template integrates social sentiment more effectively
+- Old template has a more detailed risk assessment section
+
+**Reasoning:** The new template wins because it provides a more comprehensive and well-integrated analysis of market catalysts and social sentiment, which are key factors in understanding price movements in the cryptocurrency space. The new template also offers more actionable insights by clearly connecting data points with potential investment implications. While the old template does a good job of assessing risks, it lacks the same level of detail in identifying specific catalysts and synthesizing data as effectively as the new template.
+
+#### SUI - qwen_qwen_2.5_72b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline with expected impact periods.
+- Old template includes a more detailed risk assessment related to token unlocks.
+- New template integrates and emphasizes social sentiment and community chatter more effectively.
+
+**Reasoning:** The new template wins because it provides a more thorough analysis of market catalysts, clearly outlining the expected impact timelines for each event. This makes it more actionable for investors looking to time their market entry or exit. Additionally, the integration of community and social sentiment offers a richer understanding of market dynamics and potential investor behavior. The structure of the new report is also more streamlined, allowing for easier navigation and comprehension of the key points. While the old template does offer a solid risk assessment, particularly concerning the token unlocks, the new template's comprehensive approach to synthesizing data and providing novel insights makes it the superior choice.
+
+#### SUIAGENT - google_gemma_2_9b_it
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides a clearer focus on the BitMart listing as a market catalyst, highlighting its potential impact on future price movement.
+- New template offers more actionable insights by suggesting the price dip could be a buying opportunity, whereas the old template remains more generic in its conclusions.
+- New template integrates community and social sentiment more effectively, illustrating how bullish sentiment could influence future price action.
+
+**Reasoning:** The new template wins because it offers a clearer and more focused analysis of the market catalysts, particularly the upcoming BitMart listing. It provides actionable insights by suggesting potential investment strategies, such as viewing the price dip as a buying opportunity. Additionally, it effectively integrates social sentiment, offering a more comprehensive view of the market dynamics. The old template, while well-structured, lacks the same depth of analysis regarding market catalysts and actionability.
+
+#### RENEW - google_gemma_2_9b_it
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 5 | 7 |
+| Actionability | 4 | 6 |
+| Structure | 7 | 8 |
+| Data Integration | 5 | 7 |
+| Unique Insights | 4 | 6 |
+
+**Key Differences:**
+- The new template identifies social media spikes as a potential market catalyst, while the old template does not identify any catalysts.
+- The new template provides a more structured approach by including sections on community & social chatter, adding an extra layer of analysis.
+- The new template integrates social sentiment data, offering an additional dimension of analysis which the old template lacks.
+
+**Reasoning:** The new template wins because it identifies a potential market catalyst in the form of social media activity spikes, which could indicate increased interest or forthcoming news/events that might impact the market. It also presents a more structured and informative report, with additional sections like community & social chatter that provide a more comprehensive view of the project's current standing. This makes the new template more actionable and useful for investors looking for insights beyond basic data reporting. The integration of social sentiment data offers a unique perspective, enhancing the report's depth and engagement with the available information.
+
+#### SEI - anthropic_claude_3_5_sonnet_20241022
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 9 | 8 |
+| Data Integration | 8 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it more effectively highlights the key market catalysts and their implications for SEI's price movements. It offers a clearer timeline of events and their expected impact, which enhances the report's actionability. While the old template presents a solid risk assessment, the new template compensates with a stronger integration of social sentiment and a more comprehensive synthesis of data, providing unique insights into the market dynamics. Overall, the new template delivers a more actionable and insightful analysis.
+
+#### BUNKER - anthropic_claude_3_5_sonnet_20241022
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline by identifying social dynamics as key drivers.
+- Old template has a more detailed risk assessment section focusing on potential market moves.
+- New template integrates social sentiment more effectively, emphasizing the role of social dynamics in price movements.
+
+**Reasoning:** The new template wins because it provides a more thorough analysis of market catalysts, identifying social dynamics and retail interest as key drivers. It offers clearer, more actionable insights by highlighting the discrepancy between social mentions and trading volume, suggesting potential inefficiencies. The integration of social sentiment is more effective, making the report a better tool for understanding potential speculative movements. Although the old template has a better risk assessment, the new template offers more novel insights and a clearer focus on actionable market dynamics.
+
+#### DRV - meta_llama_llama_4_maverick_17b_128e_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 9 | 8 |
+| Data Integration | 8 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline and explains why the acquisition matters for price.
+- Old template has a more detailed risk assessment section, emphasizing the impact of the acquisition on market sentiment and trading behavior.
+- New template integrates social sentiment more effectively by delineating bullish and bearish views, providing a comprehensive view of community perspectives.
+
+**Reasoning:** The new template wins because it provides a clearer focus on market catalysts and their potential impact on price by specifying why the acquisition matters and its expected timeline for impact. It also offers a more nuanced understanding of community sentiment, which is crucial for understanding market dynamics in the crypto space. While the old template has better structure and flow, the new template's strengths in market catalyst identification, actionability, and unique insights outweigh this advantage.
+
+#### AERO - meta_llama_llama_3.2_90b_vision_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 9 | 8 |
+| Data Integration | 8 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it provides more comprehensive insights into market catalysts, including expected timelines for their impact, which enhances the report's actionability and provides clearer investment implications. It also integrates social sentiment analysis effectively, offering a nuanced understanding of community engagement and sentiment, which adds unique insights. While the old template excels in structure and offers a thorough risk assessment, the new template's strengths in data integration and providing actionable insights make it a more robust report overall.
+
+#### BUNKER - meta_llama_llama_4_maverick_17b_128e_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has a less detailed social sentiment analysis
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it provides a more detailed and actionable analysis. It clearly identifies broader market catalysts and their potential impacts, which is crucial for investors. The structure and flow are slightly better organized, making it easier to follow. Additionally, the new template integrates social sentiment effectively, offering a balanced view of bullish and bearish sentiments. This integration provides unique insights into community dynamics that could influence the asset's future performance. Overall, the new template offers more comprehensive and actionable insights, which are essential for informed investment decisions.
+
+#### MEOW - deepseek_deepseek_chat
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline with specific historical events and context.
+- Old template lacks a detailed examination of community sentiment and potential future actions.
+- New template integrates social sentiment and community chatter more effectively, providing a balanced view of bullish and bearish factors.
+
+**Reasoning:** The new template wins because it provides a more comprehensive analysis of market catalysts by incorporating relevant historical events and context, which helps in identifying potential influences on the price surge. Additionally, it offers clearer actionable insights by highlighting both bullish and bearish perspectives, which can guide investment decisions more effectively. The new template also synthesizes the available data more cohesively, resulting in a more integrated and insightful report. Overall, the new template offers a more nuanced and well-rounded analysis, making it more valuable to investors seeking to understand the dynamics behind MEOW's price movements.
+
+#### SUIAGENT - microsoft_wizardlm_2_8x22b
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline, emphasizing the upcoming BitMart listing and related events.
+- Old template focuses more on stability and lacks detailed future outlooks compared to the new template's emphasis on potential future impacts and investor sentiment.
+- New template integrates social sentiment more effectively, including both bullish and bearish perspectives, adding depth to the analysis.
+
+**Reasoning:** The new template wins because it provides a more comprehensive analysis of market catalysts and investor sentiment. It effectively highlights potential future impacts of the BitMart listing and captures the community's sentiment dynamics more robustly. Additionally, the new template's inclusion of both bullish and bearish perspectives offers a balanced view, making it more actionable for investors. The overall structure and integration of data are also more nuanced, leading to richer insights compared to the old template.
+
+#### XDB - microsoft_wizardlm_2_8x22b
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline with specific expected impacts and timeframes.
+- Old template tends to generalize the data rather than offering specific investment implications.
+- New template integrates social sentiment and community perspectives more effectively, offering a balanced view of bullish and bearish aspects.
+
+**Reasoning:** The new template wins because it offers a more detailed and actionable analysis. It clearly outlines specific upcoming events and their expected impacts on the market, which provides investors with a clearer picture of potential catalysts. Additionally, it effectively integrates community and social sentiment, giving a more comprehensive view of market perceptions. The structure is also more organized, making the report easier to follow and the conclusions more robust. Overall, the new template offers a higher level of detailed insights and actionable intelligence compared to the old template.
+
+#### AERO - anthropic_claude_3_5_sonnet_20241022
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 9 | 8 |
+| Data Integration | 8 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it provides a more comprehensive analysis of market catalysts by clearly outlining the sequence and impact of recent events. It offers more actionable insights by highlighting both bullish and bearish signals, offering investors a balanced perspective. The integration of social sentiment data in the new template enhances its data synthesis and helps to provide a more nuanced understanding of market perceptions. While the old template is more structured, the new template delivers more novel insights and a clearer focus on recent developments, making it more useful for investors looking to make informed decisions.
+
+#### REI - openai_gpt_4o
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline with specific dates and potential impacts.
+- Old template lacks depth in connecting specific events to potential market movements.
+- New template integrates social sentiment and recent news more effectively, providing actionable insights.
+
+**Reasoning:** The new template wins because it offers a more detailed and coherent analysis of market catalysts, with specific dates and potential impacts, which enhances understanding and actionability. It provides a structured approach to integrating social sentiment and recent news, leading to more actionable insights for investors. The new template also avoids repetition and delivers unique insights about market dynamics. Overall, it synthesizes the available data more effectively, making it the superior choice for investors seeking detailed analysis.
+
+#### ECO - microsoft_wizardlm_2_8x22b
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 9 | 8 |
+| Data Integration | 8 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it offers a more comprehensive and clearer analysis of market catalysts, providing a timeline that helps in understanding the potential impact of events on price movements. It also integrates social sentiment more effectively, which adds depth to the analysis by considering community and investor perceptions. Although the old template has a slightly better risk assessment section, the new template's overall data integration and unique insights make it more actionable for investors.
+
+#### XDB - deepseek_deepseek_chat
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides a more detailed and clear market catalyst timeline, highlighting specific upcoming events with reasons why they matter.
+- New template integrates social sentiment and community insights more effectively, offering a balanced view of bullish and bearish sentiments.
+- Old template provides a straightforward structure but lacks depth in the analysis of market catalysts and social sentiment.
+
+**Reasoning:** The new template wins because it offers a more comprehensive analysis of market catalysts and integrates social sentiment effectively, providing a balanced view of both bullish and bearish community perspectives. Its structure is well-organized, and it clearly outlines upcoming events with reasons for their significance, making it more actionable for investors. The old template, while well-structured, lacks depth in catalyst analysis and unique insights, making it less actionable and informative.
+
+#### BUNKER - meta_llama_llama_3.2_90b_vision_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline by highlighting specific events and their potential impacts on BunkerCoin.
+- Old template has a more straightforward presentation, but the new template includes a detailed overview of bullish and bearish sentiments, providing a balanced view.
+- New template integrates social sentiment and macroeconomic events more effectively, linking them to potential impacts on the token's price.
+
+**Reasoning:** The new template wins because it offers a more comprehensive and detailed analysis of market catalysts, integrating macroeconomic events and social sentiment effectively. It provides actionable insights by clearly identifying potential drivers of interest and activity in BunkerCoin. The structure is logical and easy to follow, with specific timelines for news and events that could influence the price. While the old template presents information clearly, it lacks the depth and specificity found in the new template, particularly regarding market catalysts and social sentiment analysis.
+
+#### XDB - openai_gpt_4o
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 5 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline with specific upcoming events and their potential impacts.
+- Old template has a more cautious risk assessment section, indicating vigilance against speculative excess.
+- New template integrates social sentiment more effectively, offering a balanced view of both bullish and bearish community perspectives.
+
+**Reasoning:** The new template wins because it offers a more comprehensive and detailed analysis of market catalysts, providing specific upcoming events and their potential impacts, which enhances its actionability. It effectively integrates data on social sentiment, giving a balanced view of community perspectives and potential risks, which is a critical aspect for investors. Additionally, the structure and flow of the new template are superior, making the report easier to follow and more informative. The old template, while structured well, lacks the depth and specificity in identifying precise market catalysts and investment implications.
+
+#### RENEW - qwen_qwen_2.5_72b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline with specific dates and expected impacts.
+- Old template includes a detailed risk assessment, particularly regarding market structure and unlocks.
+- New template integrates social sentiment and community chatter more effectively, offering a balanced view of bullish and bearish sentiments.
+
+**Reasoning:** The new template wins because it offers a more comprehensive and actionable analysis of market catalysts, including specific dates and expected impacts that enhance investor decision-making. It also excels in synthesizing social sentiment data to provide a nuanced view of community sentiment, which is crucial for understanding potential market movements. The structure and flow of the new template facilitate easier information absorption and highlight key points more effectively. While the old template provides a solid risk assessment regarding unlocks, the new template's ability to integrate a wider range of data sources and provide unique insights gives it a distinct advantage.
+
+#### SUI - anthropic_claude_3_5_sonnet_20241022
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 9 | 8 |
+| Data Integration | 8 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it offers a more comprehensive and nuanced understanding of the market catalysts, especially emphasizing the importance of the upcoming token unlocks and their potential impact on market dynamics. It also provides a more detailed integration of social sentiment data, which is critical in the context of cryptocurrency markets. Although the old template has a more structured flow and better risk assessment, the new template's emphasis on actionable insights and clarity in identifying market-moving events makes it more valuable for investors seeking to make informed decisions.
+
+#### REI - google_gemini_2.5_flash_lite_preview_06_17
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides a more detailed and clearer market catalyst timeline, making it easier to identify potential price-moving events.
+- The old template lacks a focused section on sentiment and community engagement, whereas the new template effectively integrates social sentiment analysis.
+- The new template offers more actionable insights by linking recent events directly to potential market impacts, whereas the old template remains more generic in its analysis.
+
+**Reasoning:** The new template wins because it provides a more comprehensive and actionable analysis. It effectively highlights market catalysts and integrates social sentiment with a high sentiment score, offering unique insights into potential market movements. The structure is logical, with a focus on the implications of recent events, making it easier for investors to understand the potential impacts on price and trading volume. Additionally, the new template's use of sentiment analysis provides a novel perspective that enhances the overall analysis, making it more informative and strategic for investors.
+
+#### QUA - qwen_qwen_2.5_72b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst focus with specific integration timelines and their expected impacts.
+- New template offers more actionable insights, connecting social sentiment and trading volume with potential investor actions.
+- Old template has a more detailed section on broader market events and their indirect effects on Quasacoin.
+
+**Reasoning:** The new template wins because it offers a more focused and actionable analysis of market catalysts, providing specific timelines and expected impacts of recent integrations. This template synthesizes data more effectively, integrating social sentiment and trading volume changes to provide clearer investment implications. Additionally, its structure is well-organized and easy to follow, presenting a concise narrative that emphasizes the relevance of recent events and partnerships. Although the old template provides a broader market context, it lacks the same level of specificity and actionability found in the new report.
+
+#### SUIAGENT - google_gemini_2.5_flash_lite_preview_06_17
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline with expected impact durations.
+- New template integrates social sentiment more effectively by distinguishing between bullish and bearish nuances.
+- New template offers more detailed explanations on why specific events matter for price and their expected timelines.
+
+**Reasoning:** The new template wins because it provides a more comprehensive and nuanced analysis of market catalysts, making it easier for investors to understand the potential impact of upcoming events. It also offers clearer actionability by specifying why events matter for price and their expected impact timelines. Additionally, the new template integrates social sentiment more effectively, highlighting both bullish and potential bearish narratives, which provides a more balanced view of community sentiment. Overall, the new template's structured approach and detailed insights make it more actionable and informative for investors.
+
+#### MEOW - qwen_qwen_2.5_72b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has a more detailed risk assessment section focusing on social media activity
+- New template integrates social sentiment and community chatter more effectively, providing a comprehensive overview of bullish and bearish factors
+
+**Reasoning:** The new template wins because it offers a more comprehensive analysis by clearly identifying market catalysts and the timeline for their expected impact. It provides a more actionable investment outlook by discussing specific events such as airdrops and product updates, and how they can influence market sentiment and price movements. Additionally, the new template effectively integrates social sentiment and community dynamics, offering a nuanced view of the bullish and bearish factors influencing investor behavior. The structure and flow of the new template make it easy to follow, and it synthesizes the available data more effectively, leading to unique insights that are not as apparent in the old template.
+
+#### USELESS - openai_gpt_4o
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline, making it easier to understand the sequence and impact of events.
+- Old template has a better risk assessment section, offering a more detailed discussion about the stability and potential market shifts.
+- New template integrates social sentiment more effectively, highlighting both bullish and bearish perspectives with clear implications.
+
+**Reasoning:** The new template wins because it presents a more comprehensive and clear analysis of market catalysts, providing a structured timeline of events that facilitates understanding their impact on the asset. It also incorporates social sentiment more effectively by presenting both bullish and bearish viewpoints, which helps in gauging market sentiment more accurately. Additionally, the new template offers better actionability by suggesting potential implications of the data, whereas the old template's insights were more generic. Overall, the new template synthesizes the data in a more integrated manner, making the report more informative and actionable for investors.
+
+#### LSD - anthropic_claude_3_5_sonnet_20241022
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 5 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline, linking events directly to potential impacts on LSDx Finance.
+- Old template has a better risk assessment section, highlighting the potential market dislocation more explicitly.
+- New template integrates social sentiment and mindshare more effectively, providing a better sense of community engagement and market perception.
+
+**Reasoning:** The new template wins because it more effectively identifies and explains the market catalysts that could impact LSDx Finance, offering clearer insights into institutional actions and their potential implications. It also provides more actionable analysis with a more coherent structure, making it easier to follow and understand. Additionally, the new template better synthesizes social sentiment data, providing a more comprehensive view of the market dynamics and potential future trends. While the old template offers a strong risk assessment, the new template's overall integration of data and clarity make it a superior tool for investors seeking actionable insights.
+
+#### HYPE - meta_llama_llama_3.1_70b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 6 | 8 |
+| Actionability | 6 | 7 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 8 |
+| Unique Insights | 5 | 7 |
+
+**Key Differences:**
+- New template provides a more detailed overview of market catalysts by mentioning a lack of catalysts explicitly.
+- Old template offers a better flow in terms of report organization, but lacks depth in analyzing potential market movements.
+- New template integrates community and social sentiment analysis, which provides additional context for market behavior.
+
+**Reasoning:** The new template wins because it explicitly addresses the lack of market catalysts and includes community and social sentiment analysis, which offers a broader perspective on market dynamics. This makes it more actionable and insightful, even in a period of stagnation. While the old template is well-structured, it fails to provide unique insights or a comprehensive analysis of potential market influences.
+
+#### SEI - meta_llama_llama_3.1_70b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 9 | 8 |
+| Data Integration | 8 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it provides a more detailed and structured analysis of market catalysts with specific timelines, enhancing the clarity of potential impacts on the asset. It also incorporates community sentiment insights, which enrich the analysis by highlighting both bullish and bearish perspectives. While the old template offers a well-structured report with a good risk assessment, the new template's integration of social sentiment and clearer actionability makes it more actionable and insightful for investors.
+
+#### SUIAGENT - openai_gpt_4o
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline and impacts.
+- New template offers a more structured and comprehensive analysis of community sentiment.
+- Old template has a more concise risk assessment but lacks detail in sentiment analysis.
+
+**Reasoning:** The new template wins because it offers a more comprehensive and detailed analysis that integrates market catalysts with social sentiment effectively. The new template is more actionable as it provides a clearer timeline of events and their potential impacts, allowing investors to better anticipate market movements. Additionally, it offers a well-structured flow of information, making it easier to follow and understand. The detailed integration of social sentiment provides unique insights into community expectations and potential market reactions, enhancing the report's overall depth and usability.
+
+#### MEOW - google_gemma_2_9b_it
+**Winner:** OLD (Confidence: Medium)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 6 | 3 |
+| Actionability | 5 | 2 |
+| Structure | 3 | 2 |
+| Data Integration | 4 | 2 |
+| Unique Insights | 4 | 2 |
+
+**Key Differences:**
+- Old template provides more detailed information about recent price changes and market volatility.
+- The old template uses headings and sections effectively to structure the information.
+- New template lacks substantive content and appears incomplete or repetitive.
+
+**Reasoning:** The old template is the winner because it provides more detailed and structured information about MEOW, including recent price changes and market volatility. Although repetitive, it offers more content for analysis compared to the new template, which lacks substantial information and appears incomplete.
+
+#### BANANA - deepseek_deepseek_chat
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- New template integrates social sentiment more effectively
+- New template is more concise, improving readability and focus
+
+**Reasoning:** The new template wins because it offers a clearer and more concise presentation of the market catalysts, providing a more structured timeline of recent events. It synthesizes the available data more effectively, particularly concerning social sentiment and its impact on the token's market position. Additionally, the new template's structure makes it easier to follow and understand, directly contributing to its higher actionability score. The old template does have a more thorough risk assessment, but it is outweighed by the new template's superior data integration and focus on recent developments.
+
+#### CHILLHOUSE - qwen_qwen_2.5_72b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- New template integrates social sentiment more effectively
+- New template offers better analysis of speculative trading impacts
+
+**Reasoning:** The new template wins because it offers a more comprehensive and detailed analysis of market catalysts and integrates social media sentiment more effectively. It provides a clearer picture of the drivers behind price movements, allowing for more actionable insights. The structure and flow of the new template are also superior, making the information easier to follow and understand. Additionally, it provides unique insights into the speculative nature of the asset, which is crucial for investors in this market context.
+
+#### USELESS - google_gemma_2_9b_it
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- New template explicitly highlights influencer impact and potential volatility
+- New template integrates social sentiment and community chatter more effectively
+
+**Reasoning:** The new template wins because it provides a more detailed and actionable analysis of market catalysts, such as the impact of listings and influencer activities, with specific timelines for their expected effects. It also clearly outlines the potential for volatility due to changes in social media mentions and sentiment, offering investors more specific guidance. Additionally, the new template effectively integrates social sentiment and community engagement, contributing to a more comprehensive view of the asset's market dynamics. These factors combined result in a more insightful and actionable report compared to the old template.
+
+#### SUIAGENT - meta_llama_llama_4_maverick_17b_128e_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 5 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- New template integrates social sentiment more effectively
+- New template offers a more structured and detailed analysis
+
+**Reasoning:** The new template wins because it provides a clearer and more detailed analysis of market catalysts, which are crucial for understanding potential price movements. It also offers more actionable insights, such as the potential buying opportunity due to volume increase without a corresponding price rise. Additionally, the new template integrates social sentiment analysis more effectively, giving a well-rounded view of both bullish and cautious community perspectives. The structure and flow of the new template are superior, making it easier to follow and more engaging for readers. Overall, the new template provides a more comprehensive and insightful report.
+
+#### QUA - meta_llama_llama_3.1_70b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 6 | 9 |
+| Actionability | 5 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 6 | 9 |
+| Unique Insights | 5 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline with specific integration details and expected impact.
+- Old template lacks a detailed analysis of potential catalysts and actionable insights, offering more generic observations.
+- New template integrates social sentiment and community chatter effectively, enhancing data integration and providing unique insights.
+
+**Reasoning:** The new template wins because it offers a more comprehensive analysis of market catalysts by detailing specific integrations, expected impacts, and timelines. It also provides more actionable insights by linking these developments to potential price movements, which the old template lacks. Additionally, the new template effectively incorporates community sentiment and social chatter, offering unique insights into Quasacoin's ecosystem dynamics. While the old template is well-structured, its lack of depth in catalyst identification and actionability makes the new template a superior choice for investors looking for a detailed and forward-looking analysis.
+
+#### XDB - meta_llama_llama_3.1_70b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline, offering specific details about upcoming features and events.
+- Old template has a more straightforward risk assessment section, which is less detailed in the new template.
+- New template integrates social sentiment more effectively by including both bullish and bearish community perspectives.
+
+**Reasoning:** The new template wins because it offers a more comprehensive and detailed analysis of the market catalysts and integrates social sentiment effectively. It provides clearer insights into upcoming events and their potential impact on the market, making it more actionable for investors. The structure is also more organized, allowing for easier navigation and understanding of the data and insights provided.
+
+#### LSD - meta_llama_llama_3.1_70b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 8 |
+| Actionability | 6 | 7 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 8 |
+| Unique Insights | 5 | 7 |
+
+**Key Differences:**
+- New template provides a more specific analysis of market catalysts by suggesting potential external factors and linking them to the project's focus.
+- Old template includes a clear summary of sentiment and mindshare, but the new template offers more structured insights into community and social chatter.
+- New template presents the information in a more organized manner, making it easier to follow and understand the overall context.
+
+**Reasoning:** The new template wins because it offers a more structured and comprehensive analysis of potential market catalysts, despite the absence of specific news or unlock events. It integrates data more effectively, particularly in the context of community and social chatter, which adds depth to the analysis. While both templates lack clear actionable investment implications, the new template's structured flow and the inclusion of broader context provide a better overall understanding of the market dynamics surrounding LSDx Finance. The old template does well in risk assessment, but the new template's clarity and organization of information make it superior.
+
+#### SEI - microsoft_wizardlm_2_8x22b
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 9 | 8 |
+| Data Integration | 8 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it provides a more comprehensive view of market catalysts with clearer timelines, which aids in understanding the sequence of events impacting SEI's market performance. It also delivers more actionable insights by explicitly discussing potential future impacts and opportunities arising from current developments. Additionally, the integration of social sentiment and community chatter in the new template offers a nuanced perspective on market sentiment, enhancing its overall data integration. While the old template excels in structure and offers a better risk assessment, the new template's broader data synthesis and unique insights make it more valuable for investors seeking detailed analysis and guidance.
+
+#### SUI - google_gemini_2.5_flash_lite_preview_06_17
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 9 | 8 |
+| Data Integration | 8 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it provides a more comprehensive and clear analysis of market catalysts, making it easier for investors to identify potential price-moving events. It also offers better integration of social sentiment data, which is crucial for understanding community dynamics and potential future trends. While the old template excels in risk assessment, the new template's ability to synthesize data and provide unique insights gives it an edge in guiding investors with actionable information.
+
+#### LSD - microsoft_wizardlm_2_8x22b
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides a clearer and more detailed timeline of market catalysts and events.
+- Old template has a more concise risk assessment but lacks depth in connecting these risks to broader market trends.
+- New template effectively integrates social sentiment and community chatter, offering a comprehensive view of market perception.
+
+**Reasoning:** The new template wins because it provides a more comprehensive analysis of market catalysts and their potential impact on LSDx Finance. It offers clearer insights into the events that could be driving the price surge, including institutional interest and broader DeFi trends. Additionally, the new template excels in integrating social sentiment and community engagement, which are crucial for understanding the potential sustainability of the current market dynamics. The structure is well-organized, allowing for easy navigation and understanding of the report's findings. These factors make the new template more actionable and insightful for investors seeking to understand and capitalize on the current market situation.
+
+#### XDB - anthropic_claude_3_5_sonnet_20241022
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline with detailed upcoming events.
+- Old template has a more detailed risk assessment, particularly highlighting volatility risks.
+- New template integrates social sentiment and community signals more effectively, providing a balanced view of bullish and bearish signals.
+
+**Reasoning:** The new template wins because it offers a more comprehensive and actionable analysis. It provides a clear timeline of upcoming catalysts, such as the BBB #5 event, in a way that is easy to digest and directly linked to potential market movements. The new template's integration of social sentiment and community feedback adds depth to the analysis, allowing readers to better understand the broader market perception. Additionally, the structure and flow of the new template make it easier to follow, resulting in a more coherent and insightful report. Although the old template includes a detailed risk assessment, the overall synthesis and presentation of data in the new template are superior.
+
+#### REI - meta_llama_llama_3.1_70b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 6 | 9 |
+| Actionability | 5 | 8 |
+| Structure | 7 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 5 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- New template includes recent news/events relevant to the crypto market, offering context for price and volume changes.
+- New template integrates social sentiment more effectively, providing a more comprehensive view of market perception.
+
+**Reasoning:** The new template wins because it offers a more comprehensive and actionable analysis by clearly identifying market catalysts and external factors affecting the asset. It provides specific events and their expected impact on the market, which enhances its actionability. It also integrates social sentiment and community chatter effectively, offering insights into investor sentiment and potential market movements. The structure is less repetitive and more focused on synthesizing available data to create a clear narrative, making it easier for investors to follow and act on the information provided.
+
+#### BANANA - meta_llama_llama_3.2_90b_vision_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 5 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline with specific dated events.
+- New template integrates social sentiment more effectively by explicitly mentioning bullish and bearish chatter.
+- Old template provides a straightforward overview but lacks depth in event analysis and implications.
+
+**Reasoning:** The new template wins because it provides a more comprehensive and detailed analysis of market catalysts, with specific events and their potential impacts on price. It integrates social sentiment data to give a more nuanced picture of market perception, which is crucial for investors. Additionally, the structure of the new template is more logical and organized, making it easier for readers to follow and understand the implications of the data. While the old template offers a good overview, it lacks the depth and specificity that the new template provides, which can be more actionable for investors looking to make informed decisions.
+
+#### CHILLHOUSE - meta_llama_llama_3.1_70b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides a more comprehensive analysis of community and social chatter, offering insights into both bullish and bearish perspectives.
+- The new template's structure and flow are more streamlined, making it easier to follow and grasp key points quickly.
+- The new template better integrates sentiment and community engagement data, tying it to potential price movements and market interest.
+
+**Reasoning:** The new template wins because it offers a clearer and more structured analysis of market catalysts and community engagement, providing investors with actionable insights. It effectively synthesizes data, particularly around social sentiment and market interest, which is crucial for a meme-based asset like Chill House. The addition of community and social chatter provides a balanced view of both positive and negative aspects, enhancing the report's depth and relevance. Overall, the new template offers a more detailed and insightful analysis, making it more valuable for investors looking to make informed decisions.
+
+#### HYPE - google_gemma_2_9b_it
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 6 | 8 |
+| Actionability | 6 | 7 |
+| Structure | 7 | 8 |
+| Data Integration | 7 | 8 |
+| Unique Insights | 5 | 7 |
+
+**Key Differences:**
+- The new template provides a clearer breakdown of recent and upcoming unlock events, enhancing the understanding of market catalysts.
+- The new template includes a section on community and social chatter, adding depth to the analysis by considering social sentiment.
+- The old template lacks a distinct separation of sections, making it slightly less organized compared to the new template's structured flow.
+
+**Reasoning:** The new template wins because it offers a more comprehensive analysis by incorporating social sentiment and presenting the information in a more structured manner. It highlights the absence of price-moving events more effectively and provides a clearer understanding of the market dynamics. Additionally, the inclusion of community and social chatter offers a unique insight that the old template lacks, making the new report more actionable and data-integrated.
+
+#### DRV - microsoft_wizardlm_2_8x22b
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline and highlights the significance of the Synthetix acquisition proposal.
+- New template offers more actionable insights by discussing potential impacts on the DRV token's price and investor interest.
+- New template integrates social sentiment more effectively by including community and social chatter sections that highlight both bullish and bearish perspectives.
+
+**Reasoning:** The new template wins because it offers a more comprehensive analysis of market catalysts, particularly the Synthetix acquisition proposal, which is identified as a significant event that could affect the DRV token's future. It provides clearer actionability by discussing the implications of this acquisition and how it could influence investor behavior. Additionally, the new template effectively integrates social sentiment, providing a balanced view of community opinions, which adds depth to the analysis. Overall, the structure and flow of the new template make it easier to follow and more informative for investors.
+
+#### SUIAGENT - meta_llama_llama_3.2_90b_vision_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 9 | 8 |
+| Data Integration | 8 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it provides a more comprehensive analysis of market catalysts and integrates social sentiment effectively, which is crucial for understanding the current market dynamics. It clearly outlines the potential impact and expected timeline of key events such as the BitMart Exchange listing and ongoing campaign. Additionally, the new template offers a more structured approach to discussing community sentiment, enhancing the report's actionability by giving investors more specific insights into market perceptions. While the old template excels in structure and risk assessment, the new template's better data integration and provision of unique insights make it more valuable for investors looking for actionable intelligence.
+
+#### XDB - meta_llama_llama_4_maverick_17b_128e_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 9 | 8 |
+| Data Integration | 8 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it provides a clearer focus on market catalysts with a timeline that enhances the reader's understanding of upcoming events and their expected impact. Additionally, it integrates social sentiment effectively, giving a more comprehensive view of community perspectives, which can be crucial in crypto markets. While the old template has a stronger section on risk assessment, the new template's overall synthesis of data and actionable insights make it more valuable for investors looking to make informed decisions.
+
+#### HYPE - meta_llama_llama_3.2_90b_vision_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 6 | 7 |
+| Actionability | 5 | 6 |
+| Structure | 7 | 8 |
+| Data Integration | 6 | 7 |
+| Unique Insights | 5 | 6 |
+
+**Key Differences:**
+- The new template highlights the lack of data as a notable signal, suggesting a different approach to market analysis.
+- The new template provides a more concise structure, making it easier to follow and understand the absence of market activity.
+- The new template includes a section on community and social chatter, adding a layer of analysis not present in the old template.
+
+**Reasoning:** The new template wins because it provides a clearer and more structured analysis despite the lack of data. It emphasizes the absence of data as an important factor itself and integrates social sentiment, which offers an additional dimension to the analysis. Although both templates struggle with actionability due to the limited data, the new template is better organized and offers a slightly more nuanced perspective.
+
+#### USELESS - anthropic_claude_3_5_sonnet_20241022
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- New template integrates social sentiment more effectively
+- Old template has a more detailed risk assessment section
+
+**Reasoning:** The new template wins because it offers a more comprehensive analysis of market catalysts and their implications on price movement. It effectively highlights significant events, such as whale accumulation, and provides clear investment implications by detailing both bullish and bearish signals. The integration of social sentiment analysis in the new template offers a richer perspective on the potential maturity of the memecoin's hype cycle. Although the old template provides a more detailed risk assessment, it lacks the same level of clarity and structure regarding actionable investment insights. Overall, the new template is more informative and actionable for investors looking to understand the market dynamics of USELESS.
+
+#### HYPE - deepseek_deepseek_chat
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 8 |
+| Actionability | 6 | 7 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 8 |
+| Unique Insights | 5 | 7 |
+
+**Key Differences:**
+- New template offers a concise summary of market inactivity, enhancing clarity.
+- Old template provides a more detailed risk assessment but lacks actionable insights.
+- New template integrates community and social chatter, offering a broader perspective on market sentiment.
+
+**Reasoning:** The new template wins because it provides a clearer and more organized structure that enhances readability and understanding. It effectively integrates social sentiment analysis, which is crucial for a comprehensive view of crypto markets. While both templates identify the lack of market catalysts, the new template offers slightly better insights into potential investor actions by emphasizing monitoring for sudden shifts in volume or sentiment. This makes the new report more actionable and relevant for proactive investors.
+
+#### ECO - meta_llama_llama_3.1_70b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline, offering expected timelines for impact.
+- Old template has a more straightforward risk assessment, focusing on potential selling pressure.
+- New template integrates social sentiment more effectively, offering both bullish and bearish perspectives.
+
+**Reasoning:** The new template wins because it provides a more detailed and actionable analysis of the market catalysts, specifically by outlining expected timelines for impacts, which enhances its actionability. Additionally, the integration of social sentiment offers a well-rounded view of market perspectives, which can help investors make more informed decisions. The structure of the new template is also superior, offering a clear and logical flow of information that makes it easier to follow and understand. Overall, the new template synthesizes the available data more effectively and provides unique insights that are not as pronounced in the old template.
+
+#### RENEW - openai_gpt_4o
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 6 | 8 |
+| Actionability | 6 | 7 |
+| Structure | 7 | 8 |
+| Data Integration | 7 | 8 |
+| Unique Insights | 5 | 7 |
+
+**Key Differences:**
+- The new template provides a more thorough analysis of social sentiment and its potential impact on future market activity.
+- The new template offers a clearer structure, particularly in distinguishing between bullish and bearish signals, which aids in understanding the overall market sentiment.
+- The old template lacks detailed examination of strategic partnerships and community-driven factors, which are more explicitly covered in the new template.
+
+**Reasoning:** The new template wins because it offers a more comprehensive analysis of the social and community factors that could influence ReNeW's market performance. It effectively integrates data into a coherent narrative that highlights both current sentiment and potential future catalysts. While both reports acknowledge the lack of current market activity, the new template's inclusion of community sentiment and social signals provides a more nuanced perspective on potential future developments. Additionally, the structure of the new report is clearer, making it easier for readers to digest and act upon the information presented. Overall, the new template provides a more actionable and forward-looking analysis.
+
+#### REI - deepseek_deepseek_chat
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline, outlining both short-term and long-term impacts more explicitly.
+- Old template has a more concise risk assessment section, focusing on potential investor behavior.
+- New template integrates social sentiment data more effectively, linking it to potential trading activity and market sentiment.
+
+**Reasoning:** The new template wins because it offers a more comprehensive analysis of market catalysts by clearly delineating between short-term and long-term drivers. It provides specific investment implications by identifying potential short-term selling pressures and long-term growth opportunities, making the analysis more actionable for investors. Additionally, the new template effectively integrates various data points, including social sentiment, and presents a well-rounded view of the asset's potential future movements. While both templates are well-structured, the new template offers more unique insights, making it a superior tool for financial analysis.
+
+#### AERO - microsoft_wizardlm_2_8x22b
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 7 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides a clearer market catalyst timeline.
+- Old template has a more detailed risk assessment section.
+- New template integrates social sentiment and community engagement more effectively.
+
+**Reasoning:** The new template wins because it provides a more comprehensive analysis of market catalysts, offering a timeline of events that are likely to impact the asset's price. It also includes a detailed examination of social sentiments and community engagement, which are crucial in the context of cryptocurrencies. Additionally, the new template synthesizes the available data more effectively, providing actionable insights that are directly linked to recent developments and potential future outcomes. While the old template offers a more robust risk assessment, the new template’s overall approach to integrating data and providing unique insights makes it a more valuable resource for investors.
+
+#### USELESS - qwen_qwen_2.5_72b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has a more detailed risk assessment section
+- New template integrates social sentiment and mentions more effectively
+
+**Reasoning:** The new template wins because it provides a more structured and clear analysis of market catalysts, with a focus on specific events and their potential impacts. It integrates data more comprehensively, especially regarding social sentiment and mentions, which are crucial for understanding the dynamics of a memecoin like USELESS. The actionability is higher in the new template due to its clear implications for investors. While the old template provides a good risk assessment, the new template offers unique insights, making it more useful for investors looking to understand the current market dynamics and make informed decisions.
+
+#### BUNKER - deepseek_deepseek_chat
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline and their potential impacts, enhancing actionable insights.
+- Old template includes a more detailed risk assessment section, particularly focusing on liquidity risks.
+- New template integrates social sentiment more effectively, highlighting both bullish and bearish perspectives.
+
+**Reasoning:** The new template wins because it offers a more comprehensive view of the market catalysts with a clear timeline and potential impact, making it easier for investors to understand the implications. It also effectively incorporates social sentiment analysis, providing a balanced view of community engagement. The structure is concise yet thorough, making it easier to follow and act upon. While the old template does well in assessing risks, it lacks the same level of integration and clarity in presenting the catalysts and social dynamics impacting BunkerCoin.
+
+#### USELESS - google_gemini_2.5_flash_lite_preview_06_17
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 5 | 8 |
+
+**Key Differences:**
+- New template provides a clearer market catalyst timeline and impact analysis for each event.
+- Old template is more conservative in its risk assessment and explicitly mentions the need for caution.
+- New template effectively integrates social sentiment analysis, providing a balanced view of bullish and bearish factors.
+
+**Reasoning:** The new template wins because it offers a more comprehensive and actionable analysis of market catalysts and their potential impact. It provides a clearer timeline of events and their significance, making it easier for investors to understand the driving forces behind Useless Coin's recent movements. Additionally, the new template effectively synthesizes data on social sentiment, offering a nuanced view of both positive and negative factors affecting the asset. This balanced approach, combined with a well-structured and organized flow, makes the new template more useful for investors looking for specific insights and potential action points.
+
+#### LSD - meta_llama_llama_4_maverick_17b_128e_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template lacks specific investment implications, reducing actionability
+- New template effectively integrates the lack of social sentiment with market movements
+
+**Reasoning:** The new template wins because it provides a clearer focus on market catalysts and timelines, which are crucial for understanding the potential drivers behind price movements. It also offers more actionable insights by explicitly connecting external events to LSDx Finance's market behavior, suggesting more specific investment implications. Additionally, the new template integrates data more effectively by highlighting the disconnect between social sentiment and market action, providing a more nuanced analysis. The structure of the new template is slightly less polished, but it compensates with higher data integration and unique insights.
+
+#### MEOW - anthropic_claude_3_5_sonnet_20241022
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it offers a clearer identification of market catalysts by directly linking them to community and social chatter, providing a more actionable framework for investors. The integration of social sentiment and planned events (like airdrops and swaps) in the new template adds depth and context to the analysis, making it more insightful. Additionally, the new template's structure enhances readability and flow, making the information more accessible and actionable for investors. In contrast, the old template, while providing a solid risk assessment, lacks the same level of detail in terms of catalysts and actionable insights.
+
+#### REI - anthropic_claude_3_5_sonnet_20241022
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline by specifying dates and potential impacts.
+- Old template lacks specific actionability, focusing more on general analysis rather than specific investment implications.
+- New template integrates social sentiment and community engagement more effectively, providing a concise bullish and bearish sentiment analysis.
+
+**Reasoning:** The new template wins because it offers a more structured and clear presentation of market catalysts, which are crucial for understanding potential price movements. It provides a timeline of events that can impact the price, such as the Binance Traders League inclusion, and explains their potential effects, making it more actionable for investors. Additionally, the new template effectively integrates social sentiment data, offering both bullish and bearish perspectives, which provides a more nuanced view of the market dynamics. Overall, it synthesizes data more effectively, leading to unique insights that are valuable for decision-making.
+
+#### BANANA - meta_llama_llama_4_maverick_17b_128e_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 5 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it provides a more focused analysis on market catalysts and their potential impact on price, with a timeline for expected effects. This enhances the actionability of the report for investors looking to make informed decisions. Additionally, the new template effectively integrates social sentiment, providing a more comprehensive view of community and market dynamics. While the old template offers a decent structure and organization, it lacks the depth in catalyst analysis and integration of social insights found in the new template. Therefore, the new template is more effective in synthesizing available data into unique insights that can guide investment strategies.
+
+#### BUNKER - google_gemma_2_9b_it
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- New template offers more actionable insights regarding the price stability and lack of unlock events
+- New template integrates social sentiment more effectively, linking geopolitical events to market interest
+
+**Reasoning:** The new template wins because it provides a more comprehensive and actionable analysis. It offers clearer insights into potential market catalysts and their impacts, such as the 'Builder Bunker' program and geopolitical events, with specific impact assessments. The structure is more coherent, making it easier to follow and draw actionable conclusions. Additionally, it synthesizes data more effectively, linking social sentiment and market activity with future implications, thus providing unique insights that are absent in the old template.
+
+#### SEI - meta_llama_llama_4_maverick_17b_128e_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 8 | 9 |
+| Actionability | 7 | 8 |
+| Structure | 9 | 8 |
+| Data Integration | 8 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it offers a more comprehensive analysis of market catalysts with a clearer timeline of events, which can better inform investment decisions. It also effectively integrates social sentiment, adding another layer of insight into the market dynamics. While the old template offers good structure and risk assessment, the new template's actionability and data integration make it more valuable for an investor seeking specific and timely insights.
+
+#### MEOW - openai_gpt_4o
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides a more structured and clear breakdown of potential market catalysts and their implications.
+- Old template has a more cautious tone but lacks specific actionable insights compared to the new template.
+- New template integrates social sentiment and community-driven signals more effectively, providing a broader context for analysis.
+
+**Reasoning:** The new template wins because it provides a more comprehensive and integrated analysis of MEOW's market dynamics. It effectively highlights potential market catalysts, including community-driven factors such as anticipated airdrops and swap opportunities, and discusses both bullish and bearish signals from the community. Furthermore, it presents the information in a well-organized manner, making it easier for the reader to extract actionable insights. The old template, while providing a cautious analysis, does not delve as deeply into potential catalysts or community sentiment, making it less actionable and insightful.
+
+#### SUI - google_gemma_2_9b_it
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- Old template has a better risk assessment section
+- New template integrates social sentiment more effectively
+
+**Reasoning:** The new template wins because it more effectively identifies potential market catalysts and clearly outlines the implications of upcoming unlock events, providing investors with actionable insights. The integration of social sentiment adds depth to the analysis, offering a more comprehensive view of market dynamics. Additionally, while both reports are well-structured, the new template's emphasis on synthesizing recent news and events into a coherent narrative makes it easier for readers to understand the potential impacts on Sui's market performance.
+
+#### QUA - meta_llama_llama_3.2_90b_vision_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides a clearer market catalyst timeline by including relevant events and their potential broader market impacts.
+- Old template lacks specific insights into potential market movements and offers more generic analysis, reducing actionability.
+- New template integrates social sentiment more effectively by detailing community chatter and distinguishing between bullish and bearish sentiments.
+
+**Reasoning:** The new template wins because it provides a more comprehensive and actionable analysis by integrating broader market events and social sentiment, which enhances the understanding of potential market catalysts and implications. It is well-structured, allowing for easier navigation and comprehension of the analysis. The old template provides a stable market overview but lacks depth in identifying specific catalysts and actionable insights.
+
+#### BANANA - meta_llama_llama_3.1_70b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 7 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- New template integrates social sentiment more effectively
+- New template includes a more detailed community sentiment analysis
+
+**Reasoning:** The new template wins because it provides a clearer focus on market catalysts by explicitly stating the expected timeline for impacts, which is crucial for investors seeking short-term opportunities. It also integrates social sentiment more effectively by categorizing community chatter into bullish and bearish points, offering a more nuanced understanding of potential investor behavior. Moreover, the new template's structure, with distinct sections for events, community, and unlocks, ensures a comprehensive and organized presentation of information, making it easier for investors to digest and act upon. Overall, the new template offers a more actionable and insightful analysis.
+
+#### SUI - meta_llama_llama_3.1_70b_instruct
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 9 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides clearer market catalyst timeline
+- New template integrates social sentiment more effectively
+- Old template has a more concise and clear risk assessment section
+
+**Reasoning:** The new template wins because it provides a more comprehensive and detailed analysis of market catalysts, which are crucial for understanding potential price movements. It offers clear and actionable insights by highlighting specific events and community sentiment that could influence Sui's market dynamics. Additionally, the integration of social sentiment provides a broader view of the market perception, which is essential for investors looking to gauge overall sentiment beyond just price and volume data. While the old template offers a more straightforward risk assessment, the new template's in-depth analysis and integration of various data points make it more valuable to investors seeking a nuanced understanding of the asset.
+
+#### QUA - openai_gpt_4o
+**Winner:** NEW (Confidence: High)
+
+**Scores:**
+| Criteria | Old | New |
+|----------|-----|-----|
+| Market Catalyst | 7 | 9 |
+| Actionability | 6 | 8 |
+| Structure | 8 | 8 |
+| Data Integration | 7 | 9 |
+| Unique Insights | 6 | 8 |
+
+**Key Differences:**
+- New template provides a clearer market catalyst timeline with specific bullish and bearish signals.
+- Old template lacks detailed actionable insights regarding investment implications.
+- New template integrates social sentiment and community engagement more effectively by highlighting integration impacts.
+
+**Reasoning:** The new template wins because it provides a more comprehensive analysis of market catalysts, focusing on both bullish and bearish signals. This approach offers clearer insights into potential price-moving events. Additionally, the new template offers more actionable insights by discussing specific integration impacts and potential risks. It also effectively integrates data on social sentiment and community engagement, which is crucial for understanding market dynamics in the crypto space. These elements contribute to a more robust and insightful report, making it more useful for investors looking for specific guidance.
+
+## 📊 Quality Rankings
+
+### Top 10 Highest Quality Reports:
+
+| Rank | Asset | Template | Model | Score | Strengths |
+|------|-------|----------|-------|-------|----------|
+| 1 | SUI | new | microsoft_wizardlm_2_8x22b | 9.0 | Excellent data integration, Clear writing style |
+| 2 | AERO | old | qwen_qwen_2.5_72b_instruct | 8.0 | Excellent data integration, Clear writing style |
+| 3 | XDB | new | microsoft_wizardlm_2_8x22b | 8.0 | Excellent data integration, Clear writing style |
+| 4 | SUI | new | openai_gpt_4o | 8.0 | Clear writing style, Effective use of recent data and events |
+| 5 | SUI | new | google_gemini_2.5_flash_lite_preview_06_17 | 8.0 | Excellent data integration, Clear writing style |
+| 6 | USELESS | new | qwen_qwen_2.5_72b_instruct | 7.6 | Excellent data integration, Clear writing style |
+| 7 | AERO | old | deepseek_deepseek_chat | 7.0 | Clear and professional writing style, Effective use of provided data |
+| 8 | AERO | old | microsoft_wizardlm_2_8x22b | 7.0 | Clear and professional writing style, Comprehensive use of provided data |
+| 9 | CHILLHOUSE | new | google_gemini_2.5_flash_lite_preview_06_17 | 7.0 | Clear writing style, Effective use of provided data |
+| 10 | BANANA | new | meta_llama_llama_4_maverick_17b_128e_instruct | 6.5 | Clear writing style, Organized structure presenting recent developments |
+
+### Template Performance Analysis:
+
+- **Old Template Average Score:** 2.00 (169 reports)
+- **New Template Average Score:** 2.16 (170 reports)
+- **Improvement:** +0.15 points
+
+### Model Performance Analysis:
+
+| Rank | Model | Avg Score | Reports |
+|------|-------|-----------|----------|
+| 1 | qwen_qwen_2.5_72b_instruct | 2.73 | 33 |
+| 2 | google_gemini_2.5_flash_lite_preview_06_17 | 2.70 | 34 |
+| 3 | microsoft_wizardlm_2_8x22b | 2.41 | 34 |
+| 4 | meta_llama_llama_4_maverick_17b_128e_instruct | 2.35 | 34 |
+| 5 | deepseek_deepseek_chat | 2.31 | 34 |
+| 6 | meta_llama_llama_3.1_70b_instruct | 1.97 | 34 |
+| 7 | openai_gpt_4o | 1.83 | 34 |
+| 8 | meta_llama_llama_3.2_90b_vision_instruct | 1.80 | 34 |
+| 9 | anthropic_claude_3_5_sonnet_20241022 | 1.57 | 34 |
+| 10 | google_gemma_2_9b_it | 1.13 | 34 |

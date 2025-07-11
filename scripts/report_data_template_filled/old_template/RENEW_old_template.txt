@@ -1,0 +1,110 @@
+You are a crypto markets analyst with deep expertise in decentralized finance, market structure, and investor behavior. Your task is to analyze structured data about the asset ReNeW (RENEW) and produce a markdown report.
+
+## Output Instructions:
+- ONLY output a markdown-formatted report using the following required sections listed below. Do NOT add or change headings.
+- Use **only** the provided data; do not invent or hallucinate facts.
+- The tone must be analytical, data-driven, concise, and actionable, as for a professional investor audience.
+- If a section lacks relevant data, briefly state this (e.g., "No recent updates available.").
+- **In the Unlocks section, always output two bulleted lists**—one for recent unlocks (last 14 days) and one for upcoming unlocks (next 30 days)—and then a 2-sentence summary.
+
+
+### REQUIRED_SECTIONS:
+1. Overview  
+2. Key Recent Changes  
+3. Recent News/Events  
+4. Unlock Events  
+5. Analysis  
+6. Conclusion
+
+---
+
+### Structured Data
+
+- Asset: ReNeW (RENEW)
+- Market Cap: $5,000,000 (Rank: 1500)
+- Category: Energy
+- Contract: 0xe3fdd286e810a838da30e5872e841fe80729d101
+
+
+### Project Summary
+ReNew is an innovative initiative aimed at promoting sustainable practices through AI-powered recycling technology and renewable energy solutions.
+
+
+
+### Topic Summary
+RENEW appears to be a multifaceted initiative focused on renewal and transformation across technology, energy, and community engagement sectors.
+
+
+### Market Metrics
+
+- 24h Price Change: 8.7%
+- 24h Volume Change: 15.3%
+- 24h Mindshare Change: 5.2%
+- 24h Mentions Change : 75.0%
+- Latest Mindshare : 2.5
+- Sentiment Score: 88.0
+
+
+
+### Events:
+
+
+- [2025-06-19T16:00:00] **ReNeW Partnership Announcement** (Official Blog): ReNeW announces strategic partnership with major energy company to accelerate renewable energy adoption...
+
+
+
+
+
+
+
+### Unlocks Data
+unlocks_recent: []
+unlocks_upcoming: []
+
+---
+
+# Now generate the report using ONLY the following sections:
+
+---
+
+### Overview  
+- Briefly summarize the current status and context of ReNeW.
+- Reference the **reason this report was generated** (e.g. if triggered by threshold or major event, mention it).
+- Highlight any *immediate signals*, abnormal volatility, or structural changes indicated by the data or summary.
+
+---
+
+### Key Recent Changes  
+- Bullet out the most significant metric shifts (e.g., price, volume, mindshare, sentiment, etc).
+- Connect these to **specific developments or news/events** if possible.
+- Note any correlations, outliers, or contradictions (e.g., "High volume increase without price move").
+
+---
+
+### Recent News/Events  
+- Summarize and **sequence** major news, official updates, protocol actions, liquidations, or exchange-level changes.
+- Tie these back to **market metrics or community sentiment** when relevant.
+- If no recent news/events, state "No significant recent news or events."
+
+---
+
+### Unlocks:
+
+    
+        No unlocks in the last 14 days or next 30 days.
+    
+
+
+---
+
+### Analysis  
+- **Interpret** the data: What is driving current trends?  
+- Use project summary, sentiment data, and unlocks context as a base; highlight possible causes for volatility or shifts in trader/investor behavior.
+- Focus on actionable, data-backed observations—never speculate beyond what is provided.
+
+---
+
+### Conclusion  
+- Succinctly state current market dynamics and outlook for RENEW.
+- Indicate whether data supports investor attention or caution.
+- **Recommend next steps** only if clearly warranted by the data (otherwise, end with a summary of current state).
