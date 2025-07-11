@@ -90,8 +90,16 @@ upcoming = {{ unlocks_upcoming | default([]) }}
 ---
 
 ### Key Recent Changes  
-- Bullet the most significant metric shifts (price, volume, mindshare, sentiment,
-  etc.).  
+- Bullet each metric shift as follows: 
+  - 24 h Price Change: {{ key_metrics.price_change_24h }} %  
+  - 24 h Volume Change: {{ key_metrics.volume_change_24h }} %
+  - 1 w  Volume Change: {{ key_metrics.volume_change_7d}} %
+  - 24 h Mindshare Change: {{ key_metrics.mindshare_24h }}%
+  - 1 w  Mindshare Change: {{ key_metrics.mindshare_7d }}  
+  - 24 h Mentions Change: {{ social_summary.mention_change_24h }} %  
+  - Latest Mindshare: {{ key_metrics.mindshare }}  
+  - Sentiment Score: {{ social_summary.sentiment_score }}
+  - 1 w Sentiment Score Change: {{ social_summary.sentiment_change_7d }} %
 - Connect these moves to specific developments from **Recent News/Events** wherever
   possible.  
 - Flag any anomalies (e.g., "Volume ↑ without corresponding price move").

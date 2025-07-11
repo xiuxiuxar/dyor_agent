@@ -24,7 +24,7 @@ protocols:
 - open_aea/signing:1.0.0:bafybeig2d36zxy65vd7fwhs7scotuktydcarm74aprmrb5nioiymr3yixm
 skills:
 - eightballer/prometheus:0.1.0:bafybeicl5i7e467aowfarke4bbyixo2dggar276njmvyuwbsby5pxshhtu
-- xiuxiuxar/dyor_app:0.1.0:bafybeiajttmvv5ku67xcwluyg7qfgosw2tf3zzfl6wuhxky53oo6dtxwxq
+- xiuxiuxar/dyor_app:0.1.0:bafybeigrg2ok7yyfikow5w7mvb2uqetzghsonauad3yarzyqolervbqtpi
 customs:
 - xiuxiuxar/dyor_api:0.1.0:bafybeiay73dmlb7sj7dv4hkm57ijga4u454da3364jyzfvjjdcb2x2cilm
 default_ledger: ethereum
